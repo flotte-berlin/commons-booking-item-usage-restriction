@@ -52,7 +52,12 @@ class CB_Item_Usage_Restriction {
       if($order == 'asc' || $order == 'desc') {
         usort($item_restrictions, function ($item1, $item2) use ($order) {
             if ($item1['date_start_valid'] == $item2['date_start_valid']) return 0;
-            return $item1['date_start_valid'] > $item2['date_start_valid'] ? $order == 'asc' ? -1 : 1 : $order == 'desc' ? 1 : -1;
+            if($item1['date_start_valid'] > $item2['date_start_valid']) {
+              return $order == 'asc' ? 1 : -1;
+            }
+            else {
+              return $order == 'asc' ? -1 : 1;
+            }
         });
       }
 

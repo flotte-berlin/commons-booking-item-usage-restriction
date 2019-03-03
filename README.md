@@ -13,7 +13,7 @@
 **Commons Booking Item Usage Restriction** is a Wordpress plugin which extends the [Commons Booking](https://github.com/wielebenwir/commons-booking) plugin by the option to create usage restrictions for items. This can be a total breakdown (item can't be used at all) or a limitation (item is damaged, but can be used nevertheless). When a usage restriction is created all users that have a booking for the item in the given period, which isn't over at time of creation, will be informed. A list of email adresses can be committed to send additional messages.  
 When the restriction type is set to 'total breakdown' a booking for a user which was  defined in the settings before will be created to block further bookings of other users.  
 For every restriction you have to provide a hint which can be inserted in the mentioned email (by template tag) and also appears in the item description (cb-items page) as long as the restriction period lies in the booking horizon.
-For all items a detailed history of usage restrictions can be requested. The restrictions can be deleted, whereby users for which the deletion is of interest will be informed.
+For all items a detailed history of usage restrictions can be requested. The existing restrictions can be deleted, whereby users for which the deletion is of interest will be informed.
 
 ### TODO
 

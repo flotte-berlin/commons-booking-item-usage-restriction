@@ -3,7 +3,7 @@
 class CB_Item_Usage_Restriction_Settings {
 
   /**
-  * loads post booking admin functionality
+  * prepare settings
   */
   public function prepare_settings() {
 
@@ -30,7 +30,7 @@ class CB_Item_Usage_Restriction_Settings {
   }
 
   public function add_settings_link( $links ) {
-    $settings_link = '<a href="options-general.php?page=commons-booking-item-usage-restriction">' . __( 'Settings') . '</a>';
+    $settings_link = '<a href="options-general.php?page=commons-booking-item-usage-restriction">' . __('Settings') . '</a>';
     array_unshift( $links, $settings_link );
     return $links;
   }
