@@ -24,7 +24,7 @@
     </select>
 
     <!-- total breakdown email -->
-    <h2><?= item_usage_restriction\__('RESTRICTION_TOTAL_BREAKDOWN_EMAIL_HEADER', 'commons-booking-item-usage-restriction', 'Total Breakdown Email') ?></h2>
+    <h2><?= item_usage_restriction\__('RESTRICTION_TOTAL_BREAKDOWN_EMAIL_HEADER', 'commons-booking-item-usage-restriction', 'Email - Total Breakdown') ?></h2>
 
     <p>
       <?= item_usage_restriction\__('RESTRICTION_TOTAL_BREAKDOWN_EMAIL_DESCRIPTION', 'commons-booking-item-usage-restriction', 'This email is sent to inform users with bookings about a total breakdown of an item.') ?>
@@ -43,7 +43,7 @@
     </table>
 
     <!-- limited usage email -->
-    <h2><?= item_usage_restriction\__('RESTRICTION_LIMITED_USAGE_EMAIL_HEADER', 'commons-booking-item-usage-restriction', 'Limited Usage Email') ?></h2>
+    <h2><?= item_usage_restriction\__('RESTRICTION_LIMITED_USAGE_EMAIL_HEADER', 'commons-booking-item-usage-restriction', 'Email - Limited Usage') ?></h2>
 
     <p>
       <?= item_usage_restriction\__('RESTRICTION_LIMITED_USAGE_EMAIL_DESCRIPTION', 'commons-booking-item-usage-restriction', 'This email is sent to inform users with bookings about the fact that an item is only usable to a limited extend.') ?>
@@ -61,8 +61,27 @@
       </tr>
     </table>
 
+    <!-- restriction edited email -->
+    <h2><?= item_usage_restriction\__('RESTRICTION_EDITED_EMAIL_HEADER', 'commons-booking-item-usage-restriction', 'Email - Restriction Edited') ?></h2>
+
+    <p>
+      <?= item_usage_restriction\__('RESTRICTION_EDITED_EMAIL_DESCRIPTION', 'commons-booking-item-usage-restriction', 'This email is sent to inform affected users when a restriction was edited.') ?>
+    </p>
+
+    <table>
+
+      <tr>
+          <th><?= item_usage_restriction\__('EMAIL_SUBJECT', 'commons-booking-item-usage-restriction', 'email subject') ?></th>
+          <td><input type="text" placeholder="<?= item_usage_restriction\__('RESTRICTION_EDITED_EMAIL_SUBJECT_PLACEHOLDER', 'commons-booking-item-usage-restriction', 'restriction of item {{ITEM_NAME}} updated') ?>" name="cb_item_restriction_edit_email_subject" value="<?php echo esc_attr( get_option('cb_item_restriction_edit_email_subject') ); ?>" size="50" /></td>
+      </tr>
+      <tr>
+          <th><?= item_usage_restriction\__('EMAIL_CONTENT', 'commons-booking-item-usage-restriction', 'email content') ?></th>
+          <td><textarea placeholder="<?= item_usage_restriction\__('RESTRICTION_EDITED_EMAIL_CONTENT_PLACEHOLDER', 'commons-booking-item-usage-restriction', 'Dear {{FIRST_NAME}}, the restriction was updated ...') ?>" name="cb_item_restriction_edit_email_body" rows="10" cols="53"><?php echo esc_attr( get_option('cb_item_restriction_edit_email_body') ); ?></textarea></td>
+      </tr>
+    </table>
+
     <!-- restriction deleted email -->
-    <h2><?= item_usage_restriction\__('RESTRICTION_DELETED_EMAIL_HEADER', 'commons-booking-item-usage-restriction', 'Restriction Deleted Email') ?></h2>
+    <h2><?= item_usage_restriction\__('RESTRICTION_DELETED_EMAIL_HEADER', 'commons-booking-item-usage-restriction', 'Email - Restriction Deleted') ?></h2>
 
     <p>
       <?= item_usage_restriction\__('RESTRICTION_DELETED_EMAIL_DESCRIPTION', 'commons-booking-item-usage-restriction', 'This email is sent to inform users with bookings when a restriction was deleted.') ?>
@@ -80,6 +99,7 @@
       </tr>
     </table>
 
+    <!-- other options -->
     <h2><?= item_usage_restriction\__('OTHER_OPTIONS', 'commons-booking-item-usage-restriction', 'Other Options') ?></h2>
 
     <table>

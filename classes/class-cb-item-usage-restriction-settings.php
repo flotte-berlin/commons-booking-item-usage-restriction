@@ -21,6 +21,8 @@ class CB_Item_Usage_Restriction_Settings {
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_type_1_email_body' );
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_type_2_email_subject' );
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_type_2_email_body' );
+      register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_edit_email_subject' );
+      register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_edit_email_body' );
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_delete_email_subject' );
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_delete_email_body' );
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_consider_responsible_users' );

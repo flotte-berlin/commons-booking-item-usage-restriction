@@ -69,6 +69,25 @@ class CB_Item_Usage_Restriction {
     return $item_restrictions;
   }
 
+  static public function update_item_restriction($item_id, $updated_item_restriction) {
+    $item_restrictions = self::get_item_restrictions($item_id);
+
+    $update_at_index = -1;
+    foreach ($item_restrictions as $index =>$item_restriction) {
+      if($item_restriction['created_at'] == $updated_item_restriction['created_at'] && $item_restriction['created_by_user_id'] == $updated_item_restriction['created_by_user_id']) {
+        $update_at_index = $index;
+
+        break;
+      }
+    }
+
+    if($update_at_index > -1) {
+      $item_restrictions[$update_at_index] = $updated_item_restriction;
+    }
+
+    self::save_restrictions($item_id, $item_restrictions);
+  }
+
   static public function remove_item_restriction($item_id, $item_restrictions, $index) {
 
     array_splice($item_restrictions, $index, 1);
@@ -79,7 +98,7 @@ class CB_Item_Usage_Restriction {
   /**
   * add restriction hint to content of Commons Booking items, if there is a current one or in the near future
   **/
-  public function render_current_restrictions($content) {
+  static public function render_current_restrictions($content) {
     $post = $GLOBALS['post'];
 
     //for cb items add restrictions to content
@@ -116,6 +135,31 @@ class CB_Item_Usage_Restriction {
     // otherwise returns the database content
     return $content;
   }
+
+  static public function adjust_date_end($item_restriction, $new_date_end, $update_hint) {
+
+    if(!isset($item_restriction['updates'])) {
+      $item_restriction['updates'] = array();
+    }
+
+    $current_user = wp_get_current_user();
+
+    $item_restriction['updates'][] = array(
+      'old_date_end' => $item_restriction['date_end'],
+      'new_date_end' => $new_date_end,
+      'update_hint' => $update_hint,
+      'created_by_user_id' => $current_user->ID,
+      'created_at' => new DateTime()
+    );
+
+    $item_restriction['date_end'] = $new_date_end;
+    $date_end_valid = DateTime::createFromFormat('Y-m-d', $new_date_end);
+    $item_restriction['date_end_valid'] = $date_end_valid;
+
+    return $item_restriction;
+
+  }
+
 }
 
 ?>
