@@ -262,7 +262,7 @@
         $('.' + button_class).click(function(e) {
           e.preventDefault();
 
-          var data = $(e.target).data();
+          var data = $(this).data();
           var $dialog = $('#' + dialog_wrapper_id);
           $dialog.data(data);
 
