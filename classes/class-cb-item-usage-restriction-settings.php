@@ -8,8 +8,7 @@ class CB_Item_Usage_Restriction_Settings {
   public function prepare_settings() {
 
     //load translation
-    $lang_path = 'commons-booking-item-usage-restriction/languages/';
-    load_plugin_textdomain( 'commons-booking-item-usage-restriction', false, $lang_path );
+    load_plugin_textdomain( 'commons-booking-item-usage-restriction', false, CB_ITEM_USAGE_RESTRICTION_LANG_PATH );
 
     add_action('admin_menu', function() {
         add_options_page( item_usage_restriction\__('SETTINGS_TITLE', 'commons-booking-item-usage-restriction', 'Settings for item usage restriction'), item_usage_restriction\__('SETTINGS_MENU', 'commons-booking-item-usage-restriction', 'Item Usage Restriction' ), 'manage_options', 'commons-booking-item-usage-restriction', array($this, 'render_options_page') );

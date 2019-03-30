@@ -12,10 +12,11 @@ License URI:  https://www.gnu.org/licenses/gpl-2.0.html
 */
 
 define( 'CB_ITEM_USAGE_RESTRICTION_PATH', plugin_dir_path( __FILE__ ) );
+define( 'CB_ITEM_USAGE_RESTRICTION_LANG_PATH', dirname( plugin_basename( __FILE__ )) . '/languages/' );
 
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'functions/translate.php' );
 
-load_plugin_textdomain( 'commons-booking-item-usage-restriction', false, CB_ITEM_USAGE_RESTRICTION_PATH . '/languages/' );
+load_plugin_textdomain( 'commons-booking-item-usage-restriction', false, CB_ITEM_USAGE_RESTRICTION_LANG_PATH );
 
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-item-usage-restriction.php' );
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-item-usage-restriction-settings.php' );

@@ -107,7 +107,7 @@
         <th><?= item_usage_restriction\__('SHOW_ALWAYS_IN_ARTICLE_DESCRIPTION', 'commons-booking-item-usage-restriction', 'Show Always') ?></th>
         <td>
             <label>
-                <input type="checkbox" name="cb_item_restriction_appears_always_in_article_description" <?php echo esc_attr( get_option('cb_item_restriction_appears_always_in_article_description') ) == 'on' ? 'checked="checked"' : ''; ?> /><?= __('SHOW_EVEN_IF_NO_RESTRICTION', 'commons-booking-item-usage-restriction', 'Yes, even if no restriction to show.') ?>
+                <input type="checkbox" name="cb_item_restriction_appears_always_in_article_description" <?php echo esc_attr( get_option('cb_item_restriction_appears_always_in_article_description') ) == 'on' ? 'checked="checked"' : ''; ?> /><?= item_usage_restriction\__('SHOW_EVEN_IF_NO_RESTRICTION', 'commons-booking-item-usage-restriction', 'Yes, even if no restriction to show.') ?>
             </label><br/>
         </td>
       </tr>
