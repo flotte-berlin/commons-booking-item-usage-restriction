@@ -244,7 +244,7 @@
                 $form.find('input[name="' + field_name + '"]').val(data[field_name]);
               });
 
-              $form.find('button').click(function() {
+              $form.submit(function() {
                 $(this).attr("disabled","disabled");
               })
             }

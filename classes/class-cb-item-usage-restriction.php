@@ -154,6 +154,7 @@ class CB_Item_Usage_Restriction {
 
     $item_restriction['date_end'] = $new_date_end;
     $date_end_valid = DateTime::createFromFormat('Y-m-d', $new_date_end);
+    $date_end_valid->setTime(23, 59, 59);
     $item_restriction['date_end_valid'] = $date_end_valid;
 
     return $item_restriction;

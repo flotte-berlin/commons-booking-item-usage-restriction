@@ -114,7 +114,7 @@ class CB_Item_Usage_Restriction_Admin {
         //check if end date has changed
         if($validation_result['data']['date_end'] == $item_restriction['date_end']) {
           $message = item_usage_restriction\__('NO_DATE_END_CHANGE', 'commons-booking-item-usage-restriction', "The end date hasn't changed.");
-          $class = 'notice notice-error';
+          $class = 'notice notice-warning';
           echo '<div id="message" class="' . $class .'"><p>' . $message . '</p></div>';
           return false;
         }
@@ -132,7 +132,7 @@ class CB_Item_Usage_Restriction_Admin {
         //check new end date (if it equals or is after start date of existing restriction)
         if($validation_result['data']['date_end_valid'] >= $item_restriction['date_start_valid']) {
           //prepare  timestamps for email checks
-          $new_end_date_timestamp = strtotime($validation_result['data']['date_end']);
+          $new_end_date_timestamp = $validation_result['data']['date_end_valid']->getTimestamp();
           $old_date_end = $item_restriction['date_end'];
           $old_end_date_timestamp = strtotime($old_date_end);
 
@@ -141,13 +141,17 @@ class CB_Item_Usage_Restriction_Admin {
           $today_timestamp = $today_datetime->getTimestamp();
 
           // check overlapping with existing restriction of type 'total breakdown'
-          $overlapping = $this-> check_restriction_1_overlapping($item_restriction['item_id'], $item_restriction['date_start_valid'], $validation_result['data']['date_end_valid'], $item_restriction['restriction_type']);
+          if($new_end_date_timestamp > $old_end_date_timestamp) {
+            $overlapping_check_start_date = $item_restriction['date_end_valid'];
+            $overlapping_check_start_date->setTimestamp($overlapping_check_start_date->getTimestamp() + 1); //end dates have 23:59:59 as time, start dates 00:00:00
+            $overlapping = $this-> check_restriction_1_overlapping($item_restriction['item_id'], $overlapping_check_start_date, $validation_result['data']['date_end_valid'], $item_restriction['restriction_type']);
 
-          if($overlapping) {
-            $message = item_usage_restriction\__('RESTRICTION_FOR_PERIOD_ALREADY_EXISTING', 'commons-booking-item-usage-restriction', "There's already a restriction of type 'total breakfown'for the given period.");
-            $class = 'notice notice-error';
-            echo '<div id="message" class="' . $class .'"><p>' . $message . '</p></div>';
-            return false;
+            if($overlapping) {
+              $message = item_usage_restriction\__('RESTRICTION_FOR_PERIOD_ALREADY_EXISTING', 'commons-booking-item-usage-restriction', "There's already a restriction of type 'total breakfown'for the given period.");
+              $class = 'notice notice-error';
+              echo '<div id="message" class="' . $class .'"><p>' . $message . '</p></div>';
+              return false;
+            }
           }
 
           $bookings_for_update_email = array();
@@ -429,6 +433,9 @@ class CB_Item_Usage_Restriction_Admin {
     if(!isset($data['date_end_valid'])) {
       $errors['date_end'] = item_usage_restriction\__('END_DATE_INVALID', 'commons-booking-item-usage-restriction', 'invalid end date');
     }
+    else {
+      $data['date_end_valid']->setTime( 23, 59, 59 );
+    }
 
     return array('data' => $data, 'errors' => $errors);
 
@@ -533,9 +540,11 @@ class CB_Item_Usage_Restriction_Admin {
 
       //check for already existing restriction in timeframe
       $existing_restrictions = CB_Item_Usage_Restriction::get_item_restrictions($item_id);
-      //var_dump($existing_restrictions);
+
       $overlapping = false;
       foreach ($existing_restrictions as $existing_restriction) {
+
+        //not overlapping if existing restriction ends before start date or starts after end date
         $overlapping = $existing_restriction['date_end_valid'] < $date_start_valid || $existing_restriction['date_start_valid'] > $date_end_valid ? false : true;
 
         if($overlapping && $existing_restriction['restriction_type'] == 1) {
