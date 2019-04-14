@@ -69,6 +69,9 @@ class CB_Item_Usage_Restriction {
     return $item_restrictions;
   }
 
+  /**
+  * updates the item usage restriction with the given id
+  **/
   static public function update_item_restriction($item_id, $updated_item_restriction) {
     $item_restrictions = self::get_item_restrictions($item_id);
 
@@ -136,6 +139,9 @@ class CB_Item_Usage_Restriction {
     return $content;
   }
 
+  /**
+  * adjusts the end date and sets the update hint of the given item usage restiction
+  **/
   static public function adjust_date_end($item_restriction, $new_date_end, $update_hint) {
 
     if(!isset($item_restriction['updates'])) {

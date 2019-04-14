@@ -10,6 +10,9 @@ class CB_Item_Usage_Restriction_Admin {
   private $email_message;
   private $consider_responsible_users;
 
+  /**
+  * adds the plugin's admin page entry to the menu
+  **/
   function add_plugin_admin_menu() {
 
     $capability = 'publish_pages'; // restrict access to whole menu to users with this capability
@@ -24,6 +27,9 @@ class CB_Item_Usage_Restriction_Admin {
         );
   }
 
+  /**
+  * the admin page handler
+  **/
   function cb_item_usage_restriction_admin_page_handler() {
 
     wp_enqueue_script( 'jquery-ui-dialog' );
@@ -100,6 +106,9 @@ class CB_Item_Usage_Restriction_Admin {
     include_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'templates/admin-page-template.php' );
   }
 
+  /**
+  * updates an existing item usage restriction based on the given form input values
+  **/
   function edit_restriction() {
     $validation_result = $this->validate_edit_restriction_form_input();
 
@@ -291,6 +300,9 @@ class CB_Item_Usage_Restriction_Admin {
     }
   }
 
+  /**
+  * deletes an item usage restriction based on the provided from input values
+  **/
   function delete_restriction() {
 
     $validation_result = $this->validate_delete_restriction_form_input();
@@ -345,6 +357,9 @@ class CB_Item_Usage_Restriction_Admin {
     }
   }
 
+  /**
+  * creates an item usage restriction based on the provided form input values
+  **/
   function create_restriction($form_values) {
     $keep_form_values = false;
 
@@ -413,6 +428,9 @@ class CB_Item_Usage_Restriction_Admin {
     return $item_restriction;
   }
 
+  /**
+  * validates the input of the edit restriction form
+  **/
   function validate_edit_restriction_form_input() {
 
     $data = array();
@@ -441,6 +459,9 @@ class CB_Item_Usage_Restriction_Admin {
 
   }
 
+  /**
+  * validates the input of the delete restriction form
+  **/
   function validate_delete_restriction_form_input() {
 
     $data = array();
@@ -556,6 +577,9 @@ class CB_Item_Usage_Restriction_Admin {
     return $overlapping;
   }
 
+  /**
+  * handles the submit of the form to create a new item usage restriction
+  **/
   function handle_create_restriction_form_submit($data) {
 
     $overlapping = $this-> check_restriction_1_overlapping($data['item_id'], $data['date_start_valid'], $data['date_end_valid'], $data['restriction_type']);
@@ -687,6 +711,9 @@ class CB_Item_Usage_Restriction_Admin {
 
   }
 
+  /**
+  * updates the end date of the booking with given id
+  **/
   private function update_booking_date_end( $booking_id, $date_end ) {
 
       global $wpdb;
@@ -702,6 +729,9 @@ class CB_Item_Usage_Restriction_Admin {
 
   }
 
+  /**
+  * loads the settings
+  **/
   function load_settings() {
     $blocking_user_id = get_option('cb_item_restriction_blocking_user_id', null);
     if($blocking_user_id) {
@@ -782,6 +812,9 @@ class CB_Item_Usage_Restriction_Admin {
     return $bookings_result;
   }
 
+  /**
+  * sends an email to the given recipients
+  **/
   function send_mail_by_reason_to_recipients($email_recipients, $item_id, $reason, $date_start, $date_end, $hint = '') {
 
     foreach ($email_recipients as $email_recipient) {
@@ -803,6 +836,9 @@ class CB_Item_Usage_Restriction_Admin {
     }
   }
 
+  /**
+  * sends an email to a recipient with given user data
+  **/
   function send_mail_by_reason($item_id, $reason, $date_start, $date_end, $user_data, $hint = '') {
 
     $item = get_post($item_id);
@@ -815,6 +851,9 @@ class CB_Item_Usage_Restriction_Admin {
     return $this->send_mail($user_data['user_email'], $subject_template, $body_template, $mail_vars);
   }
 
+  /**
+  * populate given data to email vars
+  **/
   function create_mail_vars($item, $date_start, $date_end, $user_data, $hint) {
 
     return array(
@@ -827,6 +866,9 @@ class CB_Item_Usage_Restriction_Admin {
     );
   }
 
+  /**
+  * the actual method to to send an email
+  **/
   function send_mail($to, $subject_template, $body_template, $mail_vars) {
 
     $cb_booking = new CB_Booking();
