@@ -24,9 +24,11 @@ Zu allen Artikeln kann eine detaillierte Historie der jeweiligen Nutzungsbeschr√
 
 ## Screenshots
 
-![Administration](/screenshots/settings_0.2.0_de.png?raw=true "Administration")
+![Einstellungen](/screenshots/settings_0.2.0_de.png?raw=true "Einstellungen")
 
-![Einstellungen](/screenshots/restrictions_0.2.0_de.png?raw=true "Einstellungen")
+![Administration](/screenshots/restrictions_0.2.0_de.png?raw=true "Administration")
+
+![Beispiel](/screenshots/example_0.2.0_de.png?raw=true "Beispiel")
 
 ## Changelog
 
