@@ -803,7 +803,7 @@ class CB_Item_Usage_Restriction_Admin {
                         "AND '".$date_end."') ".
                         "OR (date_start < '".$date_start."' ".
                         "AND date_end > '".$date_end."')) ".
-                        "AND (status = 'pending' OR status = 'confirmed')";
+                        "AND status = 'confirmed'";
 
     $prepared_statement = $wpdb->prepare($select_statement, $item_id);
 
