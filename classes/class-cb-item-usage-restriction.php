@@ -167,6 +167,31 @@ class CB_Item_Usage_Restriction {
 
   }
 
+  static function is_item_restricted($item_id, $date_start, $date_end, $restriction_type = 1) {
+
+    $restrictions_in_period = array();
+    $item_restrictions = self::get_item_restrictions($item_id, 'asc');
+    $datetime_start = DateTime::createFromFormat('Y-m-d', $date_start);
+    $datetime_start->setTime(0, 0, 0);
+    $datetime_end = DateTime::createFromFormat('Y-m-d', $date_end);
+    $datetime_end->setTime(23, 59, 59);
+    $date_start_timestamp = $datetime_start->getTimestamp();
+    $date_end_timestamp = $datetime_end->getTimestamp();
+
+    foreach ($item_restrictions as $restriction) {
+      if($restriction['restriction_type'] == 1) {
+        $restriction_date_start_timestamp = $restriction['date_start_valid']->getTimestamp();
+        $restriction_date_end_timestamp = $restriction['date_end_valid']->getTimestamp();
+
+        if(!($restriction_date_end_timestamp <= $date_start_timestamp || $restriction_date_start_timestamp >= $date_end_timestamp)) {
+          $restrictions_in_period[] = $restriction;
+        }
+      }
+    }
+
+    return count($restrictions_in_period) > 0;
+  }
+
 }
 
 ?>
