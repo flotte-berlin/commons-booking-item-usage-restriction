@@ -69,6 +69,28 @@ class CB_Item_Usage_Restriction {
     return $item_restrictions;
   }
 
+  /**
+  * updates the item usage restriction with the given id
+  **/
+  static public function update_item_restriction($item_id, $updated_item_restriction) {
+    $item_restrictions = self::get_item_restrictions($item_id);
+
+    $update_at_index = -1;
+    foreach ($item_restrictions as $index =>$item_restriction) {
+      if($item_restriction['created_at'] == $updated_item_restriction['created_at'] && $item_restriction['created_by_user_id'] == $updated_item_restriction['created_by_user_id']) {
+        $update_at_index = $index;
+
+        break;
+      }
+    }
+
+    if($update_at_index > -1) {
+      $item_restrictions[$update_at_index] = $updated_item_restriction;
+    }
+
+    self::save_restrictions($item_id, $item_restrictions);
+  }
+
   static public function remove_item_restriction($item_id, $item_restrictions, $index) {
 
     array_splice($item_restrictions, $index, 1);
@@ -79,7 +101,7 @@ class CB_Item_Usage_Restriction {
   /**
   * add restriction hint to content of Commons Booking items, if there is a current one or in the near future
   **/
-  public function render_current_restrictions($content) {
+  static public function render_current_restrictions($content) {
     $post = $GLOBALS['post'];
 
     //for cb items add restrictions to content
@@ -116,6 +138,60 @@ class CB_Item_Usage_Restriction {
     // otherwise returns the database content
     return $content;
   }
+
+  /**
+  * adjusts the end date and sets the update hint of the given item usage restiction
+  **/
+  static public function adjust_date_end($item_restriction, $new_date_end, $update_hint) {
+
+    if(!isset($item_restriction['updates'])) {
+      $item_restriction['updates'] = array();
+    }
+
+    $current_user = wp_get_current_user();
+
+    $item_restriction['updates'][] = array(
+      'old_date_end' => $item_restriction['date_end'],
+      'new_date_end' => $new_date_end,
+      'update_hint' => $update_hint,
+      'created_by_user_id' => $current_user->ID,
+      'created_at' => new DateTime()
+    );
+
+    $item_restriction['date_end'] = $new_date_end;
+    $date_end_valid = DateTime::createFromFormat('Y-m-d', $new_date_end);
+    $date_end_valid->setTime(23, 59, 59);
+    $item_restriction['date_end_valid'] = $date_end_valid;
+
+    return $item_restriction;
+
+  }
+
+  static function is_item_restricted($item_id, $date_start, $date_end, $restriction_type = 1) {
+
+    $restrictions_in_period = array();
+    $item_restrictions = self::get_item_restrictions($item_id, 'asc');
+    $datetime_start = DateTime::createFromFormat('Y-m-d', $date_start);
+    $datetime_start->setTime(0, 0, 0);
+    $datetime_end = DateTime::createFromFormat('Y-m-d', $date_end);
+    $datetime_end->setTime(23, 59, 59);
+    $date_start_timestamp = $datetime_start->getTimestamp();
+    $date_end_timestamp = $datetime_end->getTimestamp();
+
+    foreach ($item_restrictions as $restriction) {
+      if($restriction['restriction_type'] == 1) {
+        $restriction_date_start_timestamp = $restriction['date_start_valid']->getTimestamp();
+        $restriction_date_end_timestamp = $restriction['date_end_valid']->getTimestamp();
+
+        if(!($restriction_date_end_timestamp <= $date_start_timestamp || $restriction_date_start_timestamp >= $date_end_timestamp)) {
+          $restrictions_in_period[] = $restriction;
+        }
+      }
+    }
+
+    return count($restrictions_in_period) > 0;
+  }
+
 }
 
 ?>
