@@ -263,7 +263,7 @@ class CB_Item_Usage_Restriction_Admin {
           }
 
           // update email to partners, etc.
-          $responsible_users = $this->consider_responsible_users ? $this->find_responsible_users_by_item_and_location($item_restriction['item_id'], $location_id) : array();
+          $responsible_users = $this->consider_responsible_users ? $this->find_responsible_users_by_item_and_location($item_restriction['item_id']) : array();
 
           //get email adresses for additional notifications
           $additional_email_recipients = $item_restriction['additional_email_recipients'];
@@ -634,7 +634,7 @@ class CB_Item_Usage_Restriction_Admin {
         array_push($informed_users, $this->blocking_user);
       }
 
-      $responsible_users = $this->consider_responsible_users ? $this->find_responsible_users_by_item_and_location($data['item_id'], $location_id) : array();
+      $responsible_users = $this->consider_responsible_users ? $this->find_responsible_users_by_item_and_location($data['item_id']) : array();
 
       //get email adresses for additional notifications (comma seperated list)
       $additional_email_recipients = $data['additional_emails'];
@@ -660,8 +660,8 @@ class CB_Item_Usage_Restriction_Admin {
   /**
   * based on Advanced Custom Fields
   **/
-  function find_responsible_users_by_item_and_location($item_id, $location_id) {
-    //user_locations
+  function find_responsible_users_by_item_and_location($item_id) {
+    //user_items
     $args = array(
     	'meta_query' => array(
         array(
