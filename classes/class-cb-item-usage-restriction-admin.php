@@ -664,17 +664,11 @@ class CB_Item_Usage_Restriction_Admin {
     //user_locations
     $args = array(
     	'meta_query' => array(
-    		'relation' => 'OR',
-    			array(
-    				'key'     => 'user_items',
-    				'value'   => '"'.$item_id.'"',
-    	 			'compare' => 'LIKE'
-    			),
-    			array(
-            'key'     => 'user_locations',
-    				'value'   => '"'.$location_id.'"',
-    	 			'compare' => 'LIKE'
-    			)
+        array(
+          'key'     => 'user_items',
+          'value'   => '"'.$item_id.'"',
+          'compare' => 'LIKE'
+        )
     	)
     );
 
