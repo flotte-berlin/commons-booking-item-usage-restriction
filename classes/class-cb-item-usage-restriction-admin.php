@@ -198,7 +198,7 @@ class CB_Item_Usage_Restriction_Admin {
 
           }
 
-          //prolonged restriction: new end date > old end date & new end date >= today:
+          //prolonged restriction not in the past: new end date > old end date & new end date >= today:
           if($new_end_date_timestamp > $old_end_date_timestamp && $new_end_date_timestamp >= $today_timestamp) {
 
             $date_start = $old_end_date_timestamp < $today_timestamp ? $today_datetime->format('Y-m-d') : $old_date_end;
@@ -242,9 +242,34 @@ class CB_Item_Usage_Restriction_Admin {
           $item_restriction = CB_Item_Usage_Restriction::adjust_date_end($item_restriction, $validation_result['data']['date_end'], $validation_result['data']['update_comment']);
           CB_Item_Usage_Restriction::update_item_restriction($item_restriction['item_id'], $item_restriction);
 
-          //if total breakdown - set new end date of blocking booking
+          //if total breakdown
           if($item_restriction['restriction_type'] == 1) {
+            //set new end date of blocking booking
             $this->update_booking_date_end( $item_restriction['booking_id'], $validation_result['data']['date_end'] );
+
+            //prolonged total breakdown in the past: new end date > old end date & new end date < today:
+            if($new_end_date_timestamp > $old_end_date_timestamp && $new_end_date_timestamp < $today_timestamp) {
+
+              //get affected bookings to mark them as blocked
+              $bookings = self::fetch_bookings_in_period($item_restriction['date_start'], $item_restriction['date_end'], $item_restriction['item_id']);
+
+              foreach ($bookings as $booking) {
+                if($booking->user_id != get_option('cb_item_restriction_blocking_user_id')) {
+                  CB_Item_Usage_Restriction_Booking::block_booking($booking, $item_restriction);
+                }
+              }
+            }
+
+            //shortened total breakdown in the past: new end date > old end date & new end date < today:
+            if($new_end_date_timestamp < $old_end_date_timestamp && $new_end_date_timestamp < $today_timestamp) {
+
+              //get affected blocked bookings to mark them as confirmed again
+              $bookings = self::fetch_bookings_in_period($item_restriction['date_end'], $old_date_end, $item_restriction['item_id'], 'blocked');
+
+              foreach ($bookings as $booking) {
+                CB_Item_Usage_Restriction_Booking::block_booking($booking, $item_restriction, true, false);
+              }
+            }
           }
 
           $informed_users = array();
@@ -311,6 +336,25 @@ class CB_Item_Usage_Restriction_Admin {
       $item_restriction = $this->find_item_usage_restriction($validation_result['item_id'], $validation_result['created_by_user_id'], $validation_result['created_at_timestamp']);
 
       if(isset($item_restriction)) {
+
+        if($item_restriction['restriction_type'] == 1) {
+          //breakdown in the past: new end date > old end date & new end date < today
+          $date_end_timestamp = strtotime($item_restriction['date_end']);
+
+          $today_datetime = new DateTime();
+          $today_datetime->setTime( 0, 0, 0 );
+          $today_timestamp = $today_datetime->getTimestamp();
+          if($date_end_timestamp < $today_timestamp) {
+
+            //get affected bookings to mark them as blocked
+            $bookings = self::fetch_bookings_in_period($item_restriction['date_start'], $item_restriction['date_end'], $item_restriction['item_id'], 'blocked');
+
+            foreach ($bookings as $booking) {
+                CB_Item_Usage_Restriction_Booking::block_booking($booking, $item_restriction, true);
+            }
+
+          }
+        }
 
         //delete booking if there is one
         //var_dump($item_restriction['booking_id']);
@@ -604,10 +648,27 @@ class CB_Item_Usage_Restriction_Admin {
     $booking_needed = false;
     $informed_users = array();
 
-    // if total breakdown: create booking to block period of restriction
+    // if total breakdown
     if($data['restriction_type'] == 1) {
-      $booking_needed = true;
+      //breakdown in the past: new end date > old end date & new end date < today
+      $date_end_timestamp = strtotime($data['date_end']);
 
+      $today_datetime = new DateTime();
+      $today_datetime->setTime( 0, 0, 0 );
+      $today_timestamp = $today_datetime->getTimestamp();
+      if($date_end_timestamp < $today_timestamp) {
+
+        //get affected bookings to mark them as blocked
+        $bookings = self::fetch_bookings_in_period($data['date_start'], $data['date_end'], $data['item_id']);
+
+        foreach ($bookings as $booking) {
+            CB_Item_Usage_Restriction_Booking::block_booking($booking, $data);
+        }
+
+      }
+
+      //create booking to block period of restriction
+      $booking_needed = true;
       $booking_id = $this->create_booking($data['date_start'], $data['date_end'], $data['item_id'], $this->blocking_user->ID, 'confirmed');
 
     }
@@ -785,7 +846,7 @@ class CB_Item_Usage_Restriction_Admin {
   /**
   * fetches bookings in period determined by start and end date from db for given item
   */
-  function fetch_bookings_in_period($date_start, $date_end, $item_id) {
+  function fetch_bookings_in_period($date_start, $date_end, $item_id, $status = 'confirmed') {
     global $wpdb;
 
     //get bookings data
@@ -797,7 +858,7 @@ class CB_Item_Usage_Restriction_Admin {
                         "AND '".$date_end."') ".
                         "OR (date_start < '".$date_start."' ".
                         "AND date_end > '".$date_end."')) ".
-                        "AND status = 'confirmed'";
+                        "AND status = '". $status."'";
 
     $prepared_statement = $wpdb->prepare($select_statement, $item_id);
 

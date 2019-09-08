@@ -53,33 +53,7 @@ class CB_Item_Usage_Restriction_Booking {
 
           //check if restriction type is total breakdown
           if($restriction['restriction_type'] == 1) {
-            $booking_date_start = DateTime::createFromFormat('Y-m-d', $booking->date_start);
-            $booking_date_start->setTime(8, 0, 0);
-            $booking_date_end = DateTime::createFromFormat('Y-m-d', $booking->date_end);
-            $booking_date_end->setTime(20, 0, 0);
-
-            //check if booking is completely inside restriction (date_start_valid & date_end_valid aren't used here because of a previous bug, that caused a time of 00:00:00 for date_end_valid)
-            $restriction_date_start = DateTime::createFromFormat('Y-m-d', $restriction['date_start']);
-            $restriction_date_start->setTime(0, 0, 0);
-            $restriction_date_end = DateTime::createFromFormat('Y-m-d', $restriction['date_end']);
-            $restriction_date_end->setTime(23, 59, 59);
-            if($booking_date_start >= $restriction_date_start && $booking_date_end <= $restriction_date_end) {
-
-              $set_blocked = true;
-              //if contract-extension plugin is installed
-              if(cb_item_usage_restriction\is_plugin_active('commons-booking-contract-extension.php')) {
-                //if booking has contract: don't set 'blocked' status
-                if($booking->contract) {
-                  $set_blocked = false;
-                }
-              }
-
-              if($set_blocked) {
-                //set booking status = blocked
-                self::update_booking_status($booking->id, 'blocked');
-              }
-
-            }
+            self::block_booking($booking, $restriction);
           }
         }
 
@@ -88,6 +62,59 @@ class CB_Item_Usage_Restriction_Booking {
 
     //store datetime of this check
     update_option( 'cb_item_restriction_booking_check_datetime', $datetime_end, false );
+  }
+
+  static function block_booking($booking, $restriction, $revert = false, $inside_restriction = true) {
+    $booking_date_start = DateTime::createFromFormat('Y-m-d', $booking->date_start);
+    $booking_date_start->setTime(8, 0, 0);
+    $booking_date_end = DateTime::createFromFormat('Y-m-d', $booking->date_end);
+    $booking_date_end->setTime(20, 0, 0);
+
+    //check if booking is completely inside the duration markd by $check_date_start & $check_date_end
+    $restriction_date_start = DateTime::createFromFormat('Y-m-d', $restriction['date_start']);
+    $restriction_date_start->setTime(0, 0, 0);
+    $restriction_date_end = DateTime::createFromFormat('Y-m-d', $restriction['date_end']);
+    $restriction_date_end->setTime(23, 59, 59);
+
+    $status = $revert ? 'confirmed' : 'blocked';
+    $set_status = false;
+    $booking_condition = $inside_restriction ? $booking_date_start >= $restriction_date_start && $booking_date_end <= $restriction_date_end : $booking_date_start > $restriction_date_end || $booking_date_end < $restriction_date_start;
+
+    if(!$revert) {
+      //booking is completely inside reference period
+      if($booking_condition) {
+
+        $set_status = true;
+        //if contract-extension plugin is installed
+        if(cb_item_usage_restriction\is_plugin_active('commons-booking-contract-extension.php')) {
+          //if booking has contract: don't set status
+          if($booking->contract) {
+            $set_status = false;
+          }
+        }
+
+      }
+    }
+    else {
+      //booking is completely outside reference period
+      if($booking_condition) {
+        $set_status = true;
+
+        //if contract-extension plugin is installed
+        if(cb_item_usage_restriction\is_plugin_active('commons-booking-contract-extension.php')) {
+          //if booking has contract: don't set status
+          if($booking->contract) {
+            $set_status = false;
+          }
+        }
+      }
+
+    }
+
+    if($set_status) {
+      //set booking status = blocked
+      self::update_booking_status($booking->id, $status);
+    }
   }
 
   static function fetch_bookings_by_end_date($date_end_min, $date_end_max) {
@@ -112,7 +139,7 @@ class CB_Item_Usage_Restriction_Booking {
     global $wpdb;
 
     $table_name = $wpdb->prefix . 'cb_bookings';
-    $wpdb->update($table_name, array( 'status' => 'blocked'), array( 'id' => $booking_id));
+    $wpdb->update($table_name, array( 'status' => $status), array( 'id' => $booking_id));
     //trigger_error('blocked booking: ' . $booking_id);
   }
 }
