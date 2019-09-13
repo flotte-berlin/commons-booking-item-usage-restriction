@@ -3,6 +3,7 @@
 class CB_Item_Usage_Restriction {
 
   const META_KEY = 'cb_item_usage_restrictions';
+  const DELETED_META_KEY = 'cb_item_deleted_usage_restrictions';
 
   /**
   * adds restriction entry to meta data of the given item (post)
@@ -33,19 +34,21 @@ class CB_Item_Usage_Restriction {
 
   }
 
-  static private function save_restrictions($item_id, $item_restrictions) {
-    $add_result = add_post_meta( $item_id, self::META_KEY, $item_restrictions, true );
+  static private function save_restrictions($item_id, $item_restrictions, $deleted = false) {
+    $meta_key = $deleted ? self::DELETED_META_KEY : self::META_KEY;
+    $add_result = add_post_meta( $item_id, $meta_key, $item_restrictions, true );
 
     if ( ! $add_result ) {
-       $update_result = update_post_meta( $item_id, self::META_KEY, $item_restrictions );
+       $update_result = update_post_meta( $item_id, $meta_key, $item_restrictions );
     }
   }
 
   /**
   * fetches existing restrictions
   **/
-  static public function get_item_restrictions($item_id, $order = null) {
-    $item_restrictions = get_metadata('post', $item_id, self::META_KEY, true);
+  static public function get_item_restrictions($item_id, $order = null, $deleted = false) {
+    $meta_key = $deleted ? self::DELETED_META_KEY : self::META_KEY;
+    $item_restrictions = get_metadata('post', $item_id, $meta_key, true);
 
     if($item_restrictions) {
 
@@ -92,6 +95,10 @@ class CB_Item_Usage_Restriction {
   }
 
   static public function remove_item_restriction($item_id, $item_restrictions, $index) {
+    $deleted_item_restrictions = self::get_item_restrictions($item_id, null, true);
+
+    $deleted_item_restrictions[] = $item_restrictions[$index];
+    self::save_restrictions($item_id, $deleted_item_restrictions, true);
 
     array_splice($item_restrictions, $index, 1);
 

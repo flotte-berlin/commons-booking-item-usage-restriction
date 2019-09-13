@@ -76,7 +76,8 @@ class CB_Item_Usage_Restriction_Admin {
       );
 
       //params
-      $restriction_list_cb_item_id =  isset($_GET['restriction_list_cb_item_id']) ? (integer) $_GET['restriction_list_cb_item_id'] : null;
+      $restriction_list_cb_item_id = isset($_GET['restriction_list_cb_item_id']) ? (integer) $_GET['restriction_list_cb_item_id'] : null;
+      $restriction_list_type = isset($_GET['restriction_list_type']) && ((integer) $_GET['restriction_list_type'] == 1 || (integer) $_GET['restriction_list_type'] == 2) ? (integer) $_GET['restriction_list_type'] : 1;
       $page = self::PAGE;
 
       if(isset($_POST) && count($_POST) > 0) {
@@ -99,7 +100,9 @@ class CB_Item_Usage_Restriction_Admin {
 
       if(isset($restriction_list_cb_item_id)) {
         $consider_responsible_users = $this->consider_responsible_users;
-        $item_restrictions = CB_Item_Usage_Restriction::get_item_restrictions($restriction_list_cb_item_id, 'desc');
+
+        $list_deleted_restrictions = $restriction_list_type == 1 ? false : true;
+        $item_restrictions = CB_Item_Usage_Restriction::get_item_restrictions($restriction_list_cb_item_id, 'desc', $list_deleted_restrictions);
       }
     }
 
@@ -336,17 +339,18 @@ class CB_Item_Usage_Restriction_Admin {
       $item_restriction = $this->find_item_usage_restriction($validation_result['item_id'], $validation_result['created_by_user_id'], $validation_result['created_at_timestamp']);
 
       if(isset($item_restriction)) {
+        //breakdown in the past: new end date > old end date & new end date < today
+        $date_end_timestamp = strtotime($item_restriction['date_end']);
+
+        $today_datetime = new DateTime();
+        $today_datetime->setTime( 0, 0, 0 );
+        $today_timestamp = $today_datetime->getTimestamp();
 
         if($item_restriction['restriction_type'] == 1) {
-          //breakdown in the past: new end date > old end date & new end date < today
-          $date_end_timestamp = strtotime($item_restriction['date_end']);
 
-          $today_datetime = new DateTime();
-          $today_datetime->setTime( 0, 0, 0 );
-          $today_timestamp = $today_datetime->getTimestamp();
           if($date_end_timestamp < $today_timestamp) {
 
-            //get affected bookings to mark them as blocked
+            //get blocked bookings to mark them as confirmed again
             $bookings = self::fetch_bookings_in_period($item_restriction['date_start'], $item_restriction['date_end'], $item_restriction['item_id'], 'blocked');
 
             foreach ($bookings as $booking) {
@@ -365,7 +369,7 @@ class CB_Item_Usage_Restriction_Admin {
           $wpdb->query("DELETE FROM $table_name WHERE id =" . $item_restriction['booking_id']);
         }
 
-        //send email to users that have to be informed (have booking in restriction period that lays ahead or got additional email)
+        //send email to users that have booking in restriction period that lays ahead
         $bookings = $this->fetch_current_and_future_bookings($item_restriction['date_start'], $item_restriction['date_end'], $item_restriction['item_id']);
         //var_dump($bookings);
         $email_recipients = array($this->blocking_user);
@@ -377,15 +381,18 @@ class CB_Item_Usage_Restriction_Admin {
 
         }
 
-        foreach($item_restriction['responsible_user_ids'] as $responsible_user_id) {
-          $user = get_user_by('id', $responsible_user_id);
-          if(isset($user)) {
-            array_push($email_recipients, $user);
+        //send email to users that are responsible users or receivers of an additional email - if restriciton is not in the past
+        if($date_end_timestamp >= $today_timestamp) {
+          foreach($item_restriction['responsible_user_ids'] as $responsible_user_id) {
+            $user = get_user_by('id', $responsible_user_id);
+            if(isset($user)) {
+              array_push($email_recipients, $user);
+            }
           }
-        }
 
-        foreach ($item_restriction['additional_emails'] as $additional_email) {
-          array_push($email_recipients, $additional_email);
+          foreach ($item_restriction['additional_emails'] as $additional_email) {
+            array_push($email_recipients, $additional_email);
+          }
         }
 
         $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], 'delete_restriction', $item_restriction['date_start'], $item_restriction['date_end'], $validation_result['delete_comment']);
