@@ -85,14 +85,15 @@
                   $created_by_user = get_user_by('id', $update['created_by_user_id']);
                   $restriction_updates[] = [
                     'old_date_end' => date_i18n( get_option( 'date_format' ), strtotime($update['old_date_end'])),
-                    'new_date_end' => date_i18n( get_option( 'date_format' ), strtotime($update['new_date_end'])),
+                    'new_date_end' => isset($update['update_type']) && $update['update_type'] == 'delete' ? '- ' .  item_usage_restriction\__('DELETED_RESTRICTION', 'commons-booking-item-usage-restriction', 'deleted') . ' -' : date_i18n( get_option( 'date_format' ), strtotime($update['new_date_end'])),
                     'update_hint' => $update['update_hint'],
                     'created_at' => date_i18n( get_option( 'date_format' ), $update['created_at']->getTimestamp()),
                     'created_by_user' => [
                       'link' => get_edit_user_link( $update['created_by_user_id'] ),
                       'first_name' => $created_by_user->first_name,
                       'last_name' => $created_by_user->last_name
-                    ]
+                    ],
+                    'update_type' => isset($update['update_type']) ? $update['update_type'] : null
                   ];
                 }
               }
@@ -340,7 +341,12 @@
 
             for(var i = 0; i < data.updates.length; i++) {
               var update = data.updates[i];
-              $tbody.append("<tr><td>" + update.old_date_end + "</td><td>" + update.new_date_end + "</td><td><a href='" + update.created_by_user.link + "'>" +update.created_by_user.first_name + " " +update.created_by_user.last_name + " </a></td><td>" + update.created_at + "</td><td>" + update.update_hint + "</td></tr>");
+
+              $tr = $("<tr><td>" + update.old_date_end + "</td><td>" + update.new_date_end + "</td><td><a href='" + update.created_by_user.link + "'>" +update.created_by_user.first_name + " " +update.created_by_user.last_name + " </a></td><td>" + update.created_at + "</td><td>" + update.update_hint + "</td></tr>");
+              if(update.update_type == 'delete') {
+                $tr.css('background-color', '#ccc');
+              }
+              $tbody.append($tr);
             }
           }
           else {

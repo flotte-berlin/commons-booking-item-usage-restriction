@@ -263,7 +263,7 @@ class CB_Item_Usage_Restriction_Admin {
               }
             }
 
-            //shortened total breakdown in the past: new end date > old end date & new end date < today:
+            //shortened total breakdown in the past: new end date < old end date & new end date < today:
             if($new_end_date_timestamp < $old_end_date_timestamp && $new_end_date_timestamp < $today_timestamp) {
 
               //get affected blocked bookings to mark them as confirmed again
@@ -399,7 +399,7 @@ class CB_Item_Usage_Restriction_Admin {
 
         //remove restriction from item
         $item_restrictions = CB_Item_Usage_Restriction::get_item_restrictions($validation_result['item_id']);
-        CB_Item_Usage_Restriction::remove_item_restriction($item_restriction['item_id'], $item_restrictions, $item_restriction['index']);
+        CB_Item_Usage_Restriction::remove_item_restriction($item_restriction['item_id'], $item_restrictions, $item_restriction['index'], $validation_result['delete_comment']);
 
         $message = item_usage_restriction\__('RESTRICTION_DELETED', 'commons-booking-item-usage-restriction', 'The restriction was deleted successfully.');
         $class = 'notice notice-success';

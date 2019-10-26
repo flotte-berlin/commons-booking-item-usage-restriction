@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: cb-item-usage-restriction\n"
-"POT-Creation-Date: 2019-09-13 12:08+0200\n"
-"PO-Revision-Date: 2019-09-13 12:08+0200\n"
+"POT-Creation-Date: 2019-10-26 14:55+0200\n"
+"PO-Revision-Date: 2019-10-26 14:55+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de\n"
@@ -124,12 +124,12 @@ msgid "MARK_ITEM"
 msgstr "Markiere Artikel"
 
 #: ../templates/create-restriction-template.php:20
-#: ../templates/list-restrictions-template.php:152
+#: ../templates/list-restrictions-template.php:153
 msgid "FROM"
 msgstr "vom"
 
 #: ../templates/create-restriction-template.php:22
-#: ../templates/list-restrictions-template.php:154
+#: ../templates/list-restrictions-template.php:155
 msgid "UNTIL"
 msgstr "bis voraussichtlich"
 
@@ -210,12 +210,12 @@ msgid "HINT"
 msgstr "Hinweis"
 
 #: ../templates/list-restrictions-template.php:32
-#: ../templates/list-restrictions-template.php:203
+#: ../templates/list-restrictions-template.php:204
 msgid "CREATED_BY"
 msgstr "erstellt von"
 
 #: ../templates/list-restrictions-template.php:33
-#: ../templates/list-restrictions-template.php:204
+#: ../templates/list-restrictions-template.php:205
 msgid "CREATED_AT"
 msgstr "erstellt am"
 
@@ -231,103 +231,107 @@ msgstr "Aktionen"
 msgid "BLOCK_BY_BOOKING"
 msgstr "blockiert durch Buchung"
 
-#: ../templates/list-restrictions-template.php:102
+#: ../templates/list-restrictions-template.php:88
+msgid "DELETED_RESTRICTION"
+msgstr "gelöscht"
+
+#: ../templates/list-restrictions-template.php:103
 msgid "LIST_RESTRICTION_DETAILS"
 msgstr "Details und Änderungen auflisten ..."
 
-#: ../templates/list-restrictions-template.php:111
+#: ../templates/list-restrictions-template.php:112
 msgid "EDIT_RESTRICTION"
 msgstr "bearbeiten ..."
 
-#: ../templates/list-restrictions-template.php:120
+#: ../templates/list-restrictions-template.php:121
 msgid "DELETE_RESTRICTION"
 msgstr "löschen ..."
-
-#: ../templates/list-restrictions-template.php:134
-msgid "NO_RESTRICTIONS_EXISTING"
-msgstr "Es gibt keine bestehenden Beschränkungen für den gewählten Artikel."
 
 #: ../templates/list-restrictions-template.php:135
 msgid "NO_DELETED_RESTRICTIONS_EXISTING"
 msgstr "Es gibt keine gelöschten Beschränkungen für den gewählten Artikel."
 
-#: ../templates/list-restrictions-template.php:138
+#: ../templates/list-restrictions-template.php:136
+msgid "NO_RESTRICTIONS_EXISTING"
+msgstr "Es gibt keine bestehenden Beschränkungen für den gewählten Artikel."
+
+#: ../templates/list-restrictions-template.php:139
 msgid "CHOOSE_ITEM"
 msgstr "Bitte einen Artikel wählen, um Beschränkungen anzuzeigen."
 
-#: ../templates/list-restrictions-template.php:143
+#: ../templates/list-restrictions-template.php:144
 msgid "EDIT_RESTRICTION_DIALOG"
 msgstr ""
 "Das Ende der Nutzungsbeschränkung kann angepasst werden. Alle betroffenen "
 "NutzerInnen werden über die Änderung informiert."
 
-#: ../templates/list-restrictions-template.php:157
+#: ../templates/list-restrictions-template.php:158
 msgid "UPDATE_COMMENT"
 msgstr "Füge einen Kommentar an"
 
-#: ../templates/list-restrictions-template.php:160
-#: ../templates/list-restrictions-template.php:177
+#: ../templates/list-restrictions-template.php:161
+#: ../templates/list-restrictions-template.php:178
 msgid "CONFIRM"
 msgstr "bestätigen"
 
-#: ../templates/list-restrictions-template.php:167
+#: ../templates/list-restrictions-template.php:168
 msgid "DELETE_RESTRICTION_DIALOG"
 msgstr ""
 "Die Beschränkung wird gelöscht und alle NutzerInnen mit laufender oder "
 "anstehender Buchung für diesen Artikel im Beschränkungszeitraum werden "
 "benachrichtigt."
 
-#: ../templates/list-restrictions-template.php:174
+#: ../templates/list-restrictions-template.php:175
 msgid "DELETE_COMMENT"
 msgstr "Füge einen Kommentar an"
 
-#: ../templates/list-restrictions-template.php:184
+#: ../templates/list-restrictions-template.php:185
 msgid "RESTRICTION_DETAILS_DIALOG"
 msgstr ""
 "Details der gewählten Nutzungseinschränkung zu benachrichtigten NutzerInnen "
 "und Änderungen."
 
-#: ../templates/list-restrictions-template.php:186
+#: ../templates/list-restrictions-template.php:187
 msgid "NOTIFICATIONS"
 msgstr "Benachrichtigungen"
 
-#: ../templates/list-restrictions-template.php:190
+#: ../templates/list-restrictions-template.php:191
 msgid "TO_USERS"
 msgstr "an NutzerInnen"
 
-#: ../templates/list-restrictions-template.php:191
+#: ../templates/list-restrictions-template.php:192
 msgid "ADDITIONAL_EMAILS"
 msgstr "zusätzliche Emails"
 
-#: ../templates/list-restrictions-template.php:197
+#: ../templates/list-restrictions-template.php:198
 msgid "RESTRICTION_DATE_CHANGES"
 msgstr "Änderungshistorie"
 
-#: ../templates/list-restrictions-template.php:201
+#: ../templates/list-restrictions-template.php:202
 msgid "OLD_END_DATE"
 msgstr "vorheriges Enddatum"
 
-#: ../templates/list-restrictions-template.php:202
+#: ../templates/list-restrictions-template.php:203
 msgid "NEW_END_DATE"
 msgstr "neues Enddatum"
 
-#: ../templates/list-restrictions-template.php:205
+#: ../templates/list-restrictions-template.php:206
 msgid "EDIT_HINT"
 msgstr "Bearbeitungskommentar"
 
-#: ../templates/list-restrictions-template.php:210
+#: ../templates/list-restrictions-template.php:211
 msgid "NO_CHANGES"
 msgstr "keine Änderungen"
 
-#: ../templates/list-restrictions-template.php:289
+#: ../templates/list-restrictions-template.php:290
 msgid "EDIT_RESTRICTION_DIALOG_TITLE"
 msgstr "Beschränkung anpassen"
 
-#: ../templates/list-restrictions-template.php:301
+#: ../templates/list-restrictions-template.php:302
 msgid "DELETE_RESTRICTION_DIALOG_TITLE"
 msgstr "Beschränkung löschen"
 
-#: ../templates/list-restrictions-template.php:309
+#: ../templates/list-restrictions-template.php:310
 msgid "RESTRICTION_DETAILS_DIALOG_TITLE"
 msgstr "Beschränkungsdetails"
 
@@ -465,6 +469,9 @@ msgstr "Nutzungseinschränkungen"
 #: ../templates/show-restriction-template.php:24
 msgid "NO_USAGE_RESTRICTIONS"
 msgstr "keine"
+
+#~ msgid "DELETED_ITEM"
+#~ msgstr "gelöscht"
 
 #~ msgid "INFORMED_USERS"
 #~ msgstr "benachrichtigte NutzerInnen"
