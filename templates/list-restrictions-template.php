@@ -70,13 +70,17 @@
               <?php $informed_user_items = [];
               foreach ($item_restriction['informed_user_ids'] as $index => $user_id) {
                 $user = get_user_by('id', $user_id);
-                $user_item = array(
-                  'link' => get_edit_user_link( $user_id ),
-                  'first_name' => $user->first_name,
-                  'last_name' => $user->last_name
-                );
 
-                $informed_user_items[] = $user_item;
+                if(isset($user)) {
+                  $user_item = array(
+                    'link' => get_edit_user_link( $user_id ),
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name
+                  );
+
+                  $informed_user_items[] = $user_item;
+                }
+
               }
 
               $restriction_updates = [];
