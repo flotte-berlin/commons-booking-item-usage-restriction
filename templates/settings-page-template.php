@@ -111,6 +111,14 @@
             </label><br/>
         </td>
       </tr>
+      <tr>
+        <th><?= item_usage_restriction\__('SHOW_UPDATE_HINTS_IN_ARTICLE_DESCRIPTION', 'commons-booking-item-usage-restriction', 'Show update hints in article description') ?></th>
+        <td>
+            <label>
+                <input type="checkbox" name="cb_item_restriction_update_hints_in_article_description" <?php echo esc_attr( get_option('cb_item_restriction_update_hints_in_article_description') ) == 'on' ? 'checked="checked"' : ''; ?> />
+            </label><br/>
+        </td>
+      </tr>
 
     </table>
 

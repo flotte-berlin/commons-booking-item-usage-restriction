@@ -78,7 +78,8 @@ class CB_Item_Usage_Restriction_Booking {
 
     $status = $revert ? 'confirmed' : 'blocked';
     $set_status = false;
-    $booking_condition = $inside_restriction ? $booking_date_start >= $restriction_date_start && $booking_date_end <= $restriction_date_end : $booking_date_start > $restriction_date_end || $booking_date_end < $restriction_date_start;
+    $completely_inside_booking = $booking_date_start >= $restriction_date_start && $booking_date_end <= $restriction_date_end;
+    $booking_condition = $inside_restriction ? $completely_inside_booking : !$completely_inside_booking;
 
     if(!$revert) {
       //booking is completely inside reference period
