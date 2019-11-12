@@ -148,6 +148,7 @@ class CB_Item_Usage_Restriction {
       }
 
       $appears_always = get_option('cb_item_restriction_appears_always_in_article_description', false);
+      $show_update_hints = get_option('cb_item_restriction_update_hints_in_article_description', false);
 
       ob_start();
       include( CB_ITEM_USAGE_RESTRICTION_PATH . 'templates/show-restriction-template.php');

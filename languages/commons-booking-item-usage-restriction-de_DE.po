@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: cb-item-usage-restriction\n"
-"POT-Creation-Date: 2019-10-26 14:55+0200\n"
-"PO-Revision-Date: 2019-10-26 14:55+0200\n"
+"POT-Creation-Date: 2019-11-09 16:04+0100\n"
+"PO-Revision-Date: 2019-11-09 16:05+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de\n"
@@ -99,7 +99,7 @@ msgstr "Einstellungen für Nutzungsbeschränkungen"
 msgid "SETTINGS_MENU"
 msgstr "Nutzungsbeschränkung"
 
-#: ../classes/class-cb-item-usage-restriction-settings.php:37
+#: ../classes/class-cb-item-usage-restriction-settings.php:38
 #: ../templates/create-restriction-template.php:59
 msgid "Settings"
 msgstr ""
@@ -124,12 +124,12 @@ msgid "MARK_ITEM"
 msgstr "Markiere Artikel"
 
 #: ../templates/create-restriction-template.php:20
-#: ../templates/list-restrictions-template.php:153
+#: ../templates/list-restrictions-template.php:160
 msgid "FROM"
 msgstr "vom"
 
 #: ../templates/create-restriction-template.php:22
-#: ../templates/list-restrictions-template.php:155
+#: ../templates/list-restrictions-template.php:162
 msgid "UNTIL"
 msgstr "bis voraussichtlich"
 
@@ -206,16 +206,17 @@ msgid "END_DATE"
 msgstr "Ende"
 
 #: ../templates/list-restrictions-template.php:31
+#: ../templates/list-restrictions-template.php:205
 msgid "HINT"
 msgstr "Hinweis"
 
 #: ../templates/list-restrictions-template.php:32
-#: ../templates/list-restrictions-template.php:204
+#: ../templates/list-restrictions-template.php:214
 msgid "CREATED_BY"
 msgstr "erstellt von"
 
 #: ../templates/list-restrictions-template.php:33
-#: ../templates/list-restrictions-template.php:205
+#: ../templates/list-restrictions-template.php:215
 msgid "CREATED_AT"
 msgstr "erstellt am"
 
@@ -231,107 +232,107 @@ msgstr "Aktionen"
 msgid "BLOCK_BY_BOOKING"
 msgstr "blockiert durch Buchung"
 
-#: ../templates/list-restrictions-template.php:88
+#: ../templates/list-restrictions-template.php:92
 msgid "DELETED_RESTRICTION"
 msgstr "gelöscht"
 
-#: ../templates/list-restrictions-template.php:103
+#: ../templates/list-restrictions-template.php:107
 msgid "LIST_RESTRICTION_DETAILS"
 msgstr "Details und Änderungen auflisten ..."
 
-#: ../templates/list-restrictions-template.php:112
+#: ../templates/list-restrictions-template.php:119
 msgid "EDIT_RESTRICTION"
 msgstr "bearbeiten ..."
 
-#: ../templates/list-restrictions-template.php:121
+#: ../templates/list-restrictions-template.php:128
 msgid "DELETE_RESTRICTION"
 msgstr "löschen ..."
 
-#: ../templates/list-restrictions-template.php:135
+#: ../templates/list-restrictions-template.php:142
 msgid "NO_DELETED_RESTRICTIONS_EXISTING"
 msgstr "Es gibt keine gelöschten Beschränkungen für den gewählten Artikel."
 
-#: ../templates/list-restrictions-template.php:136
+#: ../templates/list-restrictions-template.php:143
 msgid "NO_RESTRICTIONS_EXISTING"
 msgstr "Es gibt keine bestehenden Beschränkungen für den gewählten Artikel."
 
-#: ../templates/list-restrictions-template.php:139
+#: ../templates/list-restrictions-template.php:146
 msgid "CHOOSE_ITEM"
 msgstr "Bitte einen Artikel wählen, um Beschränkungen anzuzeigen."
 
-#: ../templates/list-restrictions-template.php:144
+#: ../templates/list-restrictions-template.php:151
 msgid "EDIT_RESTRICTION_DIALOG"
 msgstr ""
 "Das Ende der Nutzungsbeschränkung kann angepasst werden. Alle betroffenen "
 "NutzerInnen werden über die Änderung informiert."
 
-#: ../templates/list-restrictions-template.php:158
+#: ../templates/list-restrictions-template.php:165
 msgid "UPDATE_COMMENT"
 msgstr "Füge einen Kommentar an"
 
-#: ../templates/list-restrictions-template.php:161
-#: ../templates/list-restrictions-template.php:178
+#: ../templates/list-restrictions-template.php:168
+#: ../templates/list-restrictions-template.php:185
 msgid "CONFIRM"
 msgstr "bestätigen"
 
-#: ../templates/list-restrictions-template.php:168
+#: ../templates/list-restrictions-template.php:175
 msgid "DELETE_RESTRICTION_DIALOG"
 msgstr ""
 "Die Beschränkung wird gelöscht und alle NutzerInnen mit laufender oder "
 "anstehender Buchung für diesen Artikel im Beschränkungszeitraum werden "
 "benachrichtigt."
 
-#: ../templates/list-restrictions-template.php:175
+#: ../templates/list-restrictions-template.php:182
 msgid "DELETE_COMMENT"
 msgstr "Füge einen Kommentar an"
 
-#: ../templates/list-restrictions-template.php:185
+#: ../templates/list-restrictions-template.php:192
 msgid "RESTRICTION_DETAILS_DIALOG"
 msgstr ""
 "Details der gewählten Nutzungseinschränkung zu benachrichtigten NutzerInnen "
 "und Änderungen."
 
-#: ../templates/list-restrictions-template.php:187
+#: ../templates/list-restrictions-template.php:194
 msgid "NOTIFICATIONS"
 msgstr "Benachrichtigungen"
 
-#: ../templates/list-restrictions-template.php:191
+#: ../templates/list-restrictions-template.php:198
 msgid "TO_USERS"
 msgstr "an NutzerInnen"
 
-#: ../templates/list-restrictions-template.php:192
+#: ../templates/list-restrictions-template.php:199
 msgid "ADDITIONAL_EMAILS"
 msgstr "zusätzliche Emails"
 
-#: ../templates/list-restrictions-template.php:198
+#: ../templates/list-restrictions-template.php:208
 msgid "RESTRICTION_DATE_CHANGES"
 msgstr "Änderungshistorie"
 
-#: ../templates/list-restrictions-template.php:202
+#: ../templates/list-restrictions-template.php:212
 msgid "OLD_END_DATE"
 msgstr "vorheriges Enddatum"
 
-#: ../templates/list-restrictions-template.php:203
+#: ../templates/list-restrictions-template.php:213
 msgid "NEW_END_DATE"
 msgstr "neues Enddatum"
 
-#: ../templates/list-restrictions-template.php:206
+#: ../templates/list-restrictions-template.php:216
 msgid "EDIT_HINT"
 msgstr "Bearbeitungskommentar"
 
-#: ../templates/list-restrictions-template.php:211
+#: ../templates/list-restrictions-template.php:221
 msgid "NO_CHANGES"
 msgstr "keine Änderungen"
 
-#: ../templates/list-restrictions-template.php:290
+#: ../templates/list-restrictions-template.php:300
 msgid "EDIT_RESTRICTION_DIALOG_TITLE"
 msgstr "Beschränkung anpassen"
 
-#: ../templates/list-restrictions-template.php:302
+#: ../templates/list-restrictions-template.php:312
 msgid "DELETE_RESTRICTION_DIALOG_TITLE"
 msgstr "Beschränkung löschen"
 
-#: ../templates/list-restrictions-template.php:310
+#: ../templates/list-restrictions-template.php:320
 msgid "RESTRICTION_DETAILS_DIALOG_TITLE"
 msgstr "Beschränkungsdetails"
 
@@ -461,12 +462,16 @@ msgstr "Zeige immer in Artikelbeschreibung"
 msgid "SHOW_EVEN_IF_NO_RESTRICTION"
 msgstr "Ja, auch wenn keine Einschränkung angezeigt wird"
 
+#: ../templates/settings-page-template.php:115
+msgid "SHOW_UPDATE_HINTS_IN_ARTICLE_DESCRIPTION"
+msgstr "Zeige Änderungshinweise in Artikelbeschreibung"
+
 #: ../templates/show-restriction-template.php:5
-#: ../templates/show-restriction-template.php:21
+#: ../templates/show-restriction-template.php:28
 msgid "USAGE_RESTRICTIONS"
 msgstr "Nutzungseinschränkungen"
 
-#: ../templates/show-restriction-template.php:24
+#: ../templates/show-restriction-template.php:31
 msgid "NO_USAGE_RESTRICTIONS"
 msgstr "keine"
 

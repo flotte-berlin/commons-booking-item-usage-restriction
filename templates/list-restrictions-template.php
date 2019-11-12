@@ -107,7 +107,10 @@
               <button class="cb-item-usage-restriction-show-details button action" title="<?= item_usage_restriction\__( 'LIST_RESTRICTION_DETAILS', 'commons-booking-item-usage-restriction', 'list details and changes ...') ?>"
                 data-users='<?= json_encode($informed_user_items) ?>'
                 data-emails='<?= json_encode($item_restriction['additional_emails']) ?>'
-                data-updates='<?= json_encode($restriction_updates) ?>'>
+                data-updates='<?= json_encode($restriction_updates) ?>'
+                data-hint='<?= $item_restriction['restriction_hint'] ?>'
+                >
+
                 <span style="padding-top: 3px;" class="dashicons dashicons-menu"></span>
               </button>
 
@@ -198,6 +201,9 @@
       </thead>
       <tbody><tr></tr></tbody>
     </table>
+
+    <h2><?= item_usage_restriction\__( 'HINT', 'commons-booking-item-usage-restriction', 'hint') ?></h2>
+    <div id="restriction-hint"></div>
 
     <h2><?= item_usage_restriction\__( 'RESTRICTION_DATE_CHANGES', 'commons-booking-item-usage-restriction', 'history of changes') ?></h2>
     <table id="restriction-changes" class="wp-list-table" style="width: 100%; margin-top: 20px;">
@@ -335,6 +341,9 @@
           var $td = $('<td valign="top"></td>');
           $td.html(data.emails.join(', '));
           $tr.append($td);
+
+          //hint
+          $('#restriction-hint').text(data.hint);
 
           //updates
           var $tbody = $('#restriction-changes > tbody').first();
