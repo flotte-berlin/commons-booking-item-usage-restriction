@@ -1,4 +1,4 @@
-# Commons Booking Admin Booking
+# Commons Booking Item Usage Restriction
 
 **Contributors:** poilu  
 **Donate link:** https://flotte-berlin.de/mitmachen/unterstuetzt-uns/  
