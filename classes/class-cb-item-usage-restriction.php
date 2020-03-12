@@ -3,6 +3,7 @@
 class CB_Item_Usage_Restriction {
 
   const META_KEY = 'cb_item_usage_restrictions';
+  const DELETED_META_KEY = 'cb_item_deleted_usage_restrictions';
 
   /**
   * adds restriction entry to meta data of the given item (post)
@@ -33,19 +34,21 @@ class CB_Item_Usage_Restriction {
 
   }
 
-  static private function save_restrictions($item_id, $item_restrictions) {
-    $add_result = add_post_meta( $item_id, self::META_KEY, $item_restrictions, true );
+  static private function save_restrictions($item_id, $item_restrictions, $deleted = false) {
+    $meta_key = $deleted ? self::DELETED_META_KEY : self::META_KEY;
+    $add_result = add_post_meta( $item_id, $meta_key, $item_restrictions, true );
 
     if ( ! $add_result ) {
-       $update_result = update_post_meta( $item_id, self::META_KEY, $item_restrictions );
+       $update_result = update_post_meta( $item_id, $meta_key, $item_restrictions );
     }
   }
 
   /**
   * fetches existing restrictions
   **/
-  static public function get_item_restrictions($item_id, $order = null) {
-    $item_restrictions = get_metadata('post', $item_id, self::META_KEY, true);
+  static public function get_item_restrictions($item_id, $order = null, $deleted = false) {
+    $meta_key = $deleted ? self::DELETED_META_KEY : self::META_KEY;
+    $item_restrictions = get_metadata('post', $item_id, $meta_key, true);
 
     if($item_restrictions) {
 
@@ -91,7 +94,24 @@ class CB_Item_Usage_Restriction {
     self::save_restrictions($item_id, $item_restrictions);
   }
 
-  static public function remove_item_restriction($item_id, $item_restrictions, $index) {
+  static public function remove_item_restriction($item_id, $item_restrictions, $index, $update_hint = '') {
+    $deleted_item_restrictions = self::get_item_restrictions($item_id, null, true);
+
+    $item_restriction = $item_restrictions[$index];
+
+    $current_user = wp_get_current_user();
+
+    $item_restriction['updates'][] = array(
+      'old_date_end' => $item_restriction['date_end'],
+      'new_date_end' => $item_restriction['date_end'],
+      'update_hint' => $update_hint,
+      'created_by_user_id' => $current_user->ID,
+      'created_at' => new DateTime(),
+      'update_type' => 'delete'
+    );
+
+    $deleted_item_restrictions[] = $item_restriction;
+    self::save_restrictions($item_id, $deleted_item_restrictions, true);
 
     array_splice($item_restrictions, $index, 1);
 
@@ -128,6 +148,7 @@ class CB_Item_Usage_Restriction {
       }
 
       $appears_always = get_option('cb_item_restriction_appears_always_in_article_description', false);
+      $show_update_hints = get_option('cb_item_restriction_update_hints_in_article_description', false);
 
       ob_start();
       include( CB_ITEM_USAGE_RESTRICTION_PATH . 'templates/show-restriction-template.php');
@@ -155,7 +176,8 @@ class CB_Item_Usage_Restriction {
       'new_date_end' => $new_date_end,
       'update_hint' => $update_hint,
       'created_by_user_id' => $current_user->ID,
-      'created_at' => new DateTime()
+      'created_at' => new DateTime(),
+      'update_type' => 'date_end'
     );
 
     $item_restriction['date_end'] = $new_date_end;

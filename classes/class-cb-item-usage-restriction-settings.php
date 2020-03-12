@@ -26,6 +26,7 @@ class CB_Item_Usage_Restriction_Settings {
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_delete_email_body' );
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_consider_responsible_users' );
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_appears_always_in_article_description' );
+      register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_update_hints_in_article_description' );
     });
 
   }

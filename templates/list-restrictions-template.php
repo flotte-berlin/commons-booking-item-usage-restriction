@@ -3,8 +3,12 @@
   <h3><?= item_usage_restriction\__( 'EXISTING_USAGE_RESTRICTIONS', 'commons-booking-item-usage-restriction', "Existing Usage Restrictions") ?></h3>
 
   <form method="GET">
-    <label for="item_id"><?= item_usage_restriction\__( 'SHOW_RESTRICTIONS_FOR', 'commons-booking-item-usage-restriction', 'Restrictions for') ?>:</label>
     <input type="hidden" name="page" value="<?= $page ?>">
+    <select name="restriction_list_type">
+      <option value="1" <?= $restriction_list_type == 1 ? 'selected' : '' ?>><?= item_usage_restriction\__( 'EXISTING', 'commons-booking-item-usage-restriction', 'existing') ?></option>
+      <option value="2" <?= $restriction_list_type == 2 ? 'selected' : '' ?>><?= item_usage_restriction\__( 'DELETED', 'commons-booking-item-usage-restriction', 'deleted') ?></option>
+    </select>
+    <label for="item_id"><?= item_usage_restriction\__( 'SHOW_RESTRICTIONS_FOR', 'commons-booking-item-usage-restriction', 'Restrictions for') ?></label>
 
     <select name="restriction_list_cb_item_id">
       <option value="" ><?= item_usage_restriction\__( 'NONE', 'commons-booking-item-usage-restriction', '- none -') ?></option>
@@ -66,13 +70,17 @@
               <?php $informed_user_items = [];
               foreach ($item_restriction['informed_user_ids'] as $index => $user_id) {
                 $user = get_user_by('id', $user_id);
-                $user_item = array(
-                  'link' => get_edit_user_link( $user_id ),
-                  'first_name' => $user->first_name,
-                  'last_name' => $user->last_name
-                );
 
-                $informed_user_items[] = $user_item;
+                if(isset($user)) {
+                  $user_item = array(
+                    'link' => get_edit_user_link( $user_id ),
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name
+                  );
+
+                  $informed_user_items[] = $user_item;
+                }
+
               }
 
               $restriction_updates = [];
@@ -81,14 +89,15 @@
                   $created_by_user = get_user_by('id', $update['created_by_user_id']);
                   $restriction_updates[] = [
                     'old_date_end' => date_i18n( get_option( 'date_format' ), strtotime($update['old_date_end'])),
-                    'new_date_end' => date_i18n( get_option( 'date_format' ), strtotime($update['new_date_end'])),
+                    'new_date_end' => isset($update['update_type']) && $update['update_type'] == 'delete' ? '- ' .  item_usage_restriction\__('DELETED_RESTRICTION', 'commons-booking-item-usage-restriction', 'deleted') . ' -' : date_i18n( get_option( 'date_format' ), strtotime($update['new_date_end'])),
                     'update_hint' => $update['update_hint'],
                     'created_at' => date_i18n( get_option( 'date_format' ), $update['created_at']->getTimestamp()),
                     'created_by_user' => [
                       'link' => get_edit_user_link( $update['created_by_user_id'] ),
                       'first_name' => $created_by_user->first_name,
                       'last_name' => $created_by_user->last_name
-                    ]
+                    ],
+                    'update_type' => isset($update['update_type']) ? $update['update_type'] : null
                   ];
                 }
               }
@@ -98,32 +107,40 @@
               <button class="cb-item-usage-restriction-show-details button action" title="<?= item_usage_restriction\__( 'LIST_RESTRICTION_DETAILS', 'commons-booking-item-usage-restriction', 'list details and changes ...') ?>"
                 data-users='<?= json_encode($informed_user_items) ?>'
                 data-emails='<?= json_encode($item_restriction['additional_emails']) ?>'
-                data-updates='<?= json_encode($restriction_updates) ?>'>
+                data-updates='<?= json_encode($restriction_updates) ?>'
+                data-hint='<?= $item_restriction['restriction_hint'] ?>'
+                >
+
                 <span style="padding-top: 3px;" class="dashicons dashicons-menu"></span>
               </button>
 
-              <button class="cb-item-usage-restriction-edit button action" title="<?= item_usage_restriction\__( 'EDIT_RESTRICTION', 'commons-booking-item-usage-restriction', 'edit ...') ?>"
-                data-item_id="<?= $item_restriction['item_id'] ?>"
-                data-created_at_timestamp="<?= $item_restriction['created_at']->getTimestamp() ?>"
-                data-created_by_user_id="<?= $item_restriction['created_by_user_id'] ?>"
-                data-date_start="<?= $item_restriction['date_start'] ?>"
-                data-date_end="<?= $item_restriction['date_end'] ?>">
-                <span style="padding-top: 3px;" class="dashicons dashicons-edit"></span>
-              </button>
+              <?php if(!$list_deleted_restrictions): ?>
 
-              <button class="cb-item-usage-restriction-delete button action" title="<?= item_usage_restriction\__( 'DELETE_RESTRICTION', 'commons-booking-item-usage-restriction', 'delete ...') ?>"
-                data-item_id="<?= $item_restriction['item_id'] ?>"
-                data-created_at_timestamp="<?= $item_restriction['created_at']->getTimestamp() ?>"
-                data-created_by_user_id="<?= $item_restriction['created_by_user_id'] ?>">
-                <span style="padding-top: 3px;" class="dashicons dashicons-trash"></span>
-              </button>
+                <button class="cb-item-usage-restriction-edit button action" title="<?= item_usage_restriction\__( 'EDIT_RESTRICTION', 'commons-booking-item-usage-restriction', 'edit ...') ?>"
+                  data-item_id="<?= $item_restriction['item_id'] ?>"
+                  data-created_at_timestamp="<?= $item_restriction['created_at']->getTimestamp() ?>"
+                  data-created_by_user_id="<?= $item_restriction['created_by_user_id'] ?>"
+                  data-date_start="<?= $item_restriction['date_start'] ?>"
+                  data-date_end="<?= $item_restriction['date_end'] ?>">
+                  <span style="padding-top: 3px;" class="dashicons dashicons-edit"></span>
+                </button>
+
+                <button class="cb-item-usage-restriction-delete button action" title="<?= item_usage_restriction\__( 'DELETE_RESTRICTION', 'commons-booking-item-usage-restriction', 'delete ...') ?>"
+                  data-item_id="<?= $item_restriction['item_id'] ?>"
+                  data-created_at_timestamp="<?= $item_restriction['created_at']->getTimestamp() ?>"
+                  data-created_by_user_id="<?= $item_restriction['created_by_user_id'] ?>">
+                  <span style="padding-top: 3px;" class="dashicons dashicons-trash"></span>
+                </button>
+
+              <?php endif; ?>
             </td>
           </tr>
         <?php endforeach; ?>
       </tbody>
     </table>
     <?php else: ?>
-      <p><?= item_usage_restriction\__( 'NO_RESTRICTIONS_EXISTING', 'commons-booking-item-usage-restriction', 'There are no restrictions for the chosen item.') ?></p>
+      <p><?= $list_deleted_restrictions ? item_usage_restriction\__( 'NO_DELETED_RESTRICTIONS_EXISTING', 'commons-booking-item-usage-restriction', 'There are no deleted restrictions for the chosen item.') :
+                                          item_usage_restriction\__( 'NO_RESTRICTIONS_EXISTING', 'commons-booking-item-usage-restriction', 'There are no restrictions for the chosen item.') ?></p>
     <?php endif; ?>
   <?php else: ?>
     <p><?= item_usage_restriction\__( 'CHOOSE_ITEM', 'commons-booking-item-usage-restriction', 'Please choose an item to show restrictions.') ?></p>
@@ -184,6 +201,9 @@
       </thead>
       <tbody><tr></tr></tbody>
     </table>
+
+    <h2><?= item_usage_restriction\__( 'HINT', 'commons-booking-item-usage-restriction', 'hint') ?></h2>
+    <div id="restriction-hint"></div>
 
     <h2><?= item_usage_restriction\__( 'RESTRICTION_DATE_CHANGES', 'commons-booking-item-usage-restriction', 'history of changes') ?></h2>
     <table id="restriction-changes" class="wp-list-table" style="width: 100%; margin-top: 20px;">
@@ -322,6 +342,9 @@
           $td.html(data.emails.join(', '));
           $tr.append($td);
 
+          //hint
+          $('#restriction-hint').text(data.hint);
+
           //updates
           var $tbody = $('#restriction-changes > tbody').first();
           $tbody.html('');
@@ -331,7 +354,12 @@
 
             for(var i = 0; i < data.updates.length; i++) {
               var update = data.updates[i];
-              $tbody.append("<tr><td>" + update.old_date_end + "</td><td>" + update.new_date_end + "</td><td><a href='" + update.created_by_user.link + "'>" +update.created_by_user.first_name + " " +update.created_by_user.last_name + " </a></td><td>" + update.created_at + "</td><td>" + update.update_hint + "</td></tr>");
+
+              $tr = $("<tr><td>" + update.old_date_end + "</td><td>" + update.new_date_end + "</td><td><a href='" + update.created_by_user.link + "'>" +update.created_by_user.first_name + " " +update.created_by_user.last_name + " </a></td><td>" + update.created_at + "</td><td>" + update.update_hint + "</td></tr>");
+              if(update.update_type == 'delete') {
+                $tr.css('background-color', '#ccc');
+              }
+              $tbody.append($tr);
             }
           }
           else {
