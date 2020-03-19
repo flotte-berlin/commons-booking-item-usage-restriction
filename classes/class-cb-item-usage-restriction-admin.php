@@ -51,7 +51,7 @@ class CB_Item_Usage_Restriction_Admin {
       $item_posts_args = array(
         'numberposts' => -1,
         'post_type'   => 'cb_items',
-        'orderby'    => 'post_date',
+        'orderby'    => 'post_title',
         'order' => 'ASC'
       );
       $this->cb_items = get_posts( $item_posts_args );
@@ -605,9 +605,8 @@ class CB_Item_Usage_Restriction_Admin {
   * check if already an restriction of type 'total breakdown' exists for the given item in wanted period (only if given type is also 'total breakdown')
   */
   function check_restriction_1_overlapping($item_id, $date_start_valid, $date_end_valid, $restriction_type) {
-
     $overlapping = false;
-
+    
     if($restriction_type == 1) {
 
       //check for already existing restriction in timeframe
@@ -616,11 +615,13 @@ class CB_Item_Usage_Restriction_Admin {
       $overlapping = false;
       foreach ($existing_restrictions as $existing_restriction) {
 
-        //not overlapping if existing restriction ends before start date or starts after end date
-        $overlapping = $existing_restriction['date_end_valid'] < $date_start_valid || $existing_restriction['date_start_valid'] > $date_end_valid ? false : true;
+        if($existing_restriction['restriction_type'] == 1) {
+          //not overlapping if existing restriction ends before start date or starts after end date
+          $overlapping = $existing_restriction['date_end_valid'] < $date_start_valid || $existing_restriction['date_start_valid'] > $date_end_valid ? false : true;
 
-        if($overlapping && $existing_restriction['restriction_type'] == 1) {
-          break;
+          if($overlapping) {
+            break;
+          }
         }
       }
     }
