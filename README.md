@@ -3,7 +3,7 @@
 **Contributors:** poilu  
 **Donate link:** https://flotte-berlin.de/mitmachen/unterstuetzt-uns/  
 **Tags:** booking, commons, admin  
-**Tested:** Wordpress > 4.9.6, Commons Booking 0.9.2.3  
+**Tested:** Wordpress > 4.9.6, Commons Booking 0.9.4.2  
 **License:** GPLv2 or later  
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html  
 
@@ -24,13 +24,47 @@ Zu allen Artikeln kann eine detaillierte Historie der jeweiligen Nutzungsbeschr√
 
 ## Screenshots
 
-![Einstellungen](/screenshots/settings_0.2.0_de.png?raw=true "Einstellungen")
+![Einstellungen](/screenshots/settings_0.2.7_de.png?raw=true "Einstellungen")
 
-![Administration](/screenshots/restrictions_0.2.0_de.png?raw=true "Administration")
+![Administration](/screenshots/restrictions_0.2.5_de.png?raw=true "Administration")
 
 ![Beispiel](/screenshots/example_0.2.0_de.png?raw=true "Beispiel")
 
 ## Changelog
+
+### 0.2.8
+
+  * fixed check for overlapping restrictions of type 'total breakdown'  
+  * changed item sorting to order by name (instead of creation date)
+
+### 0.2.7
+
+  * show initial restriction hint in detail view  
+  * added option to show all hints (updates also) in item page
+
+### 0.2.6
+
+  * add deletion with comment to change history  
+  * changed behaviour of booking confirmation for shortened restriction
+  * check if user exists in in restriction list template (is not deleted)
+
+### 0.2.5
+
+  * keep removed restrictions in a "deleted" list
+  * added option to list removed restrictions and show the details
+
+### 0.2.4
+
+  * set/reset blocked booking status for subsequently created or edited total breakdowns
+
+### v0.2.3
+
+  * added cron job that regularly checks bookings blocked by total breakdowns and sets status accordingly (helpful for statistical analysis)
+
+### v0.2.1
+
+  * only consider confirmed bookings, not pending ones on decision who has to be informed about restriction
+  * added check, if an item is restricted in a given period - used in plugin [Commons Booking Post Booking](https://github.com/flotte-berlin/commons-booking-post-booking)
 
 ### v0.2.0
 
