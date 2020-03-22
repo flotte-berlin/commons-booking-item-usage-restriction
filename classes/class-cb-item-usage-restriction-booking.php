@@ -127,7 +127,7 @@ class CB_Item_Usage_Restriction_Booking {
     //get bookings data
     $table_name = $wpdb->prefix . 'cb_bookings';
     $select_statement = "SELECT * FROM $table_name WHERE ".
-                        "date_start BETWEEN '".$date_end_min."' ".
+                        "date_end BETWEEN '".$date_end_min."' ".
                         "AND '".$date_end_max."' ".
                         "AND status = 'confirmed'";
 
