@@ -166,6 +166,38 @@ class CB_Item_Usage_Restriction_Admin {
             }
           }
 
+          // check conflicting bookings for shortened total breakdown (parallel bookings can occur inside usage restriction - see commons-booking-admin-booking plugin)
+          if($item_restriction['restriction_type'] == 1 && $new_end_date_timestamp < $old_end_date_timestamp) {
+            if(cb_item_usage_restriction\is_plugin_active('commons-booking-admin-booking.php') && method_exists('CB_Admin_Booking_Admin', 'check_conflict_bookings_in_item_usage_restriction')) {
+              $cb_admin_booking_admin = new CB_Admin_Booking_Admin();
+
+              $date_after_new_end = DateTime::createFromFormat('Y-m-d', $validation_result['data']['date_end']);
+              $date_after_new_end->modify('+1 day');
+
+              $conflict_bookings = $cb_admin_booking_admin->fetch_bookings_in_period($date_after_new_end->format('Y-m-d'), $old_date_end, $item_restriction['item_id']);
+
+              $filtered_conflict_bookings = [];
+              foreach ($conflict_bookings as $conflict_booking) {
+                if($conflict_booking->id != $item_restriction['booking_id']) {
+                  $filtered_conflict_bookings[] = $conflict_booking;
+                }
+              }
+
+              $blocking_user_id = get_option('cb_item_restriction_blocking_user_id', null);
+
+              //max. 1 booking is allowed
+              $conflict_bookings_count = $cb_admin_booking_admin->check_conflict_bookings_in_item_usage_restriction($blocking_user_id, $filtered_conflict_bookings, $date_after_new_end->format('Y-m-d'), $old_date_end, 1);
+
+              if($conflict_bookings_count) {
+                $message = item_usage_restriction\__('CONFLICT_BOOKINGS_AFTER_SHORTENED_RESTRICTION', 'commons-booking-item-usage-restriction', "This action would cause a conflict between concurrent bookings after the shortened restriction. Please solve that first.");
+                $class = 'notice notice-error';
+                echo '<div id="message" class="' . $class .'"><p>' . $message . '</p></div>';
+                return false;
+              }
+            }
+
+          }
+
           $bookings_for_update_email = array();
 
           //shortened restriction: if new end date < old end date & old end date >= today
@@ -606,7 +638,7 @@ class CB_Item_Usage_Restriction_Admin {
   */
   function check_restriction_1_overlapping($item_id, $date_start_valid, $date_end_valid, $restriction_type) {
     $overlapping = false;
-    
+
     if($restriction_type == 1) {
 
       //check for already existing restriction in timeframe
