@@ -13,6 +13,7 @@ License URI:  https://www.gnu.org/licenses/gpl-2.0.html
 
 define( 'CB_ITEM_USAGE_RESTRICTION_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CB_ITEM_USAGE_RESTRICTION_LANG_PATH', dirname( plugin_basename( __FILE__ )) . '/languages/' );
+define( 'CB_ITEM_USAGE_RESTRICTION_ASSETS_URL', plugins_url( 'assets/', __FILE__ ));
 
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'functions/translate.php' );
 
@@ -23,6 +24,7 @@ require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-item-usage-rest
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-item-usage-restriction-settings.php' );
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-item-usage-restriction-admin.php' );
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-item-usage-restriction-booking.php' );
+require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-bookings-gantt-chart-shortcode.php' );
 
 $cb_item_restriction_settings = new CB_Item_Usage_Restriction_Settings();
 $cb_item_restriction_settings->prepare_settings();
@@ -42,6 +44,10 @@ add_action( 'admin_menu', array($cb_item_usage_restriction_admin, 'add_plugin_ad
 add_filter( 'the_content', 'CB_Item_Usage_Restriction::render_current_restrictions');
 
 add_action('cb_item_usage_restriction_booking_check', 'CB_Item_Usage_Restriction_Booking::check_blocked_bookings');
+
+add_shortcode( 'cb_bookings_gantt_chart', 'CB_Bookings_Gantt_Chart_Shortcode::execute' );
+add_action( 'wp_ajax_cb_bookings_get_gantt_chart_data', 'CB_Bookings_Gantt_Chart_Shortcode::get_bookings_data' );
+//add_action( 'wp_ajax_nopriv_cb_bookings_get_gantt_chart_data', 'CB_Bookings_Gantt_Chart_Shortcode::get_bookings_data' );
 
 register_activation_hook( __FILE__, 'CB_Item_Usage_Restriction_Booking::activate');
 register_deactivation_hook( __FILE__, 'CB_Item_Usage_Restriction_Booking::deactivate');

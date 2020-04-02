@@ -133,6 +133,10 @@
                 </button>
 
               <?php endif; ?>
+
+              <?php
+                echo do_shortcode('[cb_bookings_gantt_chart item_id="' . $item_restriction['item_id'] . '" date_start="' . $item_restriction['date_start'] . '" date_end="' . $item_restriction['date_end'] . '"]');
+              ?>
             </td>
           </tr>
         <?php endforeach; ?>
