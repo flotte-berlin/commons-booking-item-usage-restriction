@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: cb-item-usage-restriction\n"
-"POT-Creation-Date: 2020-03-27 18:07+0100\n"
-"PO-Revision-Date: 2020-03-27 18:12+0100\n"
+"POT-Creation-Date: 2020-04-02 15:07+0200\n"
+"PO-Revision-Date: 2020-04-02 15:09+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de\n"
@@ -27,74 +27,84 @@ msgid "NO_DATE_END_CHANGE"
 msgstr "Das Enddatum der Beschränkung hat sich nicht geändert."
 
 #: ../classes/class-cb-item-usage-restriction-admin.php:138
-#: ../classes/class-cb-item-usage-restriction-admin.php:678
+#: ../classes/class-cb-item-usage-restriction-admin.php:695
 msgid "NO_TIMEFRAME"
 msgstr ""
 "Es existiert kein Zeitraum für die angegebene Beschränkungsdauer. Es muss "
 "zunächst einer erstellt werden, bevor eine Einschränkung gesetzt werden kann."
 
 #: ../classes/class-cb-item-usage-restriction-admin.php:162
-#: ../classes/class-cb-item-usage-restriction-admin.php:668
+#: ../classes/class-cb-item-usage-restriction-admin.php:685
 msgid "RESTRICTION_FOR_PERIOD_ALREADY_EXISTING"
 msgstr ""
 "Es gibt schon eine Nutzungsbeschränkung vom Typ 'Totalausfall' für den "
 "angegebenen Zeitraum."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:188
+#: ../classes/class-cb-item-usage-restriction-admin.php:192
 msgid "CONFLICT_BOOKINGS_AFTER_SHORTENED_RESTRICTION"
 msgstr ""
 "Die Aktion würde einen Konflikt zwischen parallelen Buchungen nach der "
 "verkürzten Nutzungbeschränkung verursachen. Dieser muss zunächst aufgelöst "
 "werden."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:332
+#: ../classes/class-cb-item-usage-restriction-admin.php:336
 msgid "RESTRICTION_EDITED"
 msgstr "Die Nutzungsbeschränkung wurde erfolgreich bearbeitet."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:338
-#: ../classes/class-cb-item-usage-restriction-admin.php:612
+#: ../classes/class-cb-item-usage-restriction-admin.php:342
+#: ../classes/class-cb-item-usage-restriction-admin.php:629
 msgid "END_DATE_TO_LOW"
 msgstr "Enddatum darf nicht vor dem Anfangsdatum liegen"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:345
+#: ../classes/class-cb-item-usage-restriction-admin.php:349
 msgid "NO_RESTRICTION_TO_UPDATE"
 msgstr "Die gewünschte Nutzungseinschränkung existiert nicht."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:353
-#: ../classes/class-cb-item-usage-restriction-admin.php:451
+#: ../classes/class-cb-item-usage-restriction-admin.php:357
+#: ../classes/class-cb-item-usage-restriction-admin.php:443
+#: ../classes/class-cb-item-usage-restriction-admin.php:461
 msgid "INPUT_ERRORS_OCCURED"
 msgstr "Es gibt Eingabefehler im Formular"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:432
+#: ../classes/class-cb-item-usage-restriction-admin.php:436
 msgid "RESTRICTION_DELETED"
 msgstr "Die Nutzungsbeschränkung wurde erfolgreich gelöscht."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:527
+#: ../classes/class-cb-item-usage-restriction-admin.php:537
+#: ../classes/class-cb-item-usage-restriction-admin.php:574
 msgid "MISSING_RESTRICTION_PROPERTIES"
 msgstr "fehlende oder fehlerhafte Eigenschaften der Nutzungsbeschränkung"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:531
-#: ../classes/class-cb-item-usage-restriction-admin.php:618
+#: ../classes/class-cb-item-usage-restriction-admin.php:541
+#: ../classes/class-cb-item-usage-restriction-admin.php:635
 msgid "END_DATE_INVALID"
 msgstr "ungültiges Enddatum"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:591
+#: ../classes/class-cb-item-usage-restriction-admin.php:548
+msgid "UPDATE_COMMENT_EMPTY"
+msgstr "Ein Änderungskommentar muss angegeben sein."
+
+#: ../classes/class-cb-item-usage-restriction-admin.php:569
+msgid "DELETE_COMMENT_EMPTY"
+msgstr "Ein Kommentar zur Löschung muss angegeben sein."
+
+#: ../classes/class-cb-item-usage-restriction-admin.php:608
 msgid "ITEM_INVALID"
 msgstr "ungültiger Artikel"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:601
+#: ../classes/class-cb-item-usage-restriction-admin.php:618
 msgid "START_DATE_INVALID"
 msgstr "ungültiges Anfangsdatum"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:622
+#: ../classes/class-cb-item-usage-restriction-admin.php:639
 msgid "RESTRICTION_TYPE_INVALID"
 msgstr "ungültiger Typ der Nutzungeinschränkung"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:626
+#: ../classes/class-cb-item-usage-restriction-admin.php:643
 msgid "RESTRICTION_HINT_EMPTY"
 msgstr "der Hinweis zur Nutzungsbeschränkung muss ausgefüllt sein"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:746
+#: ../classes/class-cb-item-usage-restriction-admin.php:763
 msgid "RESTRICTION_CREATED"
 msgstr "Die Nutzungsbeschränkung wurde erfolgreich erstellt."
 

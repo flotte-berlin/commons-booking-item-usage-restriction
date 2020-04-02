@@ -163,7 +163,7 @@
         <input type="date" name="date_end">
       </div>
       <label for="update_comment"><?= item_usage_restriction\__( 'UPDATE_COMMENT', 'commons-booking-item-usage-restriction', 'write a comment') ?>:</label><br>
-      <textarea style="width: 100%; height: 100px;" name="update_comment"></textarea><br>
+      <textarea style="width: 100%; height: 100px;" name="update_comment" required></textarea><br>
       <button style="margin-top: 10px; float:right;" class="button action">
         <span style="padding-top: 3px;" class="dashicons dashicons-yes"></span> <?= item_usage_restriction\__( 'CONFIRM', 'commons-booking-item-usage-restriction', 'confirm') ?>
       </button>
@@ -180,7 +180,7 @@
       <input type="hidden" name="created_by_user_id" value="">
       <input type="hidden" name="created_at_timestamp" value="">
       <label for="delete_comment"><?= item_usage_restriction\__( 'DELETE_COMMENT', 'commons-booking-item-usage-restriction', 'write a comment') ?>:</label><br>
-      <textarea style="width: 100%; height: 100px;" name="delete_comment"></textarea><br>
+      <textarea style="width: 100%; height: 100px;" name="delete_comment" required></textarea><br>
       <button style="margin-top: 10px; float:right;" class="button action">
         <span style="padding-top: 3px;" class="dashicons dashicons-yes"></span> <?= item_usage_restriction\__( 'CONFIRM', 'commons-booking-item-usage-restriction', 'confirm') ?>
       </button>

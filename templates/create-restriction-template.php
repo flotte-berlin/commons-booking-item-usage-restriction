@@ -36,7 +36,7 @@
       <label for="restriction_hint"><?= item_usage_restriction\__( 'WITH_HINT', 'commons-booking-item-usage-restriction', 'with hint') ?>:</label><br>
 
       <div style="margin-left: 20px">
-        <textarea style="width: 500px; height: 100px;" name="restriction_hint"><?= $form_values['restriction_hint'] ?></textarea><br>
+        <textarea style="width: 500px; height: 100px;" name="restriction_hint" required><?= $form_values['restriction_hint'] ?></textarea><br>
       </div>
 
       <label for="additional_emails"><?= item_usage_restriction\__( 'SEND_ADDITIONAL_EMAIL_TO', 'commons-booking-item-usage-restriction', 'send additional email notification to (comma separated list)') ?>:</label><br>
