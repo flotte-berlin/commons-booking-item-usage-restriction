@@ -7,6 +7,7 @@ class CB_Item_Usage_Restriction_Admin {
   private $cb_items;
   private $valid_cb_item_ids = array();
   private $blocking_user;
+  private $mails_enabled;
   private $email_message;
   private $consider_responsible_users;
 
@@ -850,6 +851,8 @@ class CB_Item_Usage_Restriction_Admin {
       $this->blocking_user = get_user_by('id', $blocking_user_id);
     }
 
+    $this->mails_enabled = get_option('cb_item_restriction_mails_enabled', false);
+
     $this->email_message = array(
       'restriction_1' =>
         array(
@@ -918,7 +921,7 @@ class CB_Item_Usage_Restriction_Admin {
 
     if($status) {
       $select_statement .= " AND status = '". $status."'";
-    }    
+    }
 
     $prepared_statement = $wpdb->prepare($select_statement, $item_id);
 
@@ -932,23 +935,26 @@ class CB_Item_Usage_Restriction_Admin {
   **/
   function send_mail_by_reason_to_recipients($email_recipients, $item_id, $reason, $date_start, $date_end, $hint = '') {
 
-    foreach ($email_recipients as $email_recipient) {
-      $user_data = array();
+    if($this->mails_enabled) {
+      foreach ($email_recipients as $email_recipient) {
+        $user_data = array();
 
-      if(is_string($email_recipient)) {
-        $user_data['first_name'] = '';
-        $user_data['last_name'] = '';
-        $user_data['user_email'] = $email_recipient;
+        if(is_string($email_recipient)) {
+          $user_data['first_name'] = '';
+          $user_data['last_name'] = '';
+          $user_data['user_email'] = $email_recipient;
 
+        }
+        else {
+          $user_data['first_name'] = $email_recipient->first_name;
+          $user_data['last_name'] = $email_recipient->last_name;
+          $user_data['user_email'] = $email_recipient->user_email;
+        }
+
+        $this->send_mail_by_reason($item_id, $reason, $date_start, $date_end, $user_data, $hint);
       }
-      else {
-        $user_data['first_name'] = $email_recipient->first_name;
-        $user_data['last_name'] = $email_recipient->last_name;
-        $user_data['user_email'] = $email_recipient->user_email;
-      }
-
-      $this->send_mail_by_reason($item_id, $reason, $date_start, $date_end, $user_data, $hint);
     }
+
   }
 
   /**

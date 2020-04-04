@@ -16,6 +16,7 @@ class CB_Item_Usage_Restriction_Settings {
 
     add_action( 'admin_init', function() {
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_blocking_user_id' );
+      register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_mails_enabled' );
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_type_1_email_subject' );
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_type_1_email_body' );
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_type_2_email_subject' );
