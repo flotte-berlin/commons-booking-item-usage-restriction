@@ -82,7 +82,7 @@ class CB_Item_Usage_Restriction_Booking {
       $booking_canceled_after_start = false;
     }
 
-    return $booking->status == 'confirmed' || $booking_canceled_after_start;
+    return ($booking->status == 'confirmed' && (!isset($booking->usage_during_restriction) || !$booking->usage_during_restriction)) || $booking_canceled_after_start;
   }
 
   static function block_booking($booking, $restriction, $revert = false, $inside_restriction = true) {
