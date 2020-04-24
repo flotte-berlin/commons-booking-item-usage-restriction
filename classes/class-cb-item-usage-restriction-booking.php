@@ -37,21 +37,10 @@ class CB_Item_Usage_Restriction_Booking {
     foreach ($bookings as $booking) {
       //check if booking doesn't belong to blocking user && status is confirmed or canceled on first booking day
       if($booking->user_id != get_option('cb_item_restriction_blocking_user_id')) {
-        $cancellation_timestamp = isset($booking->cancellation_time) ? strtotime($booking->cancellation_time) : null;
-        if($booking->status == 'canceled' && $cancellation_timestamp) {
-          $cancellation_time = new DateTime();
-          $cancellation_time->setTimestamp($cancellation_timestamp);
-          $booking_date_start = DateTime::createFromFormat('Y-m-d', $booking->date_start);
-          $booking_date_start->setTime(0, 0, 0);
 
-          //error_log('booking: ' . $booking->id . ': ' . $cancellation_time->format('Y-m-d H:i:s') . ' / ' . $booking_date_start->format('Y-m-d H:i:s'));
-          $booking_canceled_on_first_booking_day = $cancellation_time > $booking_date_start ? true : false;
-        }
-        else {
-          $booking_canceled_on_first_booking_day = false;
-        }
+        $has_booking_to_be_blocked = self::has_booking_to_be_blocked($booking);
 
-        if($booking->status == 'confirmed' || $booking_canceled_on_first_booking_day) {
+        if($has_booking_to_be_blocked) {
           $item_id = $booking->item_id;
 
           //trigger_error('$item_id: ' . $item_id);
@@ -78,6 +67,24 @@ class CB_Item_Usage_Restriction_Booking {
     update_option( 'cb_item_restriction_booking_check_datetime', $datetime_end, false );
   }
 
+  static function has_booking_to_be_blocked($booking) {
+    $cancellation_timestamp = isset($booking->cancellation_time) ? strtotime($booking->cancellation_time) : null;
+    if($booking->status == 'canceled' && $cancellation_timestamp) {
+      $cancellation_time = new DateTime();
+      $cancellation_time->setTimestamp($cancellation_timestamp);
+      $booking_date_start = DateTime::createFromFormat('Y-m-d', $booking->date_start);
+      $booking_date_start->setTime(0, 0, 0);
+
+      //error_log('booking: ' . $booking->id . ': ' . $cancellation_time->format('Y-m-d H:i:s') . ' / ' . $booking_date_start->format('Y-m-d H:i:s'));
+      $booking_canceled_after_start = $cancellation_time > $booking_date_start ? true : false;
+    }
+    else {
+      $booking_canceled_after_start = false;
+    }
+
+    return ($booking->status == 'confirmed' && (!isset($booking->usage_during_restriction) || !$booking->usage_during_restriction)) || $booking_canceled_after_start;
+  }
+
   static function block_booking($booking, $restriction, $revert = false, $inside_restriction = true) {
     $booking_date_start = DateTime::createFromFormat('Y-m-d', $booking->date_start);
     $booking_date_start->setTime(8, 0, 0);
@@ -90,7 +97,15 @@ class CB_Item_Usage_Restriction_Booking {
     $restriction_date_end = DateTime::createFromFormat('Y-m-d', $restriction['date_end']);
     $restriction_date_end->setTime(23, 59, 59);
 
-    $status = $revert ? 'confirmed' : 'blocked';
+    $cancellation_timestamp = isset($booking->cancellation_time) ? strtotime($booking->cancellation_time) : null;
+
+    if($revert) {
+      $status = $cancellation_timestamp ? 'canceled' : 'confirmed';
+    }
+    else {
+      $status = 'blocked';
+    }
+
     $set_status = false;
     $completely_inside_booking = $booking_date_start >= $restriction_date_start && $booking_date_end <= $restriction_date_end;
     $booking_condition = $inside_restriction ? $completely_inside_booking : !$completely_inside_booking;

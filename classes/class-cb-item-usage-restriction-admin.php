@@ -7,6 +7,7 @@ class CB_Item_Usage_Restriction_Admin {
   private $cb_items;
   private $valid_cb_item_ids = array();
   private $blocking_user;
+  private $mails_enabled;
   private $email_message;
   private $consider_responsible_users;
 
@@ -290,7 +291,9 @@ class CB_Item_Usage_Restriction_Admin {
 
               foreach ($bookings as $booking) {
                 if($booking->user_id != get_option('cb_item_restriction_blocking_user_id')) {
-                  CB_Item_Usage_Restriction_Booking::block_booking($booking, $item_restriction);
+                  if(CB_Item_Usage_Restriction_Booking::has_booking_to_be_blocked($booking)) {
+                    CB_Item_Usage_Restriction_Booking::block_booking($booking, $data);
+                  }
                 }
               }
             }
@@ -367,8 +370,8 @@ class CB_Item_Usage_Restriction_Admin {
 
     $validation_result = $this->validate_delete_restriction_form_input();
 
-    if($validation_result) {
-      $item_restriction = $this->find_item_usage_restriction($validation_result['item_id'], $validation_result['created_by_user_id'], $validation_result['created_at_timestamp']);
+    if(count($validation_result['errors']) == 0) {
+      $item_restriction = $this->find_item_usage_restriction($validation_result['data']['item_id'], $validation_result['data']['created_by_user_id'], $validation_result['data']['created_at_timestamp']);
 
       if(isset($item_restriction)) {
         //breakdown in the past: new end date > old end date & new end date < today
@@ -430,13 +433,19 @@ class CB_Item_Usage_Restriction_Admin {
         $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], 'delete_restriction', $item_restriction['date_start'], $item_restriction['date_end'], $validation_result['delete_comment']);
 
         //remove restriction from item
-        $item_restrictions = CB_Item_Usage_Restriction::get_item_restrictions($validation_result['item_id']);
-        CB_Item_Usage_Restriction::remove_item_restriction($item_restriction['item_id'], $item_restrictions, $item_restriction['index'], $validation_result['delete_comment']);
+        $item_restrictions = CB_Item_Usage_Restriction::get_item_restrictions($validation_result['data']['item_id']);
+        CB_Item_Usage_Restriction::remove_item_restriction($item_restriction['item_id'], $item_restrictions, $item_restriction['index'], $validation_result['data']['delete_comment']);
 
         $message = item_usage_restriction\__('RESTRICTION_DELETED', 'commons-booking-item-usage-restriction', 'The restriction was deleted successfully.');
         $class = 'notice notice-success';
         echo '<div id="message" class="' . $class .'"><p>' . $message . '</p></div>';
       }
+    }
+    else {
+      $error_list = str_replace(',', ', ', implode(",", $validation_result['errors']));
+      $message = item_usage_restriction\__('INPUT_ERRORS_OCCURED', 'commons-booking-item-usage-restriction', 'There are input errors in the request') . ': ' . $error_list;
+      $class = 'notice notice-error';
+      echo '<div id="message" class="' . $class .'"><p>' . $message . '</p></div>';
     }
   }
 
@@ -538,6 +547,10 @@ class CB_Item_Usage_Restriction_Admin {
       $data['date_end_valid']->setTime( 23, 59, 59 );
     }
 
+    if(strlen($data['update_comment']) == 0) {
+      $errors['update_comment'] = item_usage_restriction\__('UPDATE_COMMENT_EMPTY', 'commons-booking-item-usage-restriction', 'the update comment has to be filled out');
+    }
+
     return array('data' => $data, 'errors' => $errors);
 
   }
@@ -555,13 +568,16 @@ class CB_Item_Usage_Restriction_Admin {
     $data['created_at_timestamp'] = intval($_POST['created_at_timestamp']);
     $data['delete_comment'] = sanitize_text_field($_POST['delete_comment']);
 
-    if(in_array($data['item_id'], $this->valid_cb_item_ids) && $data['created_by_user_id'] && $data['created_at_timestamp']) {
+    if(strlen($data['delete_comment']) == 0) {
+      $errors['delete_comment'] = item_usage_restriction\__('DELETE_COMMENT_EMPTY', 'commons-booking-item-usage-restriction', 'the delete comment has to be filled out');
+    }
 
-      return $data;
+    if(!in_array($data['item_id'], $this->valid_cb_item_ids) || !$data['created_by_user_id'] || !$data['created_at_timestamp']) {
+
+      $errors['item_id'] = item_usage_restriction\__('MISSING_RESTRICTION_PROPERTIES', 'commons-booking-item-usage-restriction', 'missing or invalid properties of usage restriction ');
     }
-    else {
-      return false;
-    }
+
+    return array('data' => $data, 'errors' => $errors);
 
   }
 
@@ -702,7 +718,9 @@ class CB_Item_Usage_Restriction_Admin {
         $bookings = self::fetch_bookings_in_period($data['date_start'], $data['date_end'], $data['item_id']);
 
         foreach ($bookings as $booking) {
+          if(CB_Item_Usage_Restriction_Booking::has_booking_to_be_blocked($booking)) {
             CB_Item_Usage_Restriction_Booking::block_booking($booking, $data);
+          }
         }
 
       }
@@ -833,6 +851,8 @@ class CB_Item_Usage_Restriction_Admin {
       $this->blocking_user = get_user_by('id', $blocking_user_id);
     }
 
+    $this->mails_enabled = get_option('cb_item_restriction_mails_enabled', false);
+
     $this->email_message = array(
       'restriction_1' =>
         array(
@@ -886,7 +906,7 @@ class CB_Item_Usage_Restriction_Admin {
   /**
   * fetches bookings in period determined by start and end date from db for given item
   */
-  function fetch_bookings_in_period($date_start, $date_end, $item_id, $status = 'confirmed') {
+  function fetch_bookings_in_period($date_start, $date_end, $item_id, $status = null) {
     global $wpdb;
 
     //get bookings data
@@ -897,8 +917,11 @@ class CB_Item_Usage_Restriction_Admin {
                         "OR (date_end BETWEEN '".$date_start."' ".
                         "AND '".$date_end."') ".
                         "OR (date_start < '".$date_start."' ".
-                        "AND date_end > '".$date_end."')) ".
-                        "AND status = '". $status."'";
+                        "AND date_end > '".$date_end."'))";
+
+    if($status) {
+      $select_statement .= " AND status = '". $status."'";
+    }
 
     $prepared_statement = $wpdb->prepare($select_statement, $item_id);
 
@@ -912,23 +935,26 @@ class CB_Item_Usage_Restriction_Admin {
   **/
   function send_mail_by_reason_to_recipients($email_recipients, $item_id, $reason, $date_start, $date_end, $hint = '') {
 
-    foreach ($email_recipients as $email_recipient) {
-      $user_data = array();
+    if($this->mails_enabled) {
+      foreach ($email_recipients as $email_recipient) {
+        $user_data = array();
 
-      if(is_string($email_recipient)) {
-        $user_data['first_name'] = '';
-        $user_data['last_name'] = '';
-        $user_data['user_email'] = $email_recipient;
+        if(is_string($email_recipient)) {
+          $user_data['first_name'] = '';
+          $user_data['last_name'] = '';
+          $user_data['user_email'] = $email_recipient;
 
+        }
+        else {
+          $user_data['first_name'] = $email_recipient->first_name;
+          $user_data['last_name'] = $email_recipient->last_name;
+          $user_data['user_email'] = $email_recipient->user_email;
+        }
+
+        $this->send_mail_by_reason($item_id, $reason, $date_start, $date_end, $user_data, $hint);
       }
-      else {
-        $user_data['first_name'] = $email_recipient->first_name;
-        $user_data['last_name'] = $email_recipient->last_name;
-        $user_data['user_email'] = $email_recipient->user_email;
-      }
-
-      $this->send_mail_by_reason($item_id, $reason, $date_start, $date_end, $user_data, $hint);
     }
+
   }
 
   /**
