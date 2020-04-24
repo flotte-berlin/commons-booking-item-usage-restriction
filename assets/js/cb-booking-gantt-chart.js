@@ -1,50 +1,16 @@
 jQuery(document).ready(function ($) {
   document.create_cb_bookings_gantt_chart = function(identifier) {
-      $('#cb-bookings-gantt-chart-wrapper').remove();
+    $('#cb-bookings-gantt-chart-wrapper').remove();
 
-      var $el = $(identifier);
-      var url = $el.data('url');
-      var item_id = $el.data('item_id');
-      var date_start = $el.data('date_start');
-      var date_end = $el.data('date_end');
+    var $el = $(identifier);
+    var url = $el.data('url');
+    var item_id = $el.data('item_id');
+    var date_start = $el.data('date_start');
+    var date_end = $el.data('date_end');
 
-      console.log('data: ', item_id, date_start, date_end);
+    console.log('data: ', item_id, date_start, date_end);
 
-      var element_offset = $el.offset();
-      console.log('element_offset: ', element_offset);
-
-      var wrapper_dimensions = {
-        width: 600,
-        height: 320
-      };
-
-      var document_dimensions = {
-        width: $(document).width(),
-        height: $(document).height()
-      }
-
-      console.log('document_dimensions: ', document_dimensions);
-
-      var factor_x = 1;
-      var factor_y = -1;
-
-      var wrapper_offset_x = 5;
-      var wrapper_offset_y = wrapper_dimensions.height / 2;
-
-      var horizontal_space = document_dimensions.width - element_offset.left;
-      console.log('horizontal_space: ', horizontal_space);
-
-      if(horizontal_space < wrapper_dimensions.width) {
-        factor_x = -1;
-        wrapper_offset_x += wrapper_dimensions.width;
-      }
-
-      var wrapper_pos = {
-        left: element_offset.left + factor_x * wrapper_offset_x,
-        top: element_offset.top + factor_y * wrapper_offset_y
-      };
-
-      var data = {
+    var data = {
       //'nonce': this.settings.nonce,
 			'action': 'cb_bookings_get_gantt_chart_data',
       'item_id': item_id,
@@ -53,6 +19,13 @@ jQuery(document).ready(function ($) {
 		};
 
     console.log('fetch location data from: ', url);
+
+    var wrapper_dimensions = {
+      width: 600,
+      height: 320
+    };
+
+    var wrapper_pos = calculate_chart_wrapper_position($el, wrapper_dimensions);
 
     var $canvas_wrapper = $('<div id="cb-bookings-gantt-chart-wrapper" style="background-color: #fff; border: 1px solid #666666; position: absolute; z-index: 1000; left: ' + wrapper_pos.left + 'px; top: ' + wrapper_pos.top + 'px; width: ' + wrapper_dimensions.width + 'px; height: ' + wrapper_dimensions.height + 'px;"></div>')
     var $head = $('<div style="width: 100%; height: 20px; text-align: right;"></div>');
@@ -174,6 +147,42 @@ jQuery(document).ready(function ($) {
           }
         }
       });
-  });
+    });
+  }
+
+  function calculate_chart_wrapper_position($el, wrapper_dimensions) {
+    var element_offset = $el.offset();
+    console.log('element_offset: ', element_offset);
+
+    var document_dimensions = {
+      width: $(document).width(),
+      height: $(document).height()
+    }
+
+    console.log('document_dimensions: ', document_dimensions);
+
+    var factor_x = 1;
+    var factor_y = -1;
+
+    var wrapper_offset_x = 5;
+    var wrapper_offset_y = wrapper_dimensions.height / 2;
+
+    var horizontal_space = document_dimensions.width - element_offset.left;
+    console.log('horizontal_space: ', horizontal_space);
+
+    if(horizontal_space < wrapper_dimensions.width) {
+      factor_x = -1;
+      wrapper_offset_x += wrapper_dimensions.width;
+    }
+    else {
+      wrapper_offset_x += $el.outerWidth();
+    }
+
+    var wrapper_pos = {
+      left: element_offset.left + factor_x * wrapper_offset_x,
+      top: element_offset.top + factor_y * wrapper_offset_y
+    };
+
+    return wrapper_pos;
   }
 });
