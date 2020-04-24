@@ -44,8 +44,8 @@ class CB_Bookings_Gantt_Chart_Shortcode {
 
       wp_enqueue_style('dashicons');
 
-      wp_enqueue_script( 'cb_bookings_chart_moment_js', 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.1.0/moment.min.js' );
-      wp_enqueue_script( 'cb_bookings_chart_js', 'https://cdn.jsdelivr.net/npm/chart.js@2.9.3' );
+      wp_enqueue_script( 'cb_bookings_chart_moment_js', CB_ITEM_USAGE_RESTRICTION_ASSETS_URL . 'js/vendor/moment.js@2.1.0/moment.min.js' );
+      wp_enqueue_script( 'cb_bookings_chart_js', CB_ITEM_USAGE_RESTRICTION_ASSETS_URL . 'js/vendor/chart.js@2.9.3/chart.js' );
 
       wp_enqueue_script( 'cb_bookings_gantt_chart_js', CB_ITEM_USAGE_RESTRICTION_ASSETS_URL . 'js/cb-booking-gantt-chart.js' );
 
@@ -54,7 +54,7 @@ class CB_Bookings_Gantt_Chart_Shortcode {
               ' data-item_id="' . $validated_input['item_id'] . '"' .
               ' data-date_start="' . $validated_input['date_start']->format('Y-m-d') . '"' .
               ' data-date_end="' . $validated_input['date_end']->format('Y-m-d') . '"' .
-              ' class="button action" style="padding-top: 3px;"><span class="dashicons dashicons-editor-aligncenter"></span></button>'; //dashicons-list-view
+              ' class="button action"><span style="padding-top: 4px;" class="dashicons dashicons-chart-bar"></span></button>'; //dashicons-list-view
     }
 
   }
@@ -93,7 +93,7 @@ class CB_Bookings_Gantt_Chart_Shortcode {
           $blocking_booking_time = new DateTime($grouped_bookings['blocking'][0]->booking_time);
           $booking_time = new DateTime($booking->booking_time);
 
-          if($booking_time >= $blocking_booking_time) {
+          if($booking->usage_during_restriction) {
             $grouped_bookings['overbooking'][] = $booking;
             unset($grouped_bookings['user'][$key]);
           }
