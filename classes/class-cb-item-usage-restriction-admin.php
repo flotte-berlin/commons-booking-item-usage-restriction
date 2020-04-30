@@ -896,7 +896,7 @@ class CB_Item_Usage_Restriction_Admin {
     if($date_end_timestamp >= $today_timestamp) {
       $date_start = $date_start_timestamp >= $today_timestamp ? $date_start : $today_datetime->format('Y-m-d');
 
-      $bookings = $this->fetch_bookings_in_period($date_start, $date_end, $item_id);
+      $bookings = self::fetch_bookings_in_period($date_start, $date_end, $item_id);
 
     }
 
@@ -906,7 +906,7 @@ class CB_Item_Usage_Restriction_Admin {
   /**
   * fetches bookings in period determined by start and end date from db for given item
   */
-  function fetch_bookings_in_period($date_start, $date_end, $item_id, $status = null) {
+  static function fetch_bookings_in_period($date_start, $date_end, $item_id, $status = null) {
     global $wpdb;
 
     //get bookings data

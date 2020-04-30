@@ -214,6 +214,17 @@ class CB_Item_Usage_Restriction {
     return count($restrictions_in_period) > 0;
   }
 
+  static function get_item_restriction_by_blocking_booking_id($item_id, $booking_id) {
+
+    $item_restrictions = self::get_item_restrictions($item_id, 'asc');
+
+    foreach ($item_restrictions as $restriction) {
+      if($restriction['booking_id'] == $booking_id) {
+        return $restriction;
+      }
+    }
+  }
+
 }
 
 ?>

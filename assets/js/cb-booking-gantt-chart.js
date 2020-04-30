@@ -1,12 +1,32 @@
 jQuery(document).ready(function ($) {
-  document.create_cb_bookings_gantt_chart = function(identifier) {
-    $('#cb-bookings-gantt-chart-wrapper').remove();
-
+  document.init_cb_bookings_gantt_chart = function(identifier) {
     var $el = $(identifier);
+    var uuid = $el.data('uuid');
+
+    var $opened_chart_wrapper = $('#cb-bookings-gantt-chart-wrapper');
+
+    if($opened_chart_wrapper.length) {
+      opened_chart_uuid = $opened_chart_wrapper.data('uuid');
+
+      if(uuid != opened_chart_uuid) {
+        $('#cb-bookings-gantt-chart-wrapper').remove();
+
+        create_cb_bookings_gantt_chart($el);
+      }
+    }
+    else {
+      create_cb_bookings_gantt_chart($el);
+    }
+
+  };
+
+  function create_cb_bookings_gantt_chart($el) {
+
     var url = $el.data('url');
     var item_id = $el.data('item_id');
     var date_start = $el.data('date_start');
     var date_end = $el.data('date_end');
+    var uuid = $el.data('uuid');
 
     console.log('data: ', item_id, date_start, date_end);
 
@@ -27,14 +47,26 @@ jQuery(document).ready(function ($) {
 
     var wrapper_pos = calculate_chart_wrapper_position($el, wrapper_dimensions);
 
-    var $canvas_wrapper = $('<div id="cb-bookings-gantt-chart-wrapper" style="background-color: #fff; border: 1px solid #666666; position: absolute; z-index: 1000; left: ' + wrapper_pos.left + 'px; top: ' + wrapper_pos.top + 'px; width: ' + wrapper_dimensions.width + 'px; height: ' + wrapper_dimensions.height + 'px;"></div>')
-    var $head = $('<div style="width: 100%; height: 20px; text-align: right;"></div>');
-    $canvas_wrapper.append($head);
-    var $close = $('<span style="padding-right: 10px; font-size: 18px; line-height: 28px; cursor: pointer;">X</span>');
-    $head.append($close)
-    var $canvas = $('<canvas style="width: 600px; height: 300px;" id="cb-bookings-gantt-chart"></canvas>');
-    $canvas_wrapper.append($canvas);
+    var $canvas_wrapper = $('<div id="cb-bookings-gantt-chart-wrapper" data-uuid="' + uuid + '" style=""></div>');
     $('body').append($canvas_wrapper);
+
+    wrapper_dimensions = {
+      width: $canvas_wrapper.outerWidth(),
+      height: $canvas_wrapper.outerHeight()
+    };
+
+    $canvas_wrapper.css({
+      left: wrapper_pos.left,
+      top: wrapper_pos.top
+    })
+
+    var $head = $('<div class="cb-bookings-gantt-chart-head"></div>');
+    $canvas_wrapper.append($head);
+    var $close = $('<span class="cb-bookings-gantt-chart-close">X</span>');
+    $head.append($close)
+    var $canvas = $('<canvas id="cb-bookings-gantt-chart"></canvas>');
+    $canvas_wrapper.append($canvas);
+
 
     $close.click(function() {
       $canvas_wrapper.remove();
@@ -49,32 +81,33 @@ jQuery(document).ready(function ($) {
       var backgroundColor = [];
 
       var backgroundColors = {
-         'blocking': '#ff6666',
-         'user': '#7fc600',
-         'overbooking': '#589ad7'
+         'blocking': '#ee7400',
+         'confirmed': '#7fc600',
+         'overbooking': '#004b7c',
+         'blocked': '#000000',
+         'canceled': '#aaaaaa'
       };
 
-      booking_types = [];
+      var booking_type_labels = {
+        'blocking': 'blockierend',
+        'confirmed': 'bestätigt',
+        'overbooking': 'überbuchend',
+        'blocked': 'blockiert',
+        'canceled': 'storniert'
+      }
 
-      booking_data['blocking'].forEach((booking, i) => {
-        labels.push(booking.id);
-        chart_data.push([new Date(booking.date_start), new Date(booking.date_end)]);
-        backgroundColor.push(backgroundColors['blocking']);
-        booking_types.push('Totalausfall');
-      });
+      var booking_types = [];
+      var bookings_by_id = {};
 
-      booking_data['user'].forEach((booking, i) => {
-        labels.push(booking.id);
-        chart_data.push([new Date(booking.date_start), new Date(booking.date_end)]);
-        backgroundColor.push(backgroundColors['user']);
-        booking_types.push('normale Buchung');
-      });
+      Object.keys(booking_type_labels).forEach((label, i) => {
 
-      booking_data['overbooking'].forEach((booking, i) => {
-        labels.push(booking.id);
-        chart_data.push([new Date(booking.date_start), new Date(booking.date_end)]);
-        backgroundColor.push(backgroundColors['overbooking']);
-        booking_types.push('Überbuchung');
+        booking_data[label].forEach((booking, i) => {
+          labels.push(booking.id);
+          bookings_by_id[booking.id] = booking;
+          chart_data.push([new Date(booking.date_start), new Date(booking.date_end)]);
+          backgroundColor.push(backgroundColors[label]);
+          booking_types.push(booking_type_labels[label]);
+        });
       });
 
       console.log('chart data: ', chart_data);
@@ -109,15 +142,21 @@ jQuery(document).ready(function ($) {
           animation: false,
           title: {
             display: true,
-            text: 'Bestätigte Buchungen'
+            text: 'Buchungen für ' + response.item.name
           },
           tooltips: {
             callbacks: {
-              title: function(tooltipItem, data) {
-                console.log(tooltipItem);
-                console.log(data);
-                return booking_types[tooltipItem[0]['index']];
-              }
+              title: function(tooltipItems, data) {
+                var booking = bookings_by_id[tooltipItems[0]['value']];
+                return booking.user.name + ' (' + booking.user.role  + ')';
+              },
+              label: function(tooltipItem, data) {
+                return booking_types[tooltipItem['index']];
+              },
+              afterLabel: function(tooltipItem, data) {
+                var booking = bookings_by_id[tooltipItem['value']];
+                return booking.comment;
+              },
             },
             mode: 'label',
             position: 'cursor',
