@@ -80,7 +80,6 @@ class CB_Bookings_Gantt_Chart_Shortcode {
   * return the booking data
   **/
   public static function get_bookings_data() {
-
     $validated_input = self::validate_input($_POST);
 
     if($validated_input) {
@@ -94,7 +93,8 @@ class CB_Bookings_Gantt_Chart_Shortcode {
         'confirmed' => [],
         'overbooking' => [],
         'blocked' => [],
-        'canceled' => []
+        'canceled' => [],
+        'aborted' => [],
       ];
 
       foreach ($bookings as $booking) {
@@ -107,7 +107,13 @@ class CB_Bookings_Gantt_Chart_Shortcode {
           }
 
           if($booking->status == 'canceled') {
-            $grouped_bookings['canceled'][] = $booking;
+
+            if(CB_Item_Usage_Restriction_Booking::is_booking_canceled_after_start($booking)) {
+              $grouped_bookings['aborted'][] = $booking;
+            }
+            else {
+              $grouped_bookings['canceled'][] = $booking;
+            }
           }
 
           if($booking->status == 'blocked') {
@@ -133,7 +139,8 @@ class CB_Bookings_Gantt_Chart_Shortcode {
         'confirmed' => self::prepare_bookings_data($grouped_bookings['confirmed']),
         'canceled' => self::prepare_bookings_data($grouped_bookings['canceled']),
         'blocked' => self::prepare_bookings_data($grouped_bookings['blocked']),
-        'overbooking' => self::prepare_bookings_data($grouped_bookings['overbooking'])
+        'overbooking' => self::prepare_bookings_data($grouped_bookings['overbooking']),
+        'aborted' => self::prepare_bookings_data($grouped_bookings['aborted'])
       ];
 
       $chart_data = [

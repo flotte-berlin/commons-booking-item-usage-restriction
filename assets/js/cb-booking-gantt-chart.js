@@ -67,7 +67,6 @@ jQuery(document).ready(function ($) {
     var $canvas = $('<canvas id="cb-bookings-gantt-chart"></canvas>');
     $canvas_wrapper.append($canvas);
 
-
     $close.click(function() {
       $canvas_wrapper.remove();
     });
@@ -80,17 +79,12 @@ jQuery(document).ready(function ($) {
       var chart_data = [];
       var backgroundColor = [];
 
-      var backgroundColors = {
-         'blocking': '#ee7400',
-         'confirmed': '#7fc600',
-         'overbooking': '#004b7c',
-         'blocked': '#000000',
-         'canceled': '#aaaaaa'
-      };
+      var canvas_element = document.getElementById('cb-bookings-gantt-chart');
 
       var booking_type_labels = {
         'blocking': 'blockierend',
         'confirmed': 'bestätigt',
+        'aborted': 'spät storniert',
         'overbooking': 'überbuchend',
         'blocked': 'blockiert',
         'canceled': 'storniert'
@@ -105,7 +99,7 @@ jQuery(document).ready(function ($) {
           labels.push(booking.id);
           bookings_by_id[booking.id] = booking;
           chart_data.push([new Date(booking.date_start), new Date(booking.date_end)]);
-          backgroundColor.push(backgroundColors[label]);
+          backgroundColor.push(getComputedStyle(canvas_element).getPropertyValue('--bar-status-bg-' + label)); //fetched from CSS variables
           booking_types.push(booking_type_labels[label]);
         });
       });
@@ -150,6 +144,22 @@ jQuery(document).ready(function ($) {
                 var booking = bookings_by_id[tooltipItems[0]['value']];
                 return booking.user.name + ' (' + booking.user.role  + ')';
               },
+              beforeLabel: function(tooltipItem, data) {
+                var result  = ''
+                var booking = bookings_by_id[tooltipItem['value']];
+                var date_start = moment(booking.date_start).format('DD.MM.YY');
+                var date_end = moment(booking.date_end).format('DD.MM.YY');
+
+                if(date_start == date_end) {
+                  result = date_start;
+                }
+                else {
+                  result = date_start + ' - ' + date_end;
+                }
+
+                return result + ' (Id: ' + tooltipItem['value'] + ')';
+
+              },
               label: function(tooltipItem, data) {
                 return booking_types[tooltipItem['index']];
               },
@@ -161,7 +171,8 @@ jQuery(document).ready(function ($) {
             mode: 'label',
             position: 'cursor',
             intersect: true,
-            caretSize: 0
+            caretSize: 0,
+            displayColors: false
           },
           legend: { display: false },
           responsive: false,
@@ -175,13 +186,11 @@ jQuery(document).ready(function ($) {
                   day: 'DD.MM.'
                 }
               },
-              ticks: ticks
+              ticks: ticks,
+              offset: true
             }],
             yAxes: [{
-              gridLines: {
-                display: false ,
-                //color: "#FFFFFF"
-              }
+                display: false
             }]
           }
         }

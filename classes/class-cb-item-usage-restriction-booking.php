@@ -67,8 +67,10 @@ class CB_Item_Usage_Restriction_Booking {
     update_option( 'cb_item_restriction_booking_check_datetime', $datetime_end, false );
   }
 
-  static function has_booking_to_be_blocked($booking) {
+  static function is_booking_canceled_after_start($booking) {
+
     $cancellation_timestamp = isset($booking->cancellation_time) ? strtotime($booking->cancellation_time) : null;
+
     if($booking->status == 'canceled' && $cancellation_timestamp) {
       $cancellation_time = new DateTime();
       $cancellation_time->setTimestamp($cancellation_timestamp);
@@ -76,11 +78,16 @@ class CB_Item_Usage_Restriction_Booking {
       $booking_date_start->setTime(0, 0, 0);
 
       //error_log('booking: ' . $booking->id . ': ' . $cancellation_time->format('Y-m-d H:i:s') . ' / ' . $booking_date_start->format('Y-m-d H:i:s'));
-      $booking_canceled_after_start = $cancellation_time > $booking_date_start ? true : false;
+      return $cancellation_time > $booking_date_start ? true : false;
     }
     else {
-      $booking_canceled_after_start = false;
+      return false;
     }
+  }
+
+  static function has_booking_to_be_blocked($booking) {
+
+    $booking_canceled_after_start = self::is_booking_canceled_after_start($booking);
 
     return ($booking->status == 'confirmed' && (!isset($booking->usage_during_restriction) || !$booking->usage_during_restriction)) || $booking_canceled_after_start;
   }

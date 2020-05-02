@@ -23,4 +23,11 @@
 #cb-bookings-gantt-chart {
   width: 100%;
   height: calc(100% - 20px);
+
+  --bar-status-bg-blocking: #ff0000; /* usage restriction */
+  --bar-status-bg-confirmed: #ee7400;
+  --bar-status-bg-overbooking: #004b7c;
+  --bar-status-bg-blocked: #4c4c4c;
+  --bar-status-bg-canceled: #aaaaaa;
+  --bar-status-bg-aborted: #7fc600; /* late cancellation */
 }
