@@ -64,7 +64,7 @@ jQuery(document).ready(function ($) {
     $canvas_wrapper.append($head);
     var $close = $('<span class="cb-bookings-gantt-chart-close">X</span>');
     $head.append($close)
-    var $canvas = $('<canvas id="cb-bookings-gantt-chart"></canvas>');
+    var $canvas = $('<div id="cb-bookings-gantt-chart"></div>');
     $canvas_wrapper.append($canvas);
 
     $close.click(function() {
@@ -95,11 +95,31 @@ jQuery(document).ready(function ($) {
 
       Object.keys(booking_type_labels).forEach((label, i) => {
 
-        booking_data[label].forEach((booking, i) => {
+        var color_value = getComputedStyle(canvas_element).getPropertyValue('--bar-status-bg-' + label) //fetched from CSS variables
+        //console.log('color_value: ', color_value, typeof color_value);
+        backgroundColor.push(color_value);
+
+        booking_data[label].forEach((booking) => {
           labels.push(booking.id);
           bookings_by_id[booking.id] = booking;
-          chart_data.push([new Date(booking.date_start), new Date(booking.date_end)]);
-          backgroundColor.push(getComputedStyle(canvas_element).getPropertyValue('--bar-status-bg-' + label)); //fetched from CSS variables
+
+          chart_data.push(
+            {
+              //data
+              type: booking_type_labels[label],
+              bookingId: booking.id,
+              date_start: booking.date_start,
+              date_end: booking.date_end,
+              user_name: booking.user.name,
+              user_role: booking.user.role,
+              comment: booking.comment,
+
+              //styling
+              fill: am4core.color(backgroundColor[i].trim()),
+              stroke: am4core.color(backgroundColor[i].trim()).brighten(0.2)
+            }
+          );
+
           booking_types.push(booking_type_labels[label]);
         });
       });
@@ -107,94 +127,46 @@ jQuery(document).ready(function ($) {
       console.log('chart data: ', chart_data);
       console.log('labels: ', labels);
 
-      var ticks = {
-        min: new Date(response.ticks.min).getTime(),
-        max: new Date(response.ticks.max).getTime() + 1000
-      }
+      var chart = am4core.create("cb-bookings-gantt-chart", am4charts.XYChart);
+      chart.paddingLeft = 30;
+      chart.paddingRight = 30;
+      chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
 
-      var ctx = document.getElementById('cb-bookings-gantt-chart');
+      chart.data = chart_data;
 
-      Chart.Tooltip.positioners.cursor = function(chartElements, coordinates) {
-        return coordinates;
-      };
+      var categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());
+      categoryAxis.dataFields.category = "type";
+      categoryAxis.renderer.grid.template.location = 0;
+      categoryAxis.renderer.inversed = true;
+      categoryAxis.renderer.labels.template.disabled = true;
 
-      // create chart
-      var myBarChart = new Chart(ctx, {
-        type: 'horizontalBar',
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              //label: 'Buchungen',
-              data: chart_data,
-              backgroundColor: backgroundColor,
-              borderWidth: 1
-            }
-          ]
-        },
-        options: {
-          animation: false,
-          title: {
-            display: true,
-            text: 'Buchungen für ' + response.item.name
-          },
-          tooltips: {
-            callbacks: {
-              title: function(tooltipItems, data) {
-                var booking = bookings_by_id[tooltipItems[0]['value']];
-                return booking.user.name + ' (' + booking.user.role  + ')';
-              },
-              beforeLabel: function(tooltipItem, data) {
-                var result  = ''
-                var booking = bookings_by_id[tooltipItem['value']];
-                var date_start = moment(booking.date_start).format('DD.MM.YY');
-                var date_end = moment(booking.date_end).format('DD.MM.YY');
+      var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+      dateAxis.dateFormatter.dateFormat = "dd.MM.yyyy";
+      dateAxis.renderer.minGridDistance = 70;
+      dateAxis.baseInterval = { count: 24 * 60, timeUnit: "minute" };
+      dateAxis.min = new Date(response.ticks.min).getTime();
+      dateAxis.max = new Date(response.ticks.max).getTime();
+      dateAxis.strictMinMax = true;
+      dateAxis.renderer.tooltipLocation = 0;
+      dateAxis.dateFormats.setKey("day", "dd.MM.");
 
-                if(date_start == date_end) {
-                  result = date_start;
-                }
-                else {
-                  result = date_start + ' - ' + date_end;
-                }
+      var series1 = chart.series.push(new am4charts.ColumnSeries());
+      series1.columns.template.width = am4core.percent(80);
+      series1.tooltip.pointerOrientation = "vertical";
+      series1.tooltip.getFillFromObject = false;
+      series1.tooltip.background.fill = am4core.color("#222222");
+      series1.columns.template.tooltipText = `[bold]{user_name} ({user_role})[/]
+        {openDateX} - {dateX} (Id: {bookingId})
+        ({type})
+        {comment}`;
 
-                return result + ' (Id: ' + tooltipItem['value'] + ')';
+      series1.dataFields.openDateX = "date_start";
+      series1.dataFields.dateX = "date_end";
+      series1.dataFields.categoryY = "type";
+      series1.columns.template.propertyFields.fill = "fill"; // get color from data
+      series1.columns.template.propertyFields.stroke = "stroke";
+      series1.columns.template.strokeOpacity = 1;
 
-              },
-              label: function(tooltipItem, data) {
-                return booking_types[tooltipItem['index']];
-              },
-              afterLabel: function(tooltipItem, data) {
-                var booking = bookings_by_id[tooltipItem['value']];
-                return booking.comment;
-              },
-            },
-            mode: 'label',
-            position: 'cursor',
-            intersect: true,
-            caretSize: 0,
-            displayColors: false
-          },
-          legend: { display: false },
-          responsive: false,
-          scales: {
-            xAxes: [{
-              type: 'time',
-              time: {
-                unit: 'day',
-                unitStepSize: 1,
-                displayFormats: {
-                  day: 'DD.MM.'
-                }
-              },
-              ticks: ticks,
-              offset: true
-            }],
-            yAxes: [{
-                display: false
-            }]
-          }
-        }
-      });
     });
   }
 

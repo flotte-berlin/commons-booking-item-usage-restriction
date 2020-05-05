@@ -60,8 +60,8 @@ class CB_Bookings_Gantt_Chart_Shortcode {
       wp_enqueue_style('dashicons');
       wp_enqueue_style('cb_bookings_chart_css', CB_ITEM_USAGE_RESTRICTION_ASSETS_URL . 'style/cb-bookings-gantt-chart.css');
 
-      wp_enqueue_script( 'cb_bookings_chart_moment_js', CB_ITEM_USAGE_RESTRICTION_ASSETS_URL . 'js/vendor/moment.js@2.1.0/moment.min.js' );
-      wp_enqueue_script( 'cb_bookings_chart_js', CB_ITEM_USAGE_RESTRICTION_ASSETS_URL . 'js/vendor/chart.js@2.9.3/chart.js' );
+      wp_enqueue_script( 'cb_bookings_amcharts_core_js', CB_ITEM_USAGE_RESTRICTION_ASSETS_URL . 'js/vendor/amcharts@4.9.19/core.js' );
+      wp_enqueue_script( 'cb_bookings_amcharts_charts_js', CB_ITEM_USAGE_RESTRICTION_ASSETS_URL . 'js/vendor/amcharts@4.9.19/charts.js' );
 
       wp_enqueue_script( 'cb_bookings_gantt_chart_js', CB_ITEM_USAGE_RESTRICTION_ASSETS_URL . 'js/cb-booking-gantt-chart.js' );
 
