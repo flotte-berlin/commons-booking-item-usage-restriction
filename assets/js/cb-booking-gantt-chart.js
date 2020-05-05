@@ -143,6 +143,7 @@ jQuery(document).ready(function ($) {
       categoryAxis.renderer.grid.template.location = 0;
       categoryAxis.renderer.inversed = true;
       categoryAxis.renderer.labels.template.disabled = true;
+      categoryAxis.renderer.grid.template.disabled = true;
 
       var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
       dateAxis.dateFormatter.dateFormat = "dd.MM.yyyy";
@@ -153,6 +154,7 @@ jQuery(document).ready(function ($) {
       dateAxis.strictMinMax = true;
       dateAxis.renderer.tooltipLocation = 0;
       dateAxis.dateFormats.setKey("day", "dd.MM.");
+      dateAxis.periodChangeDateFormats.setKey("day", "dd.MM."); 
 
       var series1 = chart.series.push(new am4charts.ColumnSeries());
       series1.columns.template.width = am4core.percent(80);
