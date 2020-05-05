@@ -132,6 +132,10 @@ jQuery(document).ready(function ($) {
       chart.paddingRight = 30;
       chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
 
+      var title = chart.titles.create();
+      title.marginTop = -10;
+      title.text = "Buchungen für " + response.item.name;
+
       chart.data = chart_data;
 
       var categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());
