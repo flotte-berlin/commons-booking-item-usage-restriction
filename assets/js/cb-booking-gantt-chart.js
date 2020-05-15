@@ -22,6 +22,11 @@ jQuery(document).ready(function ($) {
 
   function create_cb_bookings_gantt_chart($el) {
 
+    //if there is a previously generated chart, dispose it
+    if(window.cb_bookings_gantt_chart) {
+      window.cb_bookings_gantt_chart.dispose();
+    }
+
     var url = $el.data('url');
     var item_id = $el.data('item_id');
     var date_start = $el.data('date_start');
@@ -122,6 +127,7 @@ jQuery(document).ready(function ($) {
       console.log('chart data: ', chart_data);
 
       var chart = am4core.create("cb-bookings-gantt-chart", am4charts.XYChart);
+      window.cb_bookings_gantt_chart = chart;
       chart.paddingLeft = 30;
       chart.paddingRight = 30;
       chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
