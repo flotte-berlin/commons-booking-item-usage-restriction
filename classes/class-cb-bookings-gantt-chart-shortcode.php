@@ -91,10 +91,10 @@ class CB_Bookings_Gantt_Chart_Shortcode {
       $grouped_bookings = [
         'blocking' => [],
         'confirmed' => [],
+        'aborted' => [],
         'overbooking' => [],
         'blocked' => [],
-        'canceled' => [],
-        'aborted' => [],
+        'canceled' => []
       ];
 
       foreach ($bookings as $booking) {
@@ -134,14 +134,14 @@ class CB_Bookings_Gantt_Chart_Shortcode {
         }
       }
 
-      $bookings_data = [
-        'blocking' => self::prepare_bookings_data($grouped_bookings['blocking'], true),
-        'confirmed' => self::prepare_bookings_data($grouped_bookings['confirmed']),
-        'canceled' => self::prepare_bookings_data($grouped_bookings['canceled']),
-        'blocked' => self::prepare_bookings_data($grouped_bookings['blocked']),
-        'overbooking' => self::prepare_bookings_data($grouped_bookings['overbooking']),
-        'aborted' => self::prepare_bookings_data($grouped_bookings['aborted'])
-      ];
+      $bookings_data = [];
+      foreach ($grouped_bookings as $booking_type => $bookings) {
+        $get_restriction = $booking_type == 'blocking' ? true : false;
+        $bookings_data[$booking_type] = self::prepare_bookings_data($bookings, $booking_type, $get_restriction);
+      }
+
+      $bookings_data = array_merge($bookings_data, self::separate_overlapping_bookings($bookings_data, 'canceled'));
+      unset($bookings_data['canceled']);
 
       $chart_data = [
         'bookings' => $bookings_data,
@@ -163,7 +163,67 @@ class CB_Bookings_Gantt_Chart_Shortcode {
 
   }
 
-  private static function prepare_bookings_data($bookings = [], $get_restriction = false) {
+  private static function separate_overlapping_bookings($bookings_data, $booking_type) {
+    $booking_groups = [];
+
+    $bookings = $bookings_data[$booking_type];
+
+    //create start/end timestamps for detection of intersecting bookings
+    foreach ($bookings as $key => $booking) {
+      $bookings[$key]['timestamp_start'] = strtotime($booking['date_start']);
+      $bookings[$key]['timestamp_end'] = strtotime($booking['date_end']);
+    }
+
+    //spread bookings over multiple groups to prevent intersections
+    foreach ($bookings as $booking) {
+      $booking_inserted = false;
+
+      if(count($booking_groups) == 0) {
+        $booking_groups[$booking_type . '_' . count($booking_groups)] = [$booking];
+      }
+      else {
+        foreach ($booking_groups as $booking_group_name => $booking_group) {
+          $intersections_in_group = false;
+
+          foreach ($booking_group as $inserted_booking) {
+            if(self::are_bookings_intersecting($booking, $inserted_booking)) {
+              $intersections_in_group = true;
+              break;
+            }
+
+          }
+
+          if(!$intersections_in_group) {
+            $booking_groups[$booking_group_name][] = $booking;
+            $booking_inserted = true;
+            break;
+          }
+        }
+
+        if(!$booking_inserted) {
+          $booking_groups[$booking_type . '_' . count($booking_groups)] = [$booking];
+        }
+      }
+    }
+
+    //remove timestamps
+    foreach ($booking_groups as $booking_group_name => $booking_group) {
+      foreach ($booking_group as $key => $inserted_booking) {
+        unset($booking_groups[$booking_group_name][$key]['timestamp_start']);
+        unset($booking_groups[$booking_group_name][$key]['timestamp_end']);
+      }
+    }
+
+    return $booking_groups;
+  }
+
+  private static function are_bookings_intersecting($booking1, $booking2) {
+    $no_intersection = $booking1['timestamp_start'] > $booking2['timestamp_end'] || $booking1['timestamp_end'] < $booking2['timestamp_start'];
+
+    return !$no_intersection;
+  }
+
+  private static function prepare_bookings_data($bookings = [], $booking_type, $get_restriction = false) {
     error_reporting(E_ALL);
     $bookings_data = [];
 
@@ -180,6 +240,7 @@ class CB_Bookings_Gantt_Chart_Shortcode {
         'id' => $booking->id,
         'date_start' => $booking->date_start . ' 00:00:00',
         'date_end' => $booking->date_end . ' 23:59:59',
+        'type' => $booking_type,
         'comment' => isset($restriction_hint) ? $restriction_hint : $booking->comment,
         'user' => [
           'name' => $user->first_name . ' ' . substr($user->last_name, 0, 1) . '.',

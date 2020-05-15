@@ -75,9 +75,7 @@ jQuery(document).ready(function ($) {
       booking_data = response.bookings;
       console.log('booking data: ', booking_data);
 
-      var labels = [];
       var chart_data = [];
-      var backgroundColor = [];
 
       var canvas_element = document.getElementById('cb-bookings-gantt-chart');
 
@@ -90,23 +88,21 @@ jQuery(document).ready(function ($) {
         'canceled': 'storniert'
       }
 
-      var booking_types = [];
       var bookings_by_id = {};
 
-      Object.keys(booking_type_labels).forEach((label, i) => {
+      Object.keys(booking_data).forEach((booking_group, i) => {
 
-        var color_value = getComputedStyle(canvas_element).getPropertyValue('--bar-status-bg-' + label) //fetched from CSS variables
-        //console.log('color_value: ', color_value, typeof color_value);
-        backgroundColor.push(color_value);
+        booking_data[booking_group].forEach((booking) => {
+          var color_value = getComputedStyle(canvas_element).getPropertyValue('--bar-status-bg-' + booking.type); //fetched from CSS variables
+          //console.log('color_value: ', color_value, typeof color_value);
 
-        booking_data[label].forEach((booking) => {
-          labels.push(booking.id);
           bookings_by_id[booking.id] = booking;
 
           chart_data.push(
             {
               //data
-              type: booking_type_labels[label],
+              type: booking_type_labels[booking.type],
+              category: booking_group,
               bookingId: booking.id,
               date_start: booking.date_start,
               date_end: booking.date_end,
@@ -115,17 +111,15 @@ jQuery(document).ready(function ($) {
               comment: booking.comment,
 
               //styling
-              fill: am4core.color(backgroundColor[i].trim()),
-              stroke: am4core.color(backgroundColor[i].trim()).brighten(0.2)
+              fill: am4core.color(color_value.trim()),
+              stroke: am4core.color('#ffffff') //.brighten(0.4)
             }
           );
 
-          booking_types.push(booking_type_labels[label]);
         });
       });
 
       console.log('chart data: ', chart_data);
-      console.log('labels: ', labels);
 
       var chart = am4core.create("cb-bookings-gantt-chart", am4charts.XYChart);
       chart.paddingLeft = 30;
@@ -139,7 +133,7 @@ jQuery(document).ready(function ($) {
       chart.data = chart_data;
 
       var categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());
-      categoryAxis.dataFields.category = "type";
+      categoryAxis.dataFields.category = "category";
       categoryAxis.renderer.grid.template.location = 0;
       categoryAxis.renderer.inversed = true;
       categoryAxis.renderer.labels.template.disabled = true;
@@ -147,14 +141,21 @@ jQuery(document).ready(function ($) {
 
       var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
       dateAxis.dateFormatter.dateFormat = "dd.MM.yyyy";
-      dateAxis.renderer.minGridDistance = 70;
+
       dateAxis.baseInterval = { count: 24 * 60, timeUnit: "minute" };
       dateAxis.min = new Date(response.ticks.min).getTime();
       dateAxis.max = new Date(response.ticks.max).getTime();
       dateAxis.strictMinMax = true;
       dateAxis.renderer.tooltipLocation = 0;
       dateAxis.dateFormats.setKey("day", "dd.MM.");
-      dateAxis.periodChangeDateFormats.setKey("day", "dd.MM."); 
+      dateAxis.periodChangeDateFormats.setKey("day", "dd.MM.");
+
+      dateAxis.renderer.minGridDistance = 70;
+      dateAxis.gridIntervals.setAll([
+        { timeUnit: "day", count: 1},
+        { timeUnit: "day", count: 2},
+        { timeUnit: "day", count: 7},
+      ]);
 
       var series1 = chart.series.push(new am4charts.ColumnSeries());
       series1.columns.template.width = am4core.percent(80);
@@ -168,10 +169,14 @@ jQuery(document).ready(function ($) {
 
       series1.dataFields.openDateX = "date_start";
       series1.dataFields.dateX = "date_end";
-      series1.dataFields.categoryY = "type";
+      series1.dataFields.categoryY = "category";
       series1.columns.template.propertyFields.fill = "fill"; // get color from data
       series1.columns.template.propertyFields.stroke = "stroke";
       series1.columns.template.strokeOpacity = 1;
+      series1.columns.template.column.adapter.add("cornerRadiusTopLeft", function() { return 5; });
+      series1.columns.template.column.adapter.add("cornerRadiusTopRight", function() { return 5; });
+      series1.columns.template.column.adapter.add("cornerRadiusBottomLeft", function() { return 5; });
+      series1.columns.template.column.adapter.add("cornerRadiusBottomRight", function() { return 5; });
 
     });
   }
