@@ -140,11 +140,24 @@ class CB_Bookings_Gantt_Chart_Shortcode {
         $bookings_data[$booking_type] = self::prepare_bookings_data($bookings, $booking_type, $get_restriction);
       }
 
+      //separate bookings of types which could overlap
       $bookings_data = array_merge($bookings_data, self::separate_overlapping_bookings($bookings_data, 'canceled'));
       unset($bookings_data['canceled']);
+      $bookings_data = array_merge($bookings_data, self::separate_overlapping_bookings($bookings_data, 'aborted'));
+      unset($bookings_data['aborted']);
+
+      //restore order
+      $ordered_bookings_data = [];
+      foreach ($grouped_bookings as $booking_type => $value) {
+        foreach ($bookings_data as $key => $bookings) {
+          if(strpos($key, $booking_type) !== false) {
+            $ordered_bookings_data[$key] = $bookings;
+          }
+        }
+      }
 
       $chart_data = [
-        'bookings' => $bookings_data,
+        'bookings' => $ordered_bookings_data,
         'ticks' => [
           'min' => $validated_input['date_start']->format('Y-m-d') . ' 00:00:00',
           'max' => $validated_input['date_end']->format('Y-m-d') . ' 23:59:59'

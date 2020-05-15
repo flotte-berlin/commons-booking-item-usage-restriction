@@ -73,6 +73,7 @@ jQuery(document).ready(function ($) {
     $canvas_wrapper.append($canvas);
 
     $close.click(function() {
+      window.cb_bookings_gantt_chart.dispose();
       $canvas_wrapper.remove();
     });
 
