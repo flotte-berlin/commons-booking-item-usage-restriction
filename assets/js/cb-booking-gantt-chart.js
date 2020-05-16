@@ -122,7 +122,6 @@ jQuery(document).ready(function ($) {
 
               //styling
               fill: am4core.color(color_value.trim()),
-              stroke: am4core.color('#ffffff') //.brighten(0.4)
             }
           );
 
@@ -143,20 +142,27 @@ jQuery(document).ready(function ($) {
 
       chart.data = chart_data;
 
-      var cellSize = 25;
+      var cell_size = 30;
       chart.events.on("datavalidated", function(ev) {
 
         // Get objects of interest
         var chart = ev.target;
         var categoryAxis = chart.yAxes.getIndex(0);
 
-        // Calculate how we need to adjust chart height
-        var adjustHeight = chart.data.length * cellSize - categoryAxis.pixelHeight;
+        var rows_count = 0;
+        Object.keys(booking_data).forEach(function(category) {
+          if(booking_data[category].length > 0) {
+            rows_count++;
+          }
+        });
+
+        // calculate how we need to adjust chart height
+        var adjustHeight = rows_count * cell_size - categoryAxis.pixelHeight;
 
         // get current chart height
         var targetHeight = chart.pixelHeight + adjustHeight;
 
-        // Set it on chart's container
+        // set it on chart's container
         chart.svgContainer.htmlElement.style.height = targetHeight + "px";
 
         //set wrapper size and position
@@ -172,6 +178,7 @@ jQuery(document).ready(function ($) {
         var attribution_translate_y = targetHeight - 21;
         $attribution.attr('transform', 'translate(0, ' + attribution_translate_y + ')');
 
+        //set wrapper styles
         $canvas_wrapper.css({
           left: wrapper_pos.left,
           top: wrapper_pos.top,
@@ -206,7 +213,6 @@ jQuery(document).ready(function ($) {
       ]);
 
       var series1 = chart.series.push(new am4charts.ColumnSeries());
-      series1.columns.template.width = am4core.percent(80);
       series1.tooltip.pointerOrientation = "vertical";
       series1.tooltip.getFillFromObject = false;
       series1.tooltip.background.fill = am4core.color("#222222");
@@ -219,15 +225,24 @@ jQuery(document).ready(function ($) {
       series1.dataFields.dateX = "date_end";
       series1.dataFields.categoryY = "category";
       series1.columns.template.propertyFields.fill = "fill"; // get color from data
-      series1.columns.template.propertyFields.stroke = "stroke";
-      series1.columns.template.strokeOpacity = 1;
-      series1.columns.template.column.adapter.add("cornerRadiusTopLeft", function() { return 5; });
-      series1.columns.template.column.adapter.add("cornerRadiusTopRight", function() { return 5; });
-      series1.columns.template.column.adapter.add("cornerRadiusBottomLeft", function() { return 5; });
-      series1.columns.template.column.adapter.add("cornerRadiusBottomRight", function() { return 5; });
+      series1.columns.template.strokeWidth = 0;
+      series1.columns.template.column.adapter.add("cornerRadiusTopLeft", cornerRadiusLeft);
+      series1.columns.template.column.adapter.add("cornerRadiusTopRight", cornerRadiusRight);
+      series1.columns.template.column.adapter.add("cornerRadiusBottomLeft", cornerRadiusLeft);
+      series1.columns.template.column.adapter.add("cornerRadiusBottomRight", cornerRadiusRight);
+
+      function cornerRadiusLeft(radius, item) {
+        return new Date(item.dataItem.dates.openDateX).getTime() < dateAxis.min ? 0 : 5;
+      }
+
+      function cornerRadiusRight(radius, item) {
+        return new Date(item.dataItem.dates.dateX).getTime() > dateAxis.max ? 0 : 5;
+      }
 
     });
   }
+
+
 
   function calculate_chart_wrapper_position($el, wrapper_dimensions) {
     var element_offset = $el.offset();
