@@ -1,7 +1,7 @@
 #cb-bookings-gantt-chart-wrapper {
   position: absolute;
   width: 600px;
-  height: 320px;
+  height: 100px;
   z-index: 1000;
   background-color: #fff;
   border: 1px solid #666666;
@@ -30,4 +30,17 @@
   --bar-status-bg-blocked: #4c4c4c;
   --bar-status-bg-canceled: #aaaaaa;
   --bar-status-bg-aborted: #7fc600; /* late cancellation */
+}
+
+.cb-bookings-gantt-chart-loading {
+  position: absolute;
+  height: 50px;
+  width: 50px;
+  line-height: 50px;
+  font-size: 50px;
+  display: block;
+  left: 50%;
+  top: 50%;
+  margin-left: -25px;
+  margin-top: -25px;
 }

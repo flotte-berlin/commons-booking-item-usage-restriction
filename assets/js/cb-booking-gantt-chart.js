@@ -47,12 +47,14 @@ jQuery(document).ready(function ($) {
 
     var wrapper_dimensions = {
       width: 600,
-      height: 320
+      height: 100
     };
 
     var wrapper_pos = calculate_chart_wrapper_position($el, wrapper_dimensions);
 
+    var $loading = $('<span class="cb-bookings-gantt-chart-loading dashicons dashicons-update-alt"></span>');
     var $canvas_wrapper = $('<div id="cb-bookings-gantt-chart-wrapper" data-uuid="' + uuid + '" style=""></div>');
+    $canvas_wrapper.append($loading);
     $('body').append($canvas_wrapper);
 
     wrapper_dimensions = {
@@ -78,6 +80,8 @@ jQuery(document).ready(function ($) {
     });
 
     jQuery.post(url, data, function(response) {
+      $loading.remove();
+
       booking_data = response.bookings;
       console.log('booking data: ', booking_data);
 
@@ -138,6 +142,43 @@ jQuery(document).ready(function ($) {
       title.text = "Buchungen für " + response.item.name;
 
       chart.data = chart_data;
+
+      var cellSize = 25;
+      chart.events.on("datavalidated", function(ev) {
+
+        // Get objects of interest
+        var chart = ev.target;
+        var categoryAxis = chart.yAxes.getIndex(0);
+
+        // Calculate how we need to adjust chart height
+        var adjustHeight = chart.data.length * cellSize - categoryAxis.pixelHeight;
+
+        // get current chart height
+        var targetHeight = chart.pixelHeight + adjustHeight;
+
+        // Set it on chart's container
+        chart.svgContainer.htmlElement.style.height = targetHeight + "px";
+
+        //set wrapper size and position
+        wrapper_dimensions = {
+          width: 600,
+          height: targetHeight + 20 //including head
+        };
+        wrapper_pos = calculate_chart_wrapper_position($el, wrapper_dimensions);
+
+        //adjust position of amcharts attribution
+        var $attribution_dom_path = $(":contains(Chart created using amCharts library)").parent();
+        var $attribution = $($attribution_dom_path[$attribution_dom_path.length - 1]);
+        var attribution_translate_y = targetHeight - 21;
+        $attribution.attr('transform', 'translate(0, ' + attribution_translate_y + ')');
+
+        $canvas_wrapper.css({
+          left: wrapper_pos.left,
+          top: wrapper_pos.top,
+          width: wrapper_dimensions.width,
+          height: wrapper_dimensions.height
+        });
+      });
 
       var categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());
       categoryAxis.dataFields.category = "category";
@@ -218,7 +259,7 @@ jQuery(document).ready(function ($) {
 
     var wrapper_pos = {
       left: element_offset.left + factor_x * wrapper_offset_x,
-      top: element_offset.top + factor_y * wrapper_offset_y
+      top: element_offset.top + factor_y * wrapper_offset_y + $el.height() / 2
     };
 
     return wrapper_pos;
