@@ -40,6 +40,20 @@ class CB_Bookings_Gantt_Chart_Shortcode {
     }
   }
 
+  private static function validate_input_with_nonce($input) {
+
+    $validated_input = self::validate_input($input);
+
+    if($validated_input) {
+      $nonce = sanitize_text_field($input['nonce']);
+
+      if(wp_verify_nonce($nonce, 'cb_bookings_gantt_chart_' . $validated_input['item_id'])) {
+        return $validated_input;
+      }
+    }
+
+  }
+
   /**
   * enqueue scripts and render the button to trigger data fetching and chart rendering
   **/
@@ -65,8 +79,11 @@ class CB_Bookings_Gantt_Chart_Shortcode {
 
       wp_enqueue_script( 'cb_bookings_gantt_chart_js', CB_ITEM_USAGE_RESTRICTION_ASSETS_URL . 'js/cb-booking-gantt-chart.js' );
 
+      $nonce = wp_create_nonce('cb_bookings_gantt_chart_' . $validated_input['item_id']);
+
       return '<button on' . $validated_input['event'] . '="init_cb_bookings_gantt_chart(this)"' .
               ' data-url="' . get_site_url(null, '', null) . '/wp-admin/admin-ajax.php' . '"' .
+              ' data-nonce="' . $nonce . '"' .
               ' data-item_id="' . $validated_input['item_id'] . '"' .
               ' data-date_start="' . $validated_input['date_start']->format('Y-m-d') . '"' .
               ' data-date_end="' . $validated_input['date_end']->format('Y-m-d') . '"' .
@@ -80,7 +97,7 @@ class CB_Bookings_Gantt_Chart_Shortcode {
   * return the booking data
   **/
   public static function get_bookings_data() {
-    $validated_input = self::validate_input($_POST);
+    $validated_input = self::validate_input_with_nonce($_POST);
 
     if($validated_input) {
       $bookings = CB_Item_Usage_Restriction_Admin::fetch_bookings_in_period($validated_input['date_start']->format('Y-m-d'), $validated_input['date_end']->format('Y-m-d'), $validated_input['item_id']);

@@ -28,6 +28,7 @@ jQuery(document).ready(function ($) {
     }
 
     var url = $el.data('url');
+    var nonce = $el.data('nonce');
     var item_id = $el.data('item_id');
     var date_start = $el.data('date_start');
     var date_end = $el.data('date_end');
@@ -36,11 +37,11 @@ jQuery(document).ready(function ($) {
     console.log('data: ', item_id, date_start, date_end);
 
     var data = {
-      //'nonce': this.settings.nonce,
 			'action': 'cb_bookings_get_gantt_chart_data',
       'item_id': item_id,
       'date_start': date_start,
-      'date_end': date_end
+      'date_end': date_end,
+      'nonce': nonce
 		};
 
     console.log('fetch location data from: ', url);
@@ -75,7 +76,9 @@ jQuery(document).ready(function ($) {
     $canvas_wrapper.append($canvas);
 
     $close.click(function() {
-      window.cb_bookings_gantt_chart.dispose();
+      if(window.cb_bookings_gantt_chart) {
+        window.cb_bookings_gantt_chart.dispose();
+      }
       $canvas_wrapper.remove();
     });
 
@@ -239,6 +242,9 @@ jQuery(document).ready(function ($) {
         return new Date(item.dataItem.dates.dateX).getTime() > dateAxis.max ? 0 : 5;
       }
 
+    }).fail(function() {
+      $loading.removeClass('dashicons-update-alt');
+      $loading.addClass('dashicons-no');
     });
   }
 
