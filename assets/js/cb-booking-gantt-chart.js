@@ -145,7 +145,7 @@ jQuery(document).ready(function ($) {
 
       chart.data = chart_data;
 
-      var cell_size = 30;
+      var cell_size = 25;
       chart.events.on("datavalidated", function(ev) {
 
         // Get objects of interest
