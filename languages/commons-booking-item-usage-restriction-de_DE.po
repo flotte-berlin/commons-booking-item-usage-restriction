@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: cb-item-usage-restriction\n"
-"POT-Creation-Date: 2019-11-09 16:04+0100\n"
-"PO-Revision-Date: 2019-11-09 16:05+0100\n"
+"POT-Creation-Date: 2020-04-02 19:55+0200\n"
+"PO-Revision-Date: 2020-04-02 19:57+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de\n"
@@ -14,80 +14,97 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:22
+#: ../classes/class-cb-item-usage-restriction-admin.php:23
 msgid "USAGE_RESTRICTION_PAGE_TITLE"
 msgstr "Nutzungsbeschränkung"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:23
+#: ../classes/class-cb-item-usage-restriction-admin.php:24
 msgid "USAGE_RESTRICTION_MENU_TITLE"
 msgstr "Einschränkungen"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:128
+#: ../classes/class-cb-item-usage-restriction-admin.php:129
 msgid "NO_DATE_END_CHANGE"
 msgstr "Das Enddatum der Beschränkung hat sich nicht geändert."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:138
-#: ../classes/class-cb-item-usage-restriction-admin.php:649
+#: ../classes/class-cb-item-usage-restriction-admin.php:139
+#: ../classes/class-cb-item-usage-restriction-admin.php:698
 msgid "NO_TIMEFRAME"
 msgstr ""
 "Es existiert kein Zeitraum für die angegebene Beschränkungsdauer. Es muss "
 "zunächst einer erstellt werden, bevor eine Einschränkung gesetzt werden kann."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:162
-#: ../classes/class-cb-item-usage-restriction-admin.php:639
+#: ../classes/class-cb-item-usage-restriction-admin.php:163
+#: ../classes/class-cb-item-usage-restriction-admin.php:688
 msgid "RESTRICTION_FOR_PERIOD_ALREADY_EXISTING"
 msgstr ""
 "Es gibt schon eine Nutzungsbeschränkung vom Typ 'Totalausfall' für den "
 "angegebenen Zeitraum."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:304
+#: ../classes/class-cb-item-usage-restriction-admin.php:193
+msgid "CONFLICT_BOOKINGS_AFTER_SHORTENED_RESTRICTION"
+msgstr ""
+"Die Aktion würde einen Konflikt zwischen parallelen Buchungen nach der "
+"verkürzten Nutzungbeschränkung verursachen. Dieser muss zunächst aufgelöst "
+"werden."
+
+#: ../classes/class-cb-item-usage-restriction-admin.php:339
 msgid "RESTRICTION_EDITED"
 msgstr "Die Nutzungsbeschränkung wurde erfolgreich bearbeitet."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:310
-#: ../classes/class-cb-item-usage-restriction-admin.php:584
+#: ../classes/class-cb-item-usage-restriction-admin.php:345
+#: ../classes/class-cb-item-usage-restriction-admin.php:632
 msgid "END_DATE_TO_LOW"
 msgstr "Enddatum darf nicht vor dem Anfangsdatum liegen"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:317
+#: ../classes/class-cb-item-usage-restriction-admin.php:352
 msgid "NO_RESTRICTION_TO_UPDATE"
 msgstr "Die gewünschte Nutzungseinschränkung existiert nicht."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:325
-#: ../classes/class-cb-item-usage-restriction-admin.php:423
+#: ../classes/class-cb-item-usage-restriction-admin.php:360
+#: ../classes/class-cb-item-usage-restriction-admin.php:446
+#: ../classes/class-cb-item-usage-restriction-admin.php:464
 msgid "INPUT_ERRORS_OCCURED"
 msgstr "Es gibt Eingabefehler im Formular"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:404
+#: ../classes/class-cb-item-usage-restriction-admin.php:439
 msgid "RESTRICTION_DELETED"
 msgstr "Die Nutzungsbeschränkung wurde erfolgreich gelöscht."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:499
+#: ../classes/class-cb-item-usage-restriction-admin.php:540
+#: ../classes/class-cb-item-usage-restriction-admin.php:577
 msgid "MISSING_RESTRICTION_PROPERTIES"
 msgstr "fehlende oder fehlerhafte Eigenschaften der Nutzungsbeschränkung"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:503
-#: ../classes/class-cb-item-usage-restriction-admin.php:590
+#: ../classes/class-cb-item-usage-restriction-admin.php:544
+#: ../classes/class-cb-item-usage-restriction-admin.php:638
 msgid "END_DATE_INVALID"
 msgstr "ungültiges Enddatum"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:563
+#: ../classes/class-cb-item-usage-restriction-admin.php:551
+msgid "UPDATE_COMMENT_EMPTY"
+msgstr "Ein Änderungskommentar muss angegeben sein."
+
+#: ../classes/class-cb-item-usage-restriction-admin.php:572
+msgid "DELETE_COMMENT_EMPTY"
+msgstr "Ein Kommentar zur Löschung muss angegeben sein."
+
+#: ../classes/class-cb-item-usage-restriction-admin.php:611
 msgid "ITEM_INVALID"
 msgstr "ungültiger Artikel"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:573
+#: ../classes/class-cb-item-usage-restriction-admin.php:621
 msgid "START_DATE_INVALID"
 msgstr "ungültiges Anfangsdatum"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:594
+#: ../classes/class-cb-item-usage-restriction-admin.php:642
 msgid "RESTRICTION_TYPE_INVALID"
 msgstr "ungültiger Typ der Nutzungeinschränkung"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:598
+#: ../classes/class-cb-item-usage-restriction-admin.php:646
 msgid "RESTRICTION_HINT_EMPTY"
 msgstr "der Hinweis zur Nutzungsbeschränkung muss ausgefüllt sein"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:717
+#: ../classes/class-cb-item-usage-restriction-admin.php:768
 msgid "RESTRICTION_CREATED"
 msgstr "Die Nutzungsbeschränkung wurde erfolgreich erstellt."
 
@@ -99,7 +116,7 @@ msgstr "Einstellungen für Nutzungsbeschränkungen"
 msgid "SETTINGS_MENU"
 msgstr "Nutzungsbeschränkung"
 
-#: ../classes/class-cb-item-usage-restriction-settings.php:38
+#: ../classes/class-cb-item-usage-restriction-settings.php:39
 #: ../templates/create-restriction-template.php:59
 msgid "Settings"
 msgstr ""
@@ -362,107 +379,119 @@ msgstr ""
 msgid "NAME"
 msgstr "Name"
 
-#: ../templates/settings-page-template.php:27
+#: ../templates/settings-page-template.php:26
+msgid "RESTRICTION_EMAIL_GENERAL_HEADER"
+msgstr "Email - allgemein"
+
+#: ../templates/settings-page-template.php:29
+msgid "RESTRICTION_EMAIL_GENERAL_HEADER_DESCRIPTION"
+msgstr "generelle Einstellungen, den Email-Versand betreffend"
+
+#: ../templates/settings-page-template.php:34
+msgid "MAILS_ENABLED"
+msgstr "Emailversand aktiv"
+
+#: ../templates/settings-page-template.php:44
 msgid "RESTRICTION_TOTAL_BREAKDOWN_EMAIL_HEADER"
 msgstr "Email - Totalausfall"
 
-#: ../templates/settings-page-template.php:30
+#: ../templates/settings-page-template.php:47
 msgid "RESTRICTION_TOTAL_BREAKDOWN_EMAIL_DESCRIPTION"
 msgstr ""
 "Diese Email wird versendet, um NutzerInnen mit Buchungen im betreffenden "
 "Zeitraum über den Totalausfall des Artikels zu informieren."
 
-#: ../templates/settings-page-template.php:36
-#: ../templates/settings-page-template.php:55
-#: ../templates/settings-page-template.php:74
-#: ../templates/settings-page-template.php:93
+#: ../templates/settings-page-template.php:53
+#: ../templates/settings-page-template.php:72
+#: ../templates/settings-page-template.php:91
+#: ../templates/settings-page-template.php:110
 msgid "EMAIL_SUBJECT"
 msgstr "Email Betreff"
 
-#: ../templates/settings-page-template.php:37
+#: ../templates/settings-page-template.php:54
 msgid "RESTRICTION_TOTAL_BREAKDOWN_EMAIL_SUBJECT_PLACEHOLDER"
 msgstr "Totalausfall von {{ITEM_NAME}}"
 
-#: ../templates/settings-page-template.php:40
-#: ../templates/settings-page-template.php:59
-#: ../templates/settings-page-template.php:78
-#: ../templates/settings-page-template.php:97
+#: ../templates/settings-page-template.php:57
+#: ../templates/settings-page-template.php:76
+#: ../templates/settings-page-template.php:95
+#: ../templates/settings-page-template.php:114
 msgid "EMAIL_CONTENT"
 msgstr "Email Inhalt"
 
-#: ../templates/settings-page-template.php:41
+#: ../templates/settings-page-template.php:58
 msgid "RESTRICTION_TOTAL_BREAKDOWN_EMAIL_CONTENT_PLACEHOLDER"
 msgstr "Hallo {{FIRST_NAME}}, der Artikel ist nicht nutzbar..."
 
-#: ../templates/settings-page-template.php:46
+#: ../templates/settings-page-template.php:63
 msgid "RESTRICTION_LIMITED_USAGE_EMAIL_HEADER"
 msgstr "Email - Nutzungseinschränkung"
 
-#: ../templates/settings-page-template.php:49
+#: ../templates/settings-page-template.php:66
 msgid "RESTRICTION_LIMITED_USAGE_EMAIL_DESCRIPTION"
 msgstr ""
 "Diese Email wird versendet, um NutzerInnen mit Buchungen im betreffenden "
 "Zeitraum über die eingeschränkte Nutzbarkeit des Artikels zu informieren."
 
-#: ../templates/settings-page-template.php:56
+#: ../templates/settings-page-template.php:73
 msgid "RESTRICTION_LIMITED_USAGE_EMAIL_SUBJECT_PLACEHOLDER"
 msgstr "Eingeschränkte Nutzbarkeit von {{ITEM_NAME}}"
 
-#: ../templates/settings-page-template.php:60
+#: ../templates/settings-page-template.php:77
 msgid "RESTRICTION_LIMITED_USAGE_EMAIL_CONTENT_PLACEHOLDER"
 msgstr "Hallo {{FIRST_NAME}}, der Artikel ist nur eingeschränkt nutzbar..."
 
-#: ../templates/settings-page-template.php:65
+#: ../templates/settings-page-template.php:82
 msgid "RESTRICTION_EDITED_EMAIL_HEADER"
 msgstr "Email - Änderung der Nutzungsbeschränkung"
 
-#: ../templates/settings-page-template.php:68
+#: ../templates/settings-page-template.php:85
 msgid "RESTRICTION_EDITED_EMAIL_DESCRIPTION"
 msgstr ""
 "Diese Email wird versendet, um NutzerInnen  über die Änderung einer "
 "Nutzungseinschränkung zu benachrichtigen."
 
-#: ../templates/settings-page-template.php:75
+#: ../templates/settings-page-template.php:92
 msgid "RESTRICTION_EDITED_EMAIL_SUBJECT_PLACEHOLDER"
 msgstr "Einschränkung von {{ITEM_NAME}} hat sich geändert"
 
-#: ../templates/settings-page-template.php:79
+#: ../templates/settings-page-template.php:96
 msgid "RESTRICTION_EDITED_EMAIL_CONTENT_PLACEHOLDER"
 msgstr ""
 "Hallo {{FIRST_NAME}}, die Einschränkung des Artikels wurde angepasst..."
 
-#: ../templates/settings-page-template.php:84
+#: ../templates/settings-page-template.php:101
 msgid "RESTRICTION_DELETED_EMAIL_HEADER"
 msgstr "Email - Aufheben der Nutzungsbeschränkung"
 
-#: ../templates/settings-page-template.php:87
+#: ../templates/settings-page-template.php:104
 msgid "RESTRICTION_DELETED_EMAIL_DESCRIPTION"
 msgstr ""
 "Diese Email wird versendet, um NutzerInnen mit Buchungen im betreffenden "
 "Zeitraum über die Aufhebung einer Nutzungseinschränkung zu benachrichtigen."
 
-#: ../templates/settings-page-template.php:94
+#: ../templates/settings-page-template.php:111
 msgid "RESTRICTION_DELETED_EMAIL_SUBJECT_PLACEHOLDER"
 msgstr "Einschränkung von {{ITEM_NAME}} aufgehoben"
 
-#: ../templates/settings-page-template.php:98
+#: ../templates/settings-page-template.php:115
 msgid "RESTRICTION_DELETED_EMAIL_CONTENT_PLACEHOLDER"
 msgstr ""
 "Hallo {{FIRST_NAME}}, der Artikel ist wieder uneingeschränkt nutzbar..."
 
-#: ../templates/settings-page-template.php:103
+#: ../templates/settings-page-template.php:120
 msgid "OTHER_OPTIONS"
 msgstr "Sonstige Optionen"
 
-#: ../templates/settings-page-template.php:107
+#: ../templates/settings-page-template.php:124
 msgid "SHOW_ALWAYS_IN_ARTICLE_DESCRIPTION"
 msgstr "Zeige immer in Artikelbeschreibung"
 
-#: ../templates/settings-page-template.php:110
+#: ../templates/settings-page-template.php:127
 msgid "SHOW_EVEN_IF_NO_RESTRICTION"
 msgstr "Ja, auch wenn keine Einschränkung angezeigt wird"
 
-#: ../templates/settings-page-template.php:115
+#: ../templates/settings-page-template.php:132
 msgid "SHOW_UPDATE_HINTS_IN_ARTICLE_DESCRIPTION"
 msgstr "Zeige Änderungshinweise in Artikelbeschreibung"
 
@@ -474,6 +503,9 @@ msgstr "Nutzungseinschränkungen"
 #: ../templates/show-restriction-template.php:31
 msgid "NO_USAGE_RESTRICTIONS"
 msgstr "keine"
+
+#~ msgid "SEND_EMAILS"
+#~ msgstr "versende Emails"
 
 #~ msgid "DELETED_ITEM"
 #~ msgstr "gelöscht"

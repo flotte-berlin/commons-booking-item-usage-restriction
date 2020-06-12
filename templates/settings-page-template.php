@@ -23,6 +23,23 @@
       <?php endforeach; ?>
     </select>
 
+    <h2><?= item_usage_restriction\__('RESTRICTION_EMAIL_GENERAL_HEADER', 'commons-booking-item-usage-restriction', 'Email - General') ?></h2>
+
+    <p>
+      <?= item_usage_restriction\__('RESTRICTION_EMAIL_GENERAL_HEADER_DESCRIPTION', 'commons-booking-item-usage-restriction', 'The following are general settings regarding emails.') ?>
+    </p>
+
+    <table>
+      <tr>
+        <th><?= item_usage_restriction\__('MAILS_ENABLED', 'commons-booking-item-usage-restriction', 'send emails') ?></th>
+        <td>
+            <label>
+                <input type="checkbox" name="cb_item_restriction_mails_enabled" <?php echo esc_attr( get_option('cb_item_restriction_mails_enabled') ) == 'on' ? 'checked="checked"' : ''; ?> />
+            </label><br/>
+        </td>
+      </tr>
+    </table>
+
     <!-- total breakdown email -->
     <h2><?= item_usage_restriction\__('RESTRICTION_TOTAL_BREAKDOWN_EMAIL_HEADER', 'commons-booking-item-usage-restriction', 'Email - Total Breakdown') ?></h2>
 

@@ -34,7 +34,7 @@
           <?php if($consider_responsible_users): ?>
             <th style="width: 200px;"><?= item_usage_restriction\__( 'RESPONSIBLE_USERS', 'commons-booking-item-usage-restriction', 'responsible users') ?></th>
           <?php endif; ?>
-          <th style="width: 150px;"><?= item_usage_restriction\__( 'ACTIONS', 'commons-booking-item-usage-restriction', 'actions') ?></th>
+          <th style="width: 200px;"><?= item_usage_restriction\__( 'ACTIONS', 'commons-booking-item-usage-restriction', 'actions') ?></th>
         <tr>
       </thead>
 
@@ -111,7 +111,7 @@
                 data-hint='<?= $item_restriction['restriction_hint'] ?>'
                 >
 
-                <span style="padding-top: 3px;" class="dashicons dashicons-menu"></span>
+                <span style="padding-top: 4px;" class="dashicons dashicons-menu"></span>
               </button>
 
               <?php if(!$list_deleted_restrictions): ?>
@@ -122,17 +122,21 @@
                   data-created_by_user_id="<?= $item_restriction['created_by_user_id'] ?>"
                   data-date_start="<?= $item_restriction['date_start'] ?>"
                   data-date_end="<?= $item_restriction['date_end'] ?>">
-                  <span style="padding-top: 3px;" class="dashicons dashicons-edit"></span>
+                  <span style="padding-top: 4px;" class="dashicons dashicons-edit"></span>
                 </button>
 
                 <button class="cb-item-usage-restriction-delete button action" title="<?= item_usage_restriction\__( 'DELETE_RESTRICTION', 'commons-booking-item-usage-restriction', 'delete ...') ?>"
                   data-item_id="<?= $item_restriction['item_id'] ?>"
                   data-created_at_timestamp="<?= $item_restriction['created_at']->getTimestamp() ?>"
                   data-created_by_user_id="<?= $item_restriction['created_by_user_id'] ?>">
-                  <span style="padding-top: 3px;" class="dashicons dashicons-trash"></span>
+                  <span style="padding-top: 4px;" class="dashicons dashicons-trash"></span>
                 </button>
 
               <?php endif; ?>
+
+              <?php
+                echo do_shortcode('[cb_bookings_gantt_chart item_id="' . $item_restriction['item_id'] . '" date_start="' . $item_restriction['date_start'] . '" date_end="' . $item_restriction['date_end'] . '"]');
+              ?>
             </td>
           </tr>
         <?php endforeach; ?>
@@ -163,9 +167,9 @@
         <input type="date" name="date_end">
       </div>
       <label for="update_comment"><?= item_usage_restriction\__( 'UPDATE_COMMENT', 'commons-booking-item-usage-restriction', 'write a comment') ?>:</label><br>
-      <textarea style="width: 100%; height: 100px;" name="update_comment"></textarea><br>
+      <textarea style="width: 100%; height: 100px;" name="update_comment" required></textarea><br>
       <button style="margin-top: 10px; float:right;" class="button action">
-        <span style="padding-top: 3px;" class="dashicons dashicons-yes"></span> <?= item_usage_restriction\__( 'CONFIRM', 'commons-booking-item-usage-restriction', 'confirm') ?>
+        <span style="padding-top: 4px;" class="dashicons dashicons-yes"></span> <?= item_usage_restriction\__( 'CONFIRM', 'commons-booking-item-usage-restriction', 'confirm') ?>
       </button>
     </form>
   </div>
@@ -180,9 +184,9 @@
       <input type="hidden" name="created_by_user_id" value="">
       <input type="hidden" name="created_at_timestamp" value="">
       <label for="delete_comment"><?= item_usage_restriction\__( 'DELETE_COMMENT', 'commons-booking-item-usage-restriction', 'write a comment') ?>:</label><br>
-      <textarea style="width: 100%; height: 100px;" name="delete_comment"></textarea><br>
+      <textarea style="width: 100%; height: 100px;" name="delete_comment" required></textarea><br>
       <button style="margin-top: 10px; float:right;" class="button action">
-        <span style="padding-top: 3px;" class="dashicons dashicons-yes"></span> <?= item_usage_restriction\__( 'CONFIRM', 'commons-booking-item-usage-restriction', 'confirm') ?>
+        <span style="padding-top: 4px;" class="dashicons dashicons-yes"></span> <?= item_usage_restriction\__( 'CONFIRM', 'commons-booking-item-usage-restriction', 'confirm') ?>
       </button>
     </form>
   </div>
