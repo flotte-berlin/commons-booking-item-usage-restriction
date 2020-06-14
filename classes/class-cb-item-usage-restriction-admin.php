@@ -230,7 +230,7 @@ class CB_Item_Usage_Restriction_Admin {
             }
             $email_recipients = $informed_users;
 
-            $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], 'delete_restriction', $item_restriction['date_start'], $item_restriction['date_end'], $validation_result['data']['update_comment']);
+            $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], $item_restriction['restriction_type'], 'delete_restriction', $item_restriction['date_start'], $item_restriction['date_end'], $validation_result['data']['update_comment'], $this->get_hint_history($item_restriction));
 
           }
 
@@ -265,7 +265,7 @@ class CB_Item_Usage_Restriction_Admin {
             }
             $email_recipients = $informed_users;
 
-            $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], 'restriction_' . $item_restriction['restriction_type'], $item_restriction['date_start'], $validation_result['data']['date_end'], $item_restriction['restriction_hint']);
+            $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], $item_restriction['restriction_type'], 'restriction_' . $item_restriction['restriction_type'], $item_restriction['date_start'], $validation_result['data']['date_end'], $item_restriction['restriction_hint']);
 
             //add users to informed users that got email regarding creation
             foreach($informed_users as $informed_user) {
@@ -333,7 +333,7 @@ class CB_Item_Usage_Restriction_Admin {
 
           $email_recipients = array_merge($informed_users, $responsible_users, $additional_email_recipients);
 
-          $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], 'edit_restriction', $item_restriction['date_start'], $validation_result['data']['date_end'], $validation_result['data']['update_comment']);
+          $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], $item_restriction['restriction_type'], 'edit_restriction', $item_restriction['date_start'], $validation_result['data']['date_end'], $validation_result['data']['update_comment'], $this->get_hint_history($item_restriction));
 
           //show message on admin page
           $message = item_usage_restriction\__('RESTRICTION_EDITED', 'commons-booking-item-usage-restriction', 'The restriction was edited successfully.');
@@ -430,7 +430,7 @@ class CB_Item_Usage_Restriction_Admin {
           }
         }
 
-        $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], 'delete_restriction', $item_restriction['date_start'], $item_restriction['date_end'], $validation_result['delete_comment']);
+        $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], $item_restriction['restriction_type'], 'delete_restriction', $item_restriction['date_start'], $item_restriction['date_end'], $validation_result['delete_comment'], $this->get_hint_history($item_restriction));
 
         //remove restriction from item
         $item_restrictions = CB_Item_Usage_Restriction::get_item_restrictions($validation_result['data']['item_id']);
@@ -763,7 +763,7 @@ class CB_Item_Usage_Restriction_Admin {
 
       $email_recipients = array_merge($informed_users, $responsible_users, $additional_email_recipients);
 
-      $this->send_mail_by_reason_to_recipients($email_recipients, $data['item_id'], 'restriction_' . $data['restriction_type'], $data['date_start'], $data['date_end'], $data['restriction_hint']);
+      $this->send_mail_by_reason_to_recipients($email_recipients, $data['item_id'], $data['restriction_type'], 'restriction_' . $data['restriction_type'], $data['date_start'], $data['date_end'], $data['restriction_hint']);
 
       $message = item_usage_restriction\__('RESTRICTION_CREATED', 'commons-booking-item-usage-restriction', 'The restriction was created successfully.');
       $class = 'notice notice-success';
@@ -930,10 +930,24 @@ class CB_Item_Usage_Restriction_Admin {
     return $bookings_result;
   }
 
+  function get_hint_history($restriction, $line_break = '<br>') {
+    $hint_history = $restriction['created_at']->format('d.m.Y') . ': ' . $restriction['restriction_hint'];
+
+    foreach ($restriction['updates'] as $key => $update) {
+      if($key < count($restriction['updates']) - 1) {
+        $hint_history .= $line_break . $update['created_at']->format('d.m.Y') . ': ' . $update['update_hint'];
+      }
+
+    }
+
+    return $hint_history;
+
+  }
+
   /**
   * sends an email to the given recipients
   **/
-  function send_mail_by_reason_to_recipients($email_recipients, $item_id, $reason, $date_start, $date_end, $hint = '') {
+  function send_mail_by_reason_to_recipients($email_recipients, $item_id, $restriction_type, $reason, $date_start, $date_end, $hint = '', $hint_history = '' ) {
 
     if($this->mails_enabled) {
       foreach ($email_recipients as $email_recipient) {
@@ -951,7 +965,7 @@ class CB_Item_Usage_Restriction_Admin {
           $user_data['user_email'] = $email_recipient->user_email;
         }
 
-        $this->send_mail_by_reason($item_id, $reason, $date_start, $date_end, $user_data, $hint);
+        $this->send_mail_by_reason($item_id, $restriction_type, $reason, $date_start, $date_end, $user_data, $hint, $hint_history);
       }
     }
 
@@ -960,14 +974,14 @@ class CB_Item_Usage_Restriction_Admin {
   /**
   * sends an email to a recipient with given user data
   **/
-  function send_mail_by_reason($item_id, $reason, $date_start, $date_end, $user_data, $hint = '') {
+  function send_mail_by_reason($item_id, $restriction_type, $reason, $date_start, $date_end, $user_data, $hint = '', $hint_history) {
 
     $item = get_post($item_id);
 
     $subject_template = $this->email_message[$reason]['subject'];
     $body_template = $this->email_message[$reason]['body'];
 
-    $mail_vars = $this->create_mail_vars($item, $date_start, $date_end, $user_data, $hint);
+    $mail_vars = $this->create_mail_vars($item, $restriction_type, $date_start, $date_end, $user_data, $hint, $hint_history);
 
     return $this->send_mail($user_data['user_email'], $subject_template, $body_template, $mail_vars);
   }
@@ -975,7 +989,17 @@ class CB_Item_Usage_Restriction_Admin {
   /**
   * populate given data to email vars
   **/
-  function create_mail_vars($item, $date_start, $date_end, $user_data, $hint) {
+  function create_mail_vars($item, $restriction_type, $date_start, $date_end, $user_data, $hint, $hint_history) {
+
+    switch($restriction_type) {
+      case 1:
+        $restriction_type_translation = item_usage_restriction\__( 'RESTRICTION_TYPE_1', 'commons-booking-item-usage-restriction', "total breakdown");
+      break;
+
+      case 2:
+        $restriction_type_translation = item_usage_restriction\__( 'RESTRICTION_TYPE_2', 'commons-booking-item-usage-restriction', "usable to a limited extend");
+      break;
+    }
 
     return array(
       'first_name' => $user_data['first_name'],
@@ -983,7 +1007,10 @@ class CB_Item_Usage_Restriction_Admin {
       'date_start' => date_i18n( get_option( 'date_format' ), strtotime($date_start) ),
       'date_end' => date_i18n( get_option( 'date_format' ), strtotime($date_end) ),
       'item_name' => $item->post_title,
-      'hint' => $hint
+      'item_url' => get_post_permalink($item->ID),
+      'restriction_type' => $restriction_type_translation,
+      'hint' => $hint,
+      'hint_history' => $hint_history
     );
   }
 
