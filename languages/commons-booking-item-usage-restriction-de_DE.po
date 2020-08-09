@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cb-item-usage-restriction\n"
 "POT-Creation-Date: 2020-08-09 12:20+0200\n"
-"PO-Revision-Date: 2020-08-09 12:24+0200\n"
+"PO-Revision-Date: 2020-08-09 12:42+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de\n"
@@ -20,11 +20,11 @@ msgstr ""
 
 #: ../classes/class-cb-item-usage-restriction-admin.php:23
 msgid "USAGE_RESTRICTION_PAGE_TITLE"
-msgstr "Nutzungsbeschränkung"
+msgstr "Nutzungsbeschränkungen"
 
 #: ../classes/class-cb-item-usage-restriction-admin.php:24
 msgid "USAGE_RESTRICTION_MENU_TITLE"
-msgstr "Einschränkungen"
+msgstr "Nutzungsbeschränkungen"
 
 #: ../classes/class-cb-item-usage-restriction-admin.php:129
 msgid "NO_DATE_END_CHANGE"
@@ -35,7 +35,7 @@ msgstr "Das Enddatum der Beschränkung hat sich nicht geändert."
 msgid "NO_TIMEFRAME"
 msgstr ""
 "Es existiert kein Zeitraum für die angegebene Beschränkungsdauer. Es muss "
-"zunächst einer erstellt werden, bevor eine Einschränkung gesetzt werden kann."
+"zunächst einer erstellt werden, bevor eine Beschränkung gesetzt werden kann."
 
 #: ../classes/class-cb-item-usage-restriction-admin.php:163
 #: ../classes/class-cb-item-usage-restriction-admin.php:688
@@ -102,7 +102,7 @@ msgstr "ungültiges Anfangsdatum"
 
 #: ../classes/class-cb-item-usage-restriction-admin.php:642
 msgid "RESTRICTION_TYPE_INVALID"
-msgstr "ungültiger Typ der Nutzungeinschränkung"
+msgstr "ungültiger Typ der Nutzungbeschränkung"
 
 #: ../classes/class-cb-item-usage-restriction-admin.php:646
 msgid "RESTRICTION_HINT_EMPTY"
@@ -122,7 +122,7 @@ msgstr "Totalausfall"
 #: ../templates/create-restriction-template.php:32
 #: ../templates/show-restriction-template.php:11
 msgid "RESTRICTION_TYPE_2"
-msgstr "eingeschränkt nutzbar"
+msgstr "beschränkt nutzbar"
 
 #: ../classes/class-cb-item-usage-restriction-settings.php:14
 msgid "SETTINGS_TITLE"
@@ -130,7 +130,7 @@ msgstr "Einstellungen für Nutzungsbeschränkungen"
 
 #: ../classes/class-cb-item-usage-restriction-settings.php:14
 msgid "SETTINGS_MENU"
-msgstr "Nutzungsbeschränkung"
+msgstr "Nutzungsbeschränkungen"
 
 #: ../classes/class-cb-item-usage-restriction-settings.php:39
 #: ../templates/create-restriction-template.php:59
@@ -146,7 +146,7 @@ msgid "DESCRIPTION"
 msgstr ""
 "Dieser Bereich erlaubt die Erstellung von Nutzungsbeschränkungen für Commons "
 "Booking Artikel. Dabei kann es sich um einen Totalausfall oder eine "
-"eingeschränkte Nutzbarkeit handeln.<br> Im Zuge der Erstellung werden alle "
+"beschränkte Nutzbarkeit handeln.<br> Im Zuge der Erstellung werden alle "
 "NutzerInnen mit Buchungen im angesetzten Zeitraum informiert. Bei einem "
 "Totalausfall wird eine Buchung durch NutzerInnen verhindert.<br> Der Hinweis "
 "kann in den Plugin-Einstellungen mit dem Template-Tag {{HINT}} der Email "
@@ -210,7 +210,7 @@ msgstr "gelöschte"
 
 #: ../templates/list-restrictions-template.php:11
 msgid "SHOW_RESTRICTIONS_FOR"
-msgstr "Beschränkungen für"
+msgstr "Nutzungsbeschränkungen für"
 
 #: ../templates/list-restrictions-template.php:14
 msgid "NONE"
@@ -273,15 +273,17 @@ msgstr "löschen ..."
 
 #: ../templates/list-restrictions-template.php:146
 msgid "NO_DELETED_RESTRICTIONS_EXISTING"
-msgstr "Es gibt keine gelöschten Beschränkungen für den gewählten Artikel."
+msgstr ""
+"Es gibt keine gelöschten Nutzungsbeschränkungen für den gewählten Artikel."
 
 #: ../templates/list-restrictions-template.php:147
 msgid "NO_RESTRICTIONS_EXISTING"
-msgstr "Es gibt keine bestehenden Beschränkungen für den gewählten Artikel."
+msgstr ""
+"Es gibt keine bestehenden Nutzungsbeschränkungen für den gewählten Artikel."
 
 #: ../templates/list-restrictions-template.php:150
 msgid "CHOOSE_ITEM"
-msgstr "Bitte einen Artikel wählen, um Beschränkungen anzuzeigen."
+msgstr "Bitte einen Artikel wählen, um Nutzungsbeschränkungen anzuzeigen."
 
 #: ../templates/list-restrictions-template.php:155
 msgid "EDIT_RESTRICTION_DIALOG"
@@ -361,7 +363,7 @@ msgstr "Beschränkungsdetails"
 
 #: ../templates/settings-page-template.php:2
 msgid "SETTINGS_PAGE_HEADER"
-msgstr "Einstellung für Nutzungsbeschränkung"
+msgstr "Einstellungen für Nutzungsbeschränkungen"
 
 #: ../templates/settings-page-template.php:4
 msgid "SETTINGS_DESCRIPTION"
@@ -438,15 +440,15 @@ msgstr "Email - Nutzungsbeschränkung"
 msgid "RESTRICTION_LIMITED_USAGE_EMAIL_DESCRIPTION"
 msgstr ""
 "Diese Email wird versendet, um NutzerInnen mit Buchungen im betreffenden "
-"Zeitraum über die eingeschränkte Nutzbarkeit des Artikels zu informieren."
+"Zeitraum über die beschränkte Nutzbarkeit des Artikels zu informieren."
 
 #: ../templates/settings-page-template.php:73
 msgid "RESTRICTION_LIMITED_USAGE_EMAIL_SUBJECT_PLACEHOLDER"
-msgstr "Eingeschränkte Nutzbarkeit von {{ITEM_NAME}}"
+msgstr "Beschränkte Nutzbarkeit von {{ITEM_NAME}}"
 
 #: ../templates/settings-page-template.php:77
 msgid "RESTRICTION_LIMITED_USAGE_EMAIL_CONTENT_PLACEHOLDER"
-msgstr "Hallo {{FIRST_NAME}}, der Artikel ist nur eingeschränkt nutzbar..."
+msgstr "Hallo {{FIRST_NAME}}, der Artikel ist nur beschränkt nutzbar..."
 
 #: ../templates/settings-page-template.php:82
 msgid "RESTRICTION_EDITED_EMAIL_HEADER"
@@ -460,12 +462,13 @@ msgstr ""
 
 #: ../templates/settings-page-template.php:92
 msgid "RESTRICTION_EDITED_EMAIL_SUBJECT_PLACEHOLDER"
-msgstr "Einschränkung von {{ITEM_NAME}} hat sich geändert"
+msgstr "Nutzungsbeschränkung von {{ITEM_NAME}} hat sich geändert"
 
 #: ../templates/settings-page-template.php:96
 msgid "RESTRICTION_EDITED_EMAIL_CONTENT_PLACEHOLDER"
 msgstr ""
-"Hallo {{FIRST_NAME}}, die Einschränkung des Artikels wurde angepasst..."
+"Hallo {{FIRST_NAME}}, die Nutzungsbeschränkung des Artikels wurde "
+"angepasst..."
 
 #: ../templates/settings-page-template.php:101
 msgid "RESTRICTION_DELETED_EMAIL_HEADER"
@@ -479,12 +482,11 @@ msgstr ""
 
 #: ../templates/settings-page-template.php:111
 msgid "RESTRICTION_DELETED_EMAIL_SUBJECT_PLACEHOLDER"
-msgstr "Einschränkung von {{ITEM_NAME}} aufgehoben"
+msgstr "Nutzungsbeschränkung von {{ITEM_NAME}} aufgehoben"
 
 #: ../templates/settings-page-template.php:115
 msgid "RESTRICTION_DELETED_EMAIL_CONTENT_PLACEHOLDER"
-msgstr ""
-"Hallo {{FIRST_NAME}}, der Artikel ist wieder uneingeschränkt nutzbar..."
+msgstr "Hallo {{FIRST_NAME}}, der Artikel ist wieder unbegeschränkt nutzbar..."
 
 #: ../templates/settings-page-template.php:120
 msgid "OTHER_OPTIONS"
@@ -496,7 +498,7 @@ msgstr "Zeige immer in Artikelbeschreibung"
 
 #: ../templates/settings-page-template.php:127
 msgid "SHOW_EVEN_IF_NO_RESTRICTION"
-msgstr "Ja, auch wenn keine Einschränkung angezeigt wird"
+msgstr "Ja, auch wenn keine Nutzungsbechränkung angezeigt wird"
 
 #: ../templates/settings-page-template.php:132
 msgid "SHOW_UPDATE_HINTS_IN_ARTICLE_DESCRIPTION"
