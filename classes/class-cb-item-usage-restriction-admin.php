@@ -430,7 +430,7 @@ class CB_Item_Usage_Restriction_Admin {
           }
         }
 
-        $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], $item_restriction['restriction_type'], 'delete_restriction', $item_restriction['date_start'], $item_restriction['date_end'], $validation_result['delete_comment'], $this->get_hint_history($item_restriction));
+        $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], $item_restriction['restriction_type'], 'delete_restriction', $item_restriction['date_start'], $item_restriction['date_end'], $validation_result['data']['delete_comment'], $this->get_hint_history($item_restriction));
 
         //remove restriction from item
         $item_restrictions = CB_Item_Usage_Restriction::get_item_restrictions($validation_result['data']['item_id']);
