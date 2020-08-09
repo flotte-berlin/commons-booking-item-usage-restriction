@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: cb-item-usage-restriction\n"
-"POT-Creation-Date: 2020-06-12 16:58+0200\n"
-"PO-Revision-Date: 2020-06-12 17:35+0200\n"
+"POT-Creation-Date: 2020-08-09 12:20+0200\n"
+"PO-Revision-Date: 2020-08-09 12:24+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de\n"
@@ -62,7 +62,7 @@ msgstr "Enddatum darf nicht vor dem Anfangsdatum liegen"
 
 #: ../classes/class-cb-item-usage-restriction-admin.php:352
 msgid "NO_RESTRICTION_TO_UPDATE"
-msgstr "Die gewünschte Nutzungseinschränkung existiert nicht."
+msgstr "Die gewünschte Nutzungsbeschränkung existiert nicht."
 
 #: ../classes/class-cb-item-usage-restriction-admin.php:360
 #: ../classes/class-cb-item-usage-restriction-admin.php:446
@@ -112,13 +112,13 @@ msgstr "der Hinweis zur Nutzungsbeschränkung muss ausgefüllt sein"
 msgid "RESTRICTION_CREATED"
 msgstr "Die Nutzungsbeschränkung wurde erfolgreich erstellt."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:992
+#: ../classes/class-cb-item-usage-restriction-admin.php:996
 #: ../templates/create-restriction-template.php:31
 #: ../templates/show-restriction-template.php:11
 msgid "RESTRICTION_TYPE_1"
 msgstr "Totalausfall"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:996
+#: ../classes/class-cb-item-usage-restriction-admin.php:1000
 #: ../templates/create-restriction-template.php:32
 #: ../templates/show-restriction-template.php:11
 msgid "RESTRICTION_TYPE_2"
@@ -186,13 +186,13 @@ msgstr "ausführen"
 #: ../templates/create-restriction-template.php:52
 msgid "NO_ITEMS_AVAILABLE"
 msgstr ""
-"Es müssen Artikel vorhanden sein, um Nutzungseinschränkungen erstellen zu "
+"Es müssen Artikel vorhanden sein, um Nutzungsbeschränkungen erstellen zu "
 "können."
 
 #: ../templates/create-restriction-template.php:58
 msgid "SETTINGS_NOT_CORRECT"
 msgstr ""
-"Um Nutzungseinschränkungen für Artikel festsetzen zu können, müssen ein "
+"Um Nutzungsbeschränkungen für Artikel festsetzen zu können, müssen ein "
 "blockierender User und Email-Templates in den Plugin-Einstellungen "
 "festgelegt sein."
 
@@ -312,7 +312,7 @@ msgstr "Füge einen Kommentar an"
 #: ../templates/list-restrictions-template.php:196
 msgid "RESTRICTION_DETAILS_DIALOG"
 msgstr ""
-"Details der gewählten Nutzungseinschränkung zu benachrichtigten NutzerInnen "
+"Details der gewählten Nutzungsbeschränkung zu benachrichtigten NutzerInnen "
 "und Änderungen."
 
 #: ../templates/list-restrictions-template.php:198
@@ -432,7 +432,7 @@ msgstr "Hallo {{FIRST_NAME}}, der Artikel ist nicht nutzbar..."
 
 #: ../templates/settings-page-template.php:63
 msgid "RESTRICTION_LIMITED_USAGE_EMAIL_HEADER"
-msgstr "Email - Nutzungseinschränkung"
+msgstr "Email - Nutzungsbeschränkung"
 
 #: ../templates/settings-page-template.php:66
 msgid "RESTRICTION_LIMITED_USAGE_EMAIL_DESCRIPTION"
@@ -455,8 +455,8 @@ msgstr "Email - Änderung der Nutzungsbeschränkung"
 #: ../templates/settings-page-template.php:85
 msgid "RESTRICTION_EDITED_EMAIL_DESCRIPTION"
 msgstr ""
-"Diese Email wird versendet, um NutzerInnen  über die Änderung einer "
-"Nutzungseinschränkung zu benachrichtigen."
+"Diese Email wird versendet, um NutzerInnen über die Änderung einer "
+"Nutzungsbeschränkung zu benachrichtigen."
 
 #: ../templates/settings-page-template.php:92
 msgid "RESTRICTION_EDITED_EMAIL_SUBJECT_PLACEHOLDER"
@@ -475,7 +475,7 @@ msgstr "Email - Aufheben der Nutzungsbeschränkung"
 msgid "RESTRICTION_DELETED_EMAIL_DESCRIPTION"
 msgstr ""
 "Diese Email wird versendet, um NutzerInnen mit Buchungen im betreffenden "
-"Zeitraum über die Aufhebung einer Nutzungseinschränkung zu benachrichtigen."
+"Zeitraum über die Aufhebung einer Nutzungsbeschränkung zu benachrichtigen."
 
 #: ../templates/settings-page-template.php:111
 msgid "RESTRICTION_DELETED_EMAIL_SUBJECT_PLACEHOLDER"
@@ -505,7 +505,7 @@ msgstr "Zeige Änderungshinweise in Artikelbeschreibung"
 #: ../templates/show-restriction-template.php:5
 #: ../templates/show-restriction-template.php:28
 msgid "USAGE_RESTRICTIONS"
-msgstr "Nutzungseinschränkungen"
+msgstr "Nutzungsbeschränkungen"
 
 #: ../templates/show-restriction-template.php:31
 msgid "NO_USAGE_RESTRICTIONS"
