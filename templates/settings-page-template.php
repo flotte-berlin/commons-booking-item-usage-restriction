@@ -116,6 +116,28 @@
       </tr>
     </table>
 
+    <!-- additional notifications -->
+    <h2><?= item_usage_restriction\__('ADDITIONAL_NOTIFICATIONS', 'commons-booking-item-usage-restriction', 'Additional Notifications') ?></h2>
+
+    <p>
+      <?= item_usage_restriction\__('ADDITIONAL_NOTIFICATIONS_DESCRIPTION', 'commons-booking-item-usage-restriction', 'You can define additional email addresses in the description of item categories that get notifications about usage restrictions.') ?>
+    </p>
+
+    <table>
+      <tr>
+        <th><?= item_usage_restriction\__('NOTIFICATION_PARENT_ITEM_CATEGORY', 'commons-booking-item-usage-restriction', 'Parent item category') ?></th>
+        <td>
+          <?php wp_dropdown_categories([
+            'taxonomy' => 'cb_items_category',
+            'hierarchical' => true,
+            'name' => 'cb_item_restriction_additional_notification_parent_category',
+            'selected' => esc_attr( get_option('cb_item_restriction_additional_notification_parent_category') ),
+            'show_option_none' => item_usage_restriction\__('NOTIFICATION_PARENT_ITEM_CATEGORY_NONE_OPTION', 'commons-booking-item-usage-restriction', '- no category -')
+          ]); ?>
+        </td>
+      </tr>
+    </table>
+
     <!-- other options -->
     <h2><?= item_usage_restriction\__('OTHER_OPTIONS', 'commons-booking-item-usage-restriction', 'Other Options') ?></h2>
 

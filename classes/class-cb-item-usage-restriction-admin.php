@@ -330,8 +330,9 @@ class CB_Item_Usage_Restriction_Admin {
 
           //get email adresses for additional notifications
           $additional_email_recipients = $item_restriction['additional_email_recipients'];
+          $area_coordinator_email_addresses = $this->get_area_coordinator_email_addresses($item_restriction['item_id']);
 
-          $email_recipients = array_merge($informed_users, $responsible_users, $additional_email_recipients);
+          $email_recipients = array_merge($informed_users, $responsible_users, $additional_email_recipients, $area_coordinator_email_addresses);
 
           $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], $item_restriction['restriction_type'], 'edit_restriction', $item_restriction['date_start'], $validation_result['data']['date_end'], $validation_result['data']['update_comment'], $this->get_hint_history($item_restriction));
 
@@ -425,9 +426,9 @@ class CB_Item_Usage_Restriction_Admin {
             }
           }
 
-          foreach ($item_restriction['additional_emails'] as $additional_email) {
-            array_push($email_recipients, $additional_email);
-          }
+          $area_coordinator_email_addresses = $this->get_area_coordinator_email_addresses($item_restriction['item_id']);
+
+          $email_recipients = array_merge($email_recipients, $item_restriction['additional_emails'], $area_coordinator_email_addresses);
         }
 
         $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], $item_restriction['restriction_type'], 'delete_restriction', $item_restriction['date_start'], $item_restriction['date_end'], $validation_result['data']['delete_comment'], $this->get_hint_history($item_restriction));
@@ -761,7 +762,9 @@ class CB_Item_Usage_Restriction_Admin {
       $data['booking_id'] = $booking_needed ? $booking_id : null;
       CB_Item_Usage_Restriction::add_item_restriction($data, $informed_users, $additional_email_recipients, $responsible_users);
 
-      $email_recipients = array_merge($informed_users, $responsible_users, $additional_email_recipients);
+      $area_coordinator_email_addresses = $this->get_area_coordinator_email_addresses($data['item_id']);
+
+      $email_recipients = array_merge($informed_users, $responsible_users, $additional_email_recipients, $area_coordinator_email_addresses);
 
       $this->send_mail_by_reason_to_recipients($email_recipients, $data['item_id'], $data['restriction_type'], 'restriction_' . $data['restriction_type'], $data['date_start'], $data['date_end'], $data['restriction_hint']);
 
@@ -794,6 +797,36 @@ class CB_Item_Usage_Restriction_Admin {
     $user_query = new WP_User_Query( $args );
 
     return $user_query->get_results();
+  }
+
+  function get_area_coordinator_email_addresses($item_id) {
+    $email_addresses = [];
+
+    //filter email addresses from descriptions of gk-... categories
+    $post_terms = wp_get_post_terms( $item_id, 'cb_items_category');
+
+    $parent_category_id = get_option('cb_item_restriction_additional_notification_parent_category', null);
+
+    if(isset($parent_category_id) && $parent_category_id > 0) {
+      foreach ($post_terms as $post_term) {
+        if($post_term->term_id == $parent_category_id || $post_term->parent == $parent_category_id) {
+          $term_email_addresses = $this->find_email_address_in_string($post_term->description);
+          $email_addresses = array_merge($email_addresses, $term_email_addresses);
+        }
+      }
+    }
+
+    return $email_addresses;
+  }
+
+  function find_email_address_in_string($string) {
+
+    // try to match all allowed email address characters according to https://stackoverflow.com/questions/2049502/what-characters-are-allowed-in-an-email-address
+    //also used in Commons Booking public/cb-bookings/class-cb-data.php: get_location()
+    preg_match_all("/[a-zA-Z0-9.!#$%&'*+\-\/=?^_`{|}~]+@[a-zA-Z0-9.!#$%&'*+\-\/=?^_`{|}~]+/", $string, $matches);
+    $matches[0] = array_map(function($s) { return(trim($s, ".")); }, $matches[0]); // strip off leading or trailing dots
+
+    return $matches[0];
   }
 
   /**
