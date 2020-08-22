@@ -130,6 +130,7 @@
           <?php wp_dropdown_categories([
             'taxonomy' => 'cb_items_category',
             'hierarchical' => true,
+            'hide_empty' => 0,
             'name' => 'cb_item_restriction_additional_notification_parent_category',
             'selected' => esc_attr( get_option('cb_item_restriction_additional_notification_parent_category') ),
             'show_option_none' => item_usage_restriction\__('NOTIFICATION_PARENT_ITEM_CATEGORY_NONE_OPTION', 'commons-booking-item-usage-restriction', '- no category -')
