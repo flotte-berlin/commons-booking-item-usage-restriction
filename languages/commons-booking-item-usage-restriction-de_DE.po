@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cb-item-usage-restriction\n"
 "POT-Creation-Date: 2020-08-09 18:16+0200\n"
-"PO-Revision-Date: 2020-08-09 18:20+0200\n"
+"PO-Revision-Date: 2020-08-23 12:20+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de\n"
@@ -351,15 +351,15 @@ msgstr "keine Änderungen"
 
 #: ../templates/list-restrictions-template.php:304
 msgid "EDIT_RESTRICTION_DIALOG_TITLE"
-msgstr "Beschränkung anpassen"
+msgstr "Nutzungsbeschränkung anpassen"
 
 #: ../templates/list-restrictions-template.php:316
 msgid "DELETE_RESTRICTION_DIALOG_TITLE"
-msgstr "Beschränkung löschen"
+msgstr "Nutzungsbeschränkung löschen"
 
 #: ../templates/list-restrictions-template.php:324
 msgid "RESTRICTION_DETAILS_DIALOG_TITLE"
-msgstr "Beschränkungsdetails"
+msgstr "Details der Nutzungsbeschränkung"
 
 #: ../templates/settings-page-template.php:2
 msgid "SETTINGS_PAGE_HEADER"
@@ -434,17 +434,17 @@ msgstr "Hallo {{FIRST_NAME}}, der Artikel ist nicht nutzbar..."
 
 #: ../templates/settings-page-template.php:63
 msgid "RESTRICTION_LIMITED_USAGE_EMAIL_HEADER"
-msgstr "Email - Nutzungsbeschränkung"
+msgstr "Email - Nutzungseinschränkung"
 
 #: ../templates/settings-page-template.php:66
 msgid "RESTRICTION_LIMITED_USAGE_EMAIL_DESCRIPTION"
 msgstr ""
 "Diese Email wird versendet, um NutzerInnen mit Buchungen im betreffenden "
-"Zeitraum über die beschränkte Nutzbarkeit des Artikels zu informieren."
+"Zeitraum über die eingeschränkte Nutzbarkeit des Artikels zu informieren."
 
 #: ../templates/settings-page-template.php:73
 msgid "RESTRICTION_LIMITED_USAGE_EMAIL_SUBJECT_PLACEHOLDER"
-msgstr "Beschränkte Nutzbarkeit von {{ITEM_NAME}}"
+msgstr "Eingeschränkte Nutzbarkeit von {{ITEM_NAME}}"
 
 #: ../templates/settings-page-template.php:77
 msgid "RESTRICTION_LIMITED_USAGE_EMAIL_CONTENT_PLACEHOLDER"
