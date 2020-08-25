@@ -988,6 +988,21 @@ class CB_Item_Usage_Restriction_Admin {
   }
 
   /**
+   * Replace template tags – {MYTAG} with tags array
+   *
+   *@param string to replace
+   *@param array of tags
+   *
+   *@return string
+  */
+  function replace_email_template_tags( $string, $tags_array ) {
+    foreach($tags_array as $key => $value){
+        $string = str_replace('{{'.strtoupper($key).'}}', $value, $string);
+    }
+    return $string;
+  }
+
+  /**
   * the actual method to to send an email
   **/
   function send_mail($to, $subject_template, $body_template, $mail_vars) {
@@ -1010,8 +1025,8 @@ class CB_Item_Usage_Restriction_Admin {
 
     $headers[] = 'Content-Type: text/html; charset=UTF-8';
 
-    $subject = replace_template_tags( $subject_template, $mail_vars);
-    $body = replace_template_tags( $body_template, $mail_vars);
+    $subject = $this->replace_email_template_tags( $subject_template, $mail_vars);
+    $body = $this->replace_email_template_tags( $body_template, $mail_vars);
 
     return wp_mail( $to, $subject, $body, $headers );
 
