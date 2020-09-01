@@ -8,6 +8,8 @@ class CB_Bookings_Gantt_Chart_Shortcode {
     $date_start = isset($input['date_start']) && strlen($input['date_start']) > 0 ? new DateTime($input['date_start']) : null;
     $date_end = isset($input['date_end']) && strlen($input['date_end']) > 0 ? new DateTime($input['date_end']) : null;
     $event = isset($input['event']) && ($input['event'] == 'click' || $input['event'] == 'mouseover') ? $input['event'] : 'click';
+    $scrollbar_x_start = isset($input['scrollbar_x_start']) && (float) $input['scrollbar_x_start'] >= 0 && $input['scrollbar_x_start'] <= 1 ? (float) $input['scrollbar_x_start'] : 0;
+    $scrollbar_x_end = isset($input['scrollbar_x_end']) && (float) $input['scrollbar_x_end'] >= 0 && $input['scrollbar_x_end'] <= 1 ? (float) $input['scrollbar_x_end'] : 1;
 
     if(!$date_start) {
       $date_start = new DateTime();
@@ -32,6 +34,8 @@ class CB_Bookings_Gantt_Chart_Shortcode {
             'item_id' => $item_id,
             'date_start' => $date_start,
             'date_end' => $date_end,
+            'scrollbar_x_start' => $scrollbar_x_start,
+            'scrollbar_x_end' => $scrollbar_x_end,
             'event' => $event
           ];
         }
@@ -64,6 +68,8 @@ class CB_Bookings_Gantt_Chart_Shortcode {
   		'item_id' => 0,
       'date_start' => null,
       'date_end' => null,
+      'scrollbar_x_start' => null,
+      'scrollbar_x_end' => null,
       'event' => 'click'
   	), $atts );
 
@@ -87,6 +93,8 @@ class CB_Bookings_Gantt_Chart_Shortcode {
               ' data-item_id="' . $validated_input['item_id'] . '"' .
               ' data-date_start="' . $validated_input['date_start']->format('Y-m-d') . '"' .
               ' data-date_end="' . $validated_input['date_end']->format('Y-m-d') . '"' .
+              ' data-scrollbar_x_start="' . $validated_input['scrollbar_x_start'] . '"' .
+              ' data-scrollbar_x_end="' . $validated_input['scrollbar_x_end'] . '"' .
               ' data-uuid="' . uniqid() . '"' .
               ' class="button action"><span style="padding-top: 4px;" class="dashicons dashicons-chart-bar"></span></button>'; //dashicons-list-view
     }
@@ -178,6 +186,12 @@ class CB_Bookings_Gantt_Chart_Shortcode {
         'ticks' => [
           'min' => $validated_input['date_start']->format('Y-m-d') . ' 00:00:00',
           'max' => $validated_input['date_end']->format('Y-m-d') . ' 23:59:59'
+        ],
+        'scrollbar' => [
+          'x' => [
+            'start' => $validated_input['scrollbar_x_start'],
+            'end' => $validated_input['scrollbar_x_end']
+          ]
         ],
         'item' => [
           'name' => get_the_title($validated_input['item_id'])

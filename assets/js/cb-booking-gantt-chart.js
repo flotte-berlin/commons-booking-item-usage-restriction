@@ -32,6 +32,8 @@ jQuery(document).ready(function ($) {
     var item_id = $el.data('item_id');
     var date_start = $el.data('date_start');
     var date_end = $el.data('date_end');
+    var scrollbar_x_start = $el.data('scrollbar_x_start');
+    var scrollbar_x_end = $el.data('scrollbar_x_end');
     var uuid = $el.data('uuid');
 
     console.log('data: ', item_id, date_start, date_end);
@@ -41,6 +43,8 @@ jQuery(document).ready(function ($) {
       'item_id': item_id,
       'date_start': date_start,
       'date_end': date_end,
+      'scrollbar_x_start': scrollbar_x_start,
+      'scrollbar_x_end': scrollbar_x_end,
       'nonce': nonce
 		};
 
@@ -138,6 +142,11 @@ jQuery(document).ready(function ($) {
       chart.paddingLeft = 30;
       chart.paddingRight = 30;
       chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+
+      chart.scrollbarX = new am4core.Scrollbar();
+      chart.scrollbarX.start = response.scrollbar.x.start;
+      chart.scrollbarX.end = response.scrollbar.x.end;
+      chart.zoomOutButton.disabled = true;
 
       var title = chart.titles.create();
       title.marginTop = -10;
