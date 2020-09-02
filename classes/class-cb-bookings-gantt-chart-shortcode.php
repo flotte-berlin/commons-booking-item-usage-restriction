@@ -62,7 +62,7 @@ class CB_Bookings_Gantt_Chart_Shortcode {
   * enqueue scripts and render the button to trigger data fetching and chart rendering
   **/
   public static function execute($atts, $content, $tag) {
-    error_reporting(E_ALL);
+    //error_reporting(E_ALL);
 
     $a = shortcode_atts( array(
   		'item_id' => 0,
@@ -108,12 +108,15 @@ class CB_Bookings_Gantt_Chart_Shortcode {
     $validated_input = self::validate_input_with_nonce($_POST);
 
     if($validated_input) {
+      //error_reporting(E_ALL);
+
       $bookings = CB_Item_Usage_Restriction_Admin::fetch_bookings_in_period($validated_input['date_start']->format('Y-m-d'), $validated_input['date_end']->format('Y-m-d'), $validated_input['item_id']);
 
       $blocking_user_id = get_option('cb_item_restriction_blocking_user_id', null);
 
       //prepare chart data from bookings
       $grouped_bookings = [
+        'location' => [],
         'blocking' => [],
         'confirmed' => [],
         'aborted' => [],
@@ -160,6 +163,7 @@ class CB_Bookings_Gantt_Chart_Shortcode {
       }
 
       $bookings_data = [];
+
       foreach ($grouped_bookings as $booking_type => $bookings) {
         $get_restriction = $booking_type == 'blocking' ? true : false;
         $bookings_data[$booking_type] = self::prepare_bookings_data($bookings, $booking_type, $get_restriction);
@@ -180,6 +184,10 @@ class CB_Bookings_Gantt_Chart_Shortcode {
           }
         }
       }
+
+      //location days
+      $location_days = CB_Bookings_GC_Location_Helper::get_location_days($validated_input['item_id'], $validated_input['date_start']->format('Y-m-d'), $validated_input['date_end']->format('Y-m-d'));
+      $ordered_bookings_data['location'] = self::prepare_locations_data($location_days);
 
       $chart_data = [
         'bookings' => $ordered_bookings_data,
@@ -267,8 +275,41 @@ class CB_Bookings_Gantt_Chart_Shortcode {
     return !$no_intersection;
   }
 
+  private static function prepare_locations_data($location_days) {
+    $cb_data = new CB_Data();
+    $locations = [];
+
+    $locations_data = [];
+
+    $roles = [
+      CB_Bookings_GC_Location_Helper::ITEM_AVAILABLE => 'open',
+      CB_Bookings_GC_Location_Helper::LOCATION_CLOSED => 'closed',
+      CB_Bookings_GC_Location_Helper::OUT_OF_TIMEFRAME => 'none',
+    ];
+
+    foreach($location_days as $date => $day) {
+      if(isset($day['location_id']) && !isset($locations[$day['location_id']])) {
+        $locations[$day['location_id']] = $cb_data->get_location($day['location_id']);
+      }
+
+      $locations_data[] = [
+        'id' => 'Standort-ID',
+        'date_start' => $date . ' 00:00:00',
+        'date_end' => $date . ' 23:59:59',
+        'type' => 'location',
+        'comment' => 'a comment',
+        'user' => [
+          'name' => isset($day['location_id']) ? $locations[$day['location_id']]['name'] : '',
+          'role' => $roles[$day['status']]
+        ]
+      ];
+    }
+
+    return $locations_data;
+  }
+
   private static function prepare_bookings_data($bookings = [], $booking_type, $get_restriction = false) {
-    error_reporting(E_ALL);
+    //error_reporting(E_ALL);
     $bookings_data = [];
 
     foreach($bookings as $booking) {
@@ -295,6 +336,7 @@ class CB_Bookings_Gantt_Chart_Shortcode {
 
     return $bookings_data;
   }
+
 }
 
 ?>

@@ -20,10 +20,12 @@ require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'functions/translate.php' );
 load_plugin_textdomain( 'commons-booking-item-usage-restriction', false, CB_ITEM_USAGE_RESTRICTION_LANG_PATH );
 
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'functions/is-plugin-active.php' );
+require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'functions/get-active-plugin-directory.php' );
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-item-usage-restriction.php' );
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-item-usage-restriction-settings.php' );
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-item-usage-restriction-admin.php' );
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-item-usage-restriction-booking.php' );
+require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-bookings-gc-location-helper.php' );
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-bookings-gantt-chart-shortcode.php' );
 
 $cb_item_restriction_settings = new CB_Item_Usage_Restriction_Settings();

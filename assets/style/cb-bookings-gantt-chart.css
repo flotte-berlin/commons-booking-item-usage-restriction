@@ -30,6 +30,9 @@
   --bar-status-bg-blocked: #4c4c4c;
   --bar-status-bg-canceled: #aaaaaa;
   --bar-status-bg-aborted: #7fc600; /* late cancellation */
+  --bar-status-bg-location_open: #00aa00;
+  --bar-status-bg-location_closed: #aa0000;
+  --bar-status-bg-location_none: #aaaaaa;
 }
 
 .cb-bookings-gantt-chart-loading {
