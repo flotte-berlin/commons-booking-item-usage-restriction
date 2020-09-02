@@ -85,7 +85,7 @@ class CB_Bookings_Gantt_Chart_Shortcode {
 
       wp_enqueue_script( 'cb_bookings_gantt_chart_js', CB_ITEM_USAGE_RESTRICTION_ASSETS_URL . 'js/cb-booking-gantt-chart.js' );
 
-      $nonce = wp_create_nonce('cb_bookings_gantt_chart_' . $validated_input['item_id']);
+      $nonce = self::create_item_chart_nonce($validated_input['item_id']);
 
       return '<button on' . $validated_input['event'] . '="init_cb_bookings_gantt_chart(this)"' .
               ' data-url="' . get_site_url(null, '', null) . '/wp-admin/admin-ajax.php' . '"' .
@@ -96,9 +96,22 @@ class CB_Bookings_Gantt_Chart_Shortcode {
               ' data-scrollbar_x_start="' . $validated_input['scrollbar_x_start'] . '"' .
               ' data-scrollbar_x_end="' . $validated_input['scrollbar_x_end'] . '"' .
               ' data-uuid="' . uniqid() . '"' .
-              ' class="button action"><span style="padding-top: 4px;" class="dashicons dashicons-chart-bar"></span></button>'; //dashicons-list-view
+              ' class="cb-booking-gantt-chart-button button action"><span style="padding-top: 4px;" class="dashicons dashicons-chart-bar"></span></button>'; //dashicons-list-view
     }
 
+  }
+
+  public static function create_item_chart_nonce($item_id) {
+    return wp_create_nonce('cb_bookings_gantt_chart_' . $item_id);
+  }
+
+  public static function create_item_chart_nonces($item_ids) {
+    $nonces = [];
+    foreach ($item_ids as $item_id) {
+      $nonces[$item_id] = self::create_item_chart_nonce($item_id);
+    }
+
+    return $nonces;
   }
 
   /**

@@ -29,14 +29,14 @@ jQuery(document).ready(function ($) {
       }, 0);
     }
 
-    var url = $el.data('url');
-    var nonce = $el.data('nonce');
-    var item_id = $el.data('item_id');
-    var date_start = $el.data('date_start');
-    var date_end = $el.data('date_end');
-    var scrollbar_x_start = $el.data('scrollbar_x_start');
-    var scrollbar_x_end = $el.data('scrollbar_x_end');
-    var uuid = $el.data('uuid');
+    var url = $el.attr('data-url');
+    var nonce = $el.attr('data-nonce');
+    var item_id = $el.attr('data-item_id');
+    var date_start = $el.attr('data-date_start');
+    var date_end = $el.attr('data-date_end');
+    var scrollbar_x_start = $el.attr('data-scrollbar_x_start');
+    var scrollbar_x_end = $el.attr('data-scrollbar_x_end');
+    var uuid = $el.attr('data-uuid');
 
     console.log('data: ', item_id, date_start, date_end);
 
