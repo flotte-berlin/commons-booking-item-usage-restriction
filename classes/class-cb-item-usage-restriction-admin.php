@@ -175,7 +175,7 @@ class CB_Item_Usage_Restriction_Admin {
               $date_after_new_end = DateTime::createFromFormat('Y-m-d', $validation_result['data']['date_end']);
               $date_after_new_end->modify('+1 day');
 
-              $conflict_bookings = $cb_admin_booking_admin->fetch_bookings_in_period($date_after_new_end->format('Y-m-d'), $old_date_end, $item_restriction['item_id']);
+              $conflict_bookings = $cb_admin_booking_admin->fetch_bookings_in_period($date_after_new_end->format('Y-m-d'), $old_date_end, $item_restriction['item_id'], null, ['canceled', 'pending']);
 
               $filtered_conflict_bookings = [];
               foreach ($conflict_bookings as $conflict_booking) {
@@ -205,7 +205,7 @@ class CB_Item_Usage_Restriction_Admin {
           if($new_end_date_timestamp < $old_end_date_timestamp && $old_end_date_timestamp >= $today_timestamp) {
             // update email to users with bookings that have intersection with time between new end date (or today, if it's in the past) and old end date
             $date_start = $new_end_date_timestamp < $today_timestamp ? $today_datetime->format('Y-m-d') : $validation_result['data']['date_end'];
-            $unfiltered_bookings = $this->fetch_current_and_future_bookings($date_start, $old_date_end, $item_restriction['item_id']);
+            $unfiltered_bookings = $this->fetch_current_and_future_bookings($date_start, $old_date_end, $item_restriction['item_id'], null, ['canceled', 'pending']);
 
             // delete email to users with booking that starts after new restriction end date
             $bookings_for_delete_email = array();
@@ -238,7 +238,7 @@ class CB_Item_Usage_Restriction_Admin {
           if($new_end_date_timestamp > $old_end_date_timestamp && $new_end_date_timestamp >= $today_timestamp) {
 
             $date_start = $old_end_date_timestamp < $today_timestamp ? $today_datetime->format('Y-m-d') : $old_date_end;
-            $unfiltered_bookings = $this->fetch_current_and_future_bookings($date_start, $validation_result['data']['date_end'], $item_restriction['item_id']);
+            $unfiltered_bookings = $this->fetch_current_and_future_bookings($date_start, $validation_result['data']['date_end'], $item_restriction['item_id'], null, ['canceled', 'pending']);
 
             // update email to users with booking that has end date between old end date (or today, if it's in the past) and new restriction end date, but not start date
             // created restriction email to users with booking that starts between old (or today, if it's in the past) and new restriction end date
@@ -406,7 +406,7 @@ class CB_Item_Usage_Restriction_Admin {
         }
 
         //send email to users that have booking in restriction period that lays ahead
-        $bookings = $this->fetch_current_and_future_bookings($item_restriction['date_start'], $item_restriction['date_end'], $item_restriction['item_id']);
+        $bookings = $this->fetch_current_and_future_bookings($item_restriction['date_start'], $item_restriction['date_end'], $item_restriction['item_id'], null, ['canceled', 'pending']);
         //var_dump($bookings);
         $email_recipients = array($this->blocking_user);
         foreach ($bookings as $booking) {
@@ -740,7 +740,7 @@ class CB_Item_Usage_Restriction_Admin {
     if(!$booking_needed || ($booking_needed && $booking_id)) {
 
       //get bookings in given period and add users to list of user that have to be informed: only users with bookings that end today or in the future have to be informed
-      $bookings = $this->fetch_current_and_future_bookings($data['date_start'], $data['date_end'], $data['item_id']);
+      $bookings = $this->fetch_current_and_future_bookings($data['date_start'], $data['date_end'], $data['item_id'], null, ['canceled', 'pending']);
 
       foreach ($bookings as $booking) {
         $user = get_user_by('id', $booking->user_id);
@@ -916,7 +916,7 @@ class CB_Item_Usage_Restriction_Admin {
   /**
   * fetches bookings in the given period that are not in the past
   **/
-  function fetch_current_and_future_bookings($date_start, $date_end, $item_id) {
+  function fetch_current_and_future_bookings($date_start, $date_end, $item_id, $status = null, $not_status = null) {
     $date_start_timestamp = strtotime($date_start);
     $date_end_timestamp = strtotime($date_end);
 
@@ -929,7 +929,7 @@ class CB_Item_Usage_Restriction_Admin {
     if($date_end_timestamp >= $today_timestamp) {
       $date_start = $date_start_timestamp >= $today_timestamp ? $date_start : $today_datetime->format('Y-m-d');
 
-      $bookings = self::fetch_bookings_in_period($date_start, $date_end, $item_id);
+      $bookings = self::fetch_bookings_in_period($date_start, $date_end, $item_id, $status, $not_status);
 
     }
 
@@ -939,7 +939,7 @@ class CB_Item_Usage_Restriction_Admin {
   /**
   * fetches bookings in period determined by start and end date from db for given item
   */
-  static function fetch_bookings_in_period($date_start, $date_end, $item_id, $status = null) {
+  static function fetch_bookings_in_period($date_start, $date_end, $item_id, $status = null, $not_status = null) {
     global $wpdb;
 
     //get bookings data
@@ -952,8 +952,14 @@ class CB_Item_Usage_Restriction_Admin {
                         "OR (date_start < '".$date_start."' ".
                         "AND date_end > '".$date_end."'))";
 
-    if($status) {
-      $select_statement .= " AND status = '". $status."'";
+    if(is_array($status) && count($status) > 0) {
+      $sql_status = "'" . implode("','", $status) . "'";
+      $select_statement .= " AND status IN (" . $sql_status . ")";
+    }
+
+    if(is_array($not_status) && count($not_status) > 0) {
+      $sql_not_status = "'" . implode("','", $not_status) . "'";
+      $select_statement .= " AND status NOT IN (" . $sql_not_status . ")";
     }
 
     $prepared_statement = $wpdb->prepare($select_statement, $item_id);
