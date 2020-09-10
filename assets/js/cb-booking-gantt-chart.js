@@ -123,32 +123,38 @@ jQuery(document).ready(function ($) {
 
         booking_data[booking_group].forEach((booking) => {
           if(booking.type == 'location') {
-            var color_value = getComputedStyle(canvas_element).getPropertyValue('--bar-status-bg-' + booking.type + '_' + booking.user.role); //fetched from CSS variables
-            //console.log('color_value: ', color_value, typeof color_value);
+            var bg_color_value = getComputedStyle(canvas_element).getPropertyValue('--bar-status-bg-' + booking.type + '_' + booking.user.role); //fetched from CSS variables
+            var border_color_value = getComputedStyle(canvas_element).getPropertyValue('--bar-status-border-' + booking.type + '_' + booking.user.role); //fetched from CSS variables
+            //console.log('bg_color_value: ', bg_color_value, typeof bg_color_value);
           }
           else {
-            var color_value = getComputedStyle(canvas_element).getPropertyValue('--bar-status-bg-' + booking.type); //fetched from CSS variables
-            //console.log('color_value: ', color_value, typeof color_value);
+            var bg_color_value = getComputedStyle(canvas_element).getPropertyValue('--bar-status-bg-' + booking.type); //fetched from CSS variables
+            //console.log('bg_color_value: ', bg_color_value, typeof bg_color_value);
           }
 
           bookings_by_id[booking.id] = booking;
 
           if(booking.type != 'location') {
-            var fill = am4core.color(color_value.trim());
+            var fill = am4core.color(bg_color_value.trim());
             var fillOpacity = 1;
+            var stroke = null;
+            var strokeWidth = 0;
           }
           else {
             /*
             var fill = new am4core.RectPattern();
-            fill.stroke = am4core.color(color_value.trim());
-            fill.fill = am4core.color(color_value.trim());
+            fill.stroke = am4core.color(border_color_value.trim());
+            fill.fill = am4core.color(border_color_value.trim());
             fill.width = 7;
             fill.height = 7;
             fill.rectWidth = 2;
             fill.rectHeight = 2;
             */
-            var fill = am4core.color(color_value.trim());
-            var fillOpacity = 0.5;
+            var fill = am4core.color(bg_color_value.trim());
+            var fillOpacity = 1;
+            console.log();
+            var stroke = border_color_value.trim();
+            var strokeWidth = 1;
           }
 
           chart_data.push(
@@ -165,7 +171,9 @@ jQuery(document).ready(function ($) {
 
               //styling
               fill: fill,
-              fillOpacity: fillOpacity
+              fillOpacity: fillOpacity,
+              stroke: stroke,
+              strokeWidth: strokeWidth
             }
           );
 
@@ -294,7 +302,8 @@ jQuery(document).ready(function ($) {
       series1.dataFields.categoryY = "category";
       series1.columns.template.propertyFields.fill = "fill"; // get color from data
       series1.columns.template.propertyFields.fillOpacity = "fillOpacity"; // get opacity from data
-      series1.columns.template.strokeWidth = 0;
+      series1.columns.template.propertyFields.stroke = "stroke";
+      series1.columns.template.propertyFields.strokeWidth = "strokeWidth";
       series1.columns.template.column.adapter.add("cornerRadiusTopLeft", cornerRadiusLeft);
       series1.columns.template.column.adapter.add("cornerRadiusTopRight", cornerRadiusRight);
       series1.columns.template.column.adapter.add("cornerRadiusBottomLeft", cornerRadiusLeft);
