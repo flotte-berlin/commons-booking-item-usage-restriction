@@ -297,6 +297,18 @@ jQuery(document).ready(function ($) {
         }
       });
 
+      var locationLabel = series1.columns.template.createChild(am4core.Label);
+      locationLabel.stroke = am4core.color('#000000');
+      locationLabel.strokeWidth = 0;
+      locationLabel.valign = 'middle';
+      locationLabel.align = 'center';
+      locationLabel.adapter.add('text', function(text, target) {
+        //console.log('locationLabel target: ', target);
+        if(target.dataItem.categoryY == 'location') {
+          return target.dataItem.dates.openDateX.toLocaleString('de-de', {weekday:'short'});
+        }
+      });
+
       series1.dataFields.openDateX = "date_start";
       series1.dataFields.dateX = "date_end";
       series1.dataFields.categoryY = "category";
