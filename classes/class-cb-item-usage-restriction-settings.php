@@ -47,8 +47,6 @@ class CB_Item_Usage_Restriction_Settings {
   * renders the settings page
   **/
   public function render_options_page() {
-    $users = get_users();
-
     include_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'templates/settings-page-template.php');
   }
 }
