@@ -796,7 +796,17 @@ class CB_Item_Usage_Restriction_Admin {
 
     $user_query = new WP_User_Query( $args );
 
-    return $user_query->get_results();
+    $users = $user_query->get_results();
+
+    $filtered_users = [];
+
+    foreach ($users as $user) {
+      if(!in_array("subscriber", $user->roles)) {
+        $filtered_users[] = $user;
+      }
+    }
+
+    return $filtered_users;
   }
 
   function get_coordinators($item_id) {
