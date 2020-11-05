@@ -8,7 +8,7 @@ class CB_Item_Usage_Restriction {
   /**
   * adds restriction entry to meta data of the given item (post)
   **/
-  static public function add_item_restriction($restriction_data, $informed_users = array(), $additional_email_recipients = array(), $responsible_users = array()) {
+  static public function add_item_restriction($restriction_data, $informed_users = array(), $additional_email_recipients = array(), $responsible_users = array(), $coordinators = array()) {
 
     $item_restrictions = self::get_item_restrictions($restriction_data['item_id']);
 
@@ -27,6 +27,8 @@ class CB_Item_Usage_Restriction {
     foreach ($responsible_users as $user) {
       array_push($restriction_data['responsible_user_ids'], $user->ID);
     }
+
+    $restriction_data['coordinators'] = $coordinators;
 
     array_push($item_restrictions, $restriction_data);
 

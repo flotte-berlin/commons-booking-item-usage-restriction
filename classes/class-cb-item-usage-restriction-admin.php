@@ -330,9 +330,9 @@ class CB_Item_Usage_Restriction_Admin {
 
           //get email adresses for additional notifications
           $additional_email_recipients = $item_restriction['additional_email_recipients'];
-          $coordinator_email_addresses = $this->get_coordinator_email_data($item_restriction['item_id']);
+          $coordinators = $this->get_coordinators($item_restriction['item_id']);
 
-          $email_recipients = array_merge($informed_users, $responsible_users, $additional_email_recipients, $coordinator_email_addresses);
+          $email_recipients = array_merge($informed_users, $responsible_users, $additional_email_recipients, $coordinators);
 
           $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], $item_restriction['restriction_type'], 'edit_restriction', $item_restriction['date_start'], $validation_result['data']['date_end'], $validation_result['data']['update_comment'], $this->get_hint_history($item_restriction));
 
@@ -426,9 +426,9 @@ class CB_Item_Usage_Restriction_Admin {
             }
           }
 
-          $coordinator_email_addresses = $this->get_coordinator_email_data($item_restriction['item_id']);
+          $coordinators = $this->get_coordinators($item_restriction['item_id']);
 
-          $email_recipients = array_merge($email_recipients, $item_restriction['additional_emails'], $coordinator_email_addresses);
+          $email_recipients = array_merge($email_recipients, $item_restriction['additional_emails'], $coordinators);
         }
 
         $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], $item_restriction['restriction_type'], 'delete_restriction', $item_restriction['date_start'], $item_restriction['date_end'], $validation_result['data']['delete_comment'], $this->get_hint_history($item_restriction));
@@ -760,11 +760,11 @@ class CB_Item_Usage_Restriction_Admin {
       $additional_email_recipients = $data['additional_emails'];
 
       $data['booking_id'] = $booking_needed ? $booking_id : null;
-      CB_Item_Usage_Restriction::add_item_restriction($data, $informed_users, $additional_email_recipients, $responsible_users);
+      $coordinators = $this->get_coordinators($data['item_id']);
 
-      $coordinator_email_addresses = $this->get_coordinator_email_data($data['item_id']);
+      CB_Item_Usage_Restriction::add_item_restriction($data, $informed_users, $additional_email_recipients, $responsible_users, $coordinators);
 
-      $email_recipients = array_merge($informed_users, $responsible_users, $additional_email_recipients, $coordinator_email_addresses);
+      $email_recipients = array_merge($informed_users, $responsible_users, $additional_email_recipients, $coordinators);
 
       $this->send_mail_by_reason_to_recipients($email_recipients, $data['item_id'], $data['restriction_type'], 'restriction_' . $data['restriction_type'], $data['date_start'], $data['date_end'], $data['restriction_hint']);
 
@@ -799,6 +799,13 @@ class CB_Item_Usage_Restriction_Admin {
     return $user_query->get_results();
   }
 
+  function get_coordinators($item_id) {
+    return $this->get_coordinator_email_data($item_id);
+  }
+
+  /**
+  * @deprecated - will be completely replaced by get_coordinators($item_id)
+  **/
   function get_coordinator_email_data($item_id) {
     $persons = [];
 

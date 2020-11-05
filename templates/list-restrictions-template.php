@@ -106,6 +106,7 @@
 
               <button class="cb-item-usage-restriction-show-details button action" title="<?= item_usage_restriction\__( 'LIST_RESTRICTION_DETAILS', 'commons-booking-item-usage-restriction', 'list details and changes ...') ?>"
                 data-users='<?= json_encode($informed_user_items) ?>'
+                data-coordinators='<?= json_encode($item_restriction['coordinators']) ?>'
                 data-emails='<?= json_encode($item_restriction['additional_emails']) ?>'
                 data-updates='<?= json_encode($restriction_updates) ?>'
                 data-hint='<?= $item_restriction['restriction_hint'] ?>'
@@ -208,8 +209,9 @@
     <table id="informed-users" class="wp-list-table" style="width: 100%; margin-top: 20px;">
       <thead>
         <tr>
-          <th style="width: 50%"><?= item_usage_restriction\__( 'TO_USERS', 'commons-booking-item-usage-restriction', 'to users') ?></th>
-          <th style="width: 50%"><?= item_usage_restriction\__( 'ADDITIONAL_EMAILS', 'commons-booking-item-usage-restriction', 'additional emails') ?></th>
+          <th style="width: 34%"><?= item_usage_restriction\__( 'TO_USERS', 'commons-booking-item-usage-restriction', 'to users') ?></th>
+          <th style="width: 33%"><?= item_usage_restriction\__( 'TO_COORDINATORS', 'commons-booking-item-usage-restriction', 'to coordinators') ?></th>
+          <th style="width: 33%"><?= item_usage_restriction\__( 'ADDITIONAL_EMAILS', 'commons-booking-item-usage-restriction', 'additional emails') ?></th>
         </tr>
       </thead>
       <tbody><tr></tr></tbody>
@@ -336,9 +338,12 @@
         function(data) {
 
           var $tr = $('#informed-users > tbody > tr').first();
+          $tr.html('');
+
+          var $td;
 
           //users
-          var $td = $('<td valign="top"></td>');
+          $td = $('<td valign="top"></td>');
           html = '';
           for(var i = 0; i < data.users.length; i++) {
             var user = data.users[i];
@@ -346,12 +351,26 @@
             html += '<a href="' + user.link + '">' + user.first_name + ' ' + user.last_name + '</a>';
           }
           $td.html(html);
+          $tr.append($td);
 
-          $tr.html('');
+          //coordinators
+          $td = $('<td valign="top"></td>');
+          html = '';
+          console.log('data.coordinators: ', data.coordinators);
+          if(data.coordinators) {
+            data.coordinators.forEach(function(coordinator, i) {
+              html += i > 0 ? ',&nbsp;' : '';
+              html += coordinator.first_name + ' &gt; ' + coordinator.user_email
+            });
+          }
+          else {
+            html = '- <?= item_usage_restriction\__( 'COORDINATORS_NOT_LOGGED','commons-booking-item-usage-restriction', 'coordinators not logged') ?> -';
+          }
+          $td.html(html);
           $tr.append($td);
 
           //emails
-          var $td = $('<td valign="top"></td>');
+          $td = $('<td valign="top"></td>');
           $td.html(data.emails.join(', '));
           $tr.append($td);
 
