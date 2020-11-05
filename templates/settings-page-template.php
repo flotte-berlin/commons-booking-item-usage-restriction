@@ -16,12 +16,14 @@
       <?= item_usage_restriction\__('RESTRICTION_BLOCKING_USER_DESCRIPTION', 'commons-booking-item-usage-restriction', 'The selected user is used to block bookings during the period of a total breakdown.') ?>
     </p>
 
-    <select name="cb_item_restriction_blocking_user_id" placeholder="<?= item_usage_restriction\__( 'NAME', 'commons-booking-admin-booking', 'name') ?>...">
-      <option value=""></option>
-      <?php foreach ($users as $user): ?>
-        <option value="<?= $user->ID ?>" <?= $user->ID == get_option('cb_item_restriction_blocking_user_id') ? 'selected' : '' ?>><?= $user->first_name ?> <?= $user->last_name ?> (<?= $user->display_name ?>)</option>
-      <?php endforeach; ?>
-    </select>
+    <?php
+      $args = [
+        'selected' => get_option('cb_item_restriction_blocking_user_id'),
+        'name' => 'cb_item_restriction_blocking_user_id',
+        'show_option_none' => '---'
+      ];
+      wp_dropdown_users($args)
+    ?>
 
     <h2><?= item_usage_restriction\__('RESTRICTION_EMAIL_GENERAL_HEADER', 'commons-booking-item-usage-restriction', 'Email - General') ?></h2>
 
@@ -172,11 +174,11 @@
 
 <script>
 jQuery('head').append('<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.4/css/selectize.min.css">');
-
+/*
 jQuery('select[name=cb_item_restriction_blocking_user_id]').selectize({
     sortField: 'text'
 });
-
+*/
 jQuery('.selectize-control').css({
   'width': '300px',
   'display': 'inline-block',

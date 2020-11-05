@@ -8,6 +8,8 @@ class CB_Bookings_Gantt_Chart_Shortcode {
     $date_start = isset($input['date_start']) && strlen($input['date_start']) > 0 ? new DateTime($input['date_start']) : null;
     $date_end = isset($input['date_end']) && strlen($input['date_end']) > 0 ? new DateTime($input['date_end']) : null;
     $event = isset($input['event']) && ($input['event'] == 'click' || $input['event'] == 'mouseover') ? $input['event'] : 'click';
+    $scrollbar_x_start = isset($input['scrollbar_x_start']) && (float) $input['scrollbar_x_start'] >= 0 && $input['scrollbar_x_start'] <= 1 ? (float) $input['scrollbar_x_start'] : 0;
+    $scrollbar_x_end = isset($input['scrollbar_x_end']) && (float) $input['scrollbar_x_end'] >= 0 && $input['scrollbar_x_end'] <= 1 ? (float) $input['scrollbar_x_end'] : 1;
 
     if(!$date_start) {
       $date_start = new DateTime();
@@ -32,6 +34,8 @@ class CB_Bookings_Gantt_Chart_Shortcode {
             'item_id' => $item_id,
             'date_start' => $date_start,
             'date_end' => $date_end,
+            'scrollbar_x_start' => $scrollbar_x_start,
+            'scrollbar_x_end' => $scrollbar_x_end,
             'event' => $event
           ];
         }
@@ -58,12 +62,14 @@ class CB_Bookings_Gantt_Chart_Shortcode {
   * enqueue scripts and render the button to trigger data fetching and chart rendering
   **/
   public static function execute($atts, $content, $tag) {
-    error_reporting(E_ALL);
+    //error_reporting(E_ALL);
 
     $a = shortcode_atts( array(
   		'item_id' => 0,
       'date_start' => null,
       'date_end' => null,
+      'scrollbar_x_start' => null,
+      'scrollbar_x_end' => null,
       'event' => 'click'
   	), $atts );
 
@@ -79,7 +85,7 @@ class CB_Bookings_Gantt_Chart_Shortcode {
 
       wp_enqueue_script( 'cb_bookings_gantt_chart_js', CB_ITEM_USAGE_RESTRICTION_ASSETS_URL . 'js/cb-booking-gantt-chart.js' );
 
-      $nonce = wp_create_nonce('cb_bookings_gantt_chart_' . $validated_input['item_id']);
+      $nonce = self::create_item_chart_nonce($validated_input['item_id']);
 
       return '<button on' . $validated_input['event'] . '="init_cb_bookings_gantt_chart(this)"' .
               ' data-url="' . get_site_url(null, '', null) . '/wp-admin/admin-ajax.php' . '"' .
@@ -87,10 +93,25 @@ class CB_Bookings_Gantt_Chart_Shortcode {
               ' data-item_id="' . $validated_input['item_id'] . '"' .
               ' data-date_start="' . $validated_input['date_start']->format('Y-m-d') . '"' .
               ' data-date_end="' . $validated_input['date_end']->format('Y-m-d') . '"' .
+              ' data-scrollbar_x_start="' . $validated_input['scrollbar_x_start'] . '"' .
+              ' data-scrollbar_x_end="' . $validated_input['scrollbar_x_end'] . '"' .
               ' data-uuid="' . uniqid() . '"' .
-              ' class="button action"><span style="padding-top: 4px;" class="dashicons dashicons-chart-bar"></span></button>'; //dashicons-list-view
+              ' class="cb-booking-gantt-chart-button button action"><span style="padding-top: 4px;" class="dashicons dashicons-chart-bar"></span></button>'; //dashicons-list-view
     }
 
+  }
+
+  public static function create_item_chart_nonce($item_id) {
+    return wp_create_nonce('cb_bookings_gantt_chart_' . $item_id);
+  }
+
+  public static function create_item_chart_nonces($item_ids) {
+    $nonces = [];
+    foreach ($item_ids as $item_id) {
+      $nonces[$item_id] = self::create_item_chart_nonce($item_id);
+    }
+
+    return $nonces;
   }
 
   /**
@@ -100,12 +121,15 @@ class CB_Bookings_Gantt_Chart_Shortcode {
     $validated_input = self::validate_input_with_nonce($_POST);
 
     if($validated_input) {
+      //error_reporting(E_ALL);
+
       $bookings = CB_Item_Usage_Restriction_Admin::fetch_bookings_in_period($validated_input['date_start']->format('Y-m-d'), $validated_input['date_end']->format('Y-m-d'), $validated_input['item_id']);
 
       $blocking_user_id = get_option('cb_item_restriction_blocking_user_id', null);
 
       //prepare chart data from bookings
       $grouped_bookings = [
+        'location' => [],
         'blocking' => [],
         'confirmed' => [],
         'aborted' => [],
@@ -152,6 +176,7 @@ class CB_Bookings_Gantt_Chart_Shortcode {
       }
 
       $bookings_data = [];
+
       foreach ($grouped_bookings as $booking_type => $bookings) {
         $get_restriction = $booking_type == 'blocking' ? true : false;
         $bookings_data[$booking_type] = self::prepare_bookings_data($bookings, $booking_type, $get_restriction);
@@ -173,11 +198,21 @@ class CB_Bookings_Gantt_Chart_Shortcode {
         }
       }
 
+      //location days
+      $location_days = CB_Bookings_GC_Location_Helper::get_location_days($validated_input['item_id'], $validated_input['date_start']->format('Y-m-d'), $validated_input['date_end']->format('Y-m-d'));
+      $ordered_bookings_data['location'] = self::prepare_locations_data($location_days);
+
       $chart_data = [
         'bookings' => $ordered_bookings_data,
         'ticks' => [
           'min' => $validated_input['date_start']->format('Y-m-d') . ' 00:00:00',
           'max' => $validated_input['date_end']->format('Y-m-d') . ' 23:59:59'
+        ],
+        'scrollbar' => [
+          'x' => [
+            'start' => $validated_input['scrollbar_x_start'],
+            'end' => $validated_input['scrollbar_x_end']
+          ]
         ],
         'item' => [
           'name' => get_the_title($validated_input['item_id'])
@@ -253,8 +288,41 @@ class CB_Bookings_Gantt_Chart_Shortcode {
     return !$no_intersection;
   }
 
+  private static function prepare_locations_data($location_days) {
+    $cb_data = new CB_Data();
+    $locations = [];
+
+    $locations_data = [];
+
+    $roles = [
+      CB_Bookings_GC_Location_Helper::ITEM_AVAILABLE => 'open',
+      CB_Bookings_GC_Location_Helper::LOCATION_CLOSED => 'closed',
+      CB_Bookings_GC_Location_Helper::OUT_OF_TIMEFRAME => 'none',
+    ];
+
+    foreach($location_days as $date => $day) {
+      if(isset($day['location_id']) && !isset($locations[$day['location_id']])) {
+        $locations[$day['location_id']] = $cb_data->get_location($day['location_id']);
+      }
+
+      $locations_data[] = [
+        'id' => 'Standort-ID',
+        'date_start' => $date . ' 00:00:00',
+        'date_end' => $date . ' 23:59:59',
+        'type' => 'location',
+        'comment' => 'a comment',
+        'user' => [
+          'name' => isset($day['location_id']) ? $locations[$day['location_id']]['name'] : '',
+          'role' => $roles[$day['status']]
+        ]
+      ];
+    }
+
+    return $locations_data;
+  }
+
   private static function prepare_bookings_data($bookings = [], $booking_type, $get_restriction = false) {
-    error_reporting(E_ALL);
+    //error_reporting(E_ALL);
     $bookings_data = [];
 
     foreach($bookings as $booking) {
@@ -281,6 +349,7 @@ class CB_Bookings_Gantt_Chart_Shortcode {
 
     return $bookings_data;
   }
+
 }
 
 ?>

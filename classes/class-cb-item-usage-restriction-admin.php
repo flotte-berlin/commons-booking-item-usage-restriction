@@ -175,7 +175,7 @@ class CB_Item_Usage_Restriction_Admin {
               $date_after_new_end = DateTime::createFromFormat('Y-m-d', $validation_result['data']['date_end']);
               $date_after_new_end->modify('+1 day');
 
-              $conflict_bookings = $cb_admin_booking_admin->fetch_bookings_in_period($date_after_new_end->format('Y-m-d'), $old_date_end, $item_restriction['item_id']);
+              $conflict_bookings = $cb_admin_booking_admin->fetch_bookings_in_period($date_after_new_end->format('Y-m-d'), $old_date_end, $item_restriction['item_id'], null, ['canceled', 'pending']);
 
               $filtered_conflict_bookings = [];
               foreach ($conflict_bookings as $conflict_booking) {
@@ -205,7 +205,7 @@ class CB_Item_Usage_Restriction_Admin {
           if($new_end_date_timestamp < $old_end_date_timestamp && $old_end_date_timestamp >= $today_timestamp) {
             // update email to users with bookings that have intersection with time between new end date (or today, if it's in the past) and old end date
             $date_start = $new_end_date_timestamp < $today_timestamp ? $today_datetime->format('Y-m-d') : $validation_result['data']['date_end'];
-            $unfiltered_bookings = $this->fetch_current_and_future_bookings($date_start, $old_date_end, $item_restriction['item_id']);
+            $unfiltered_bookings = $this->fetch_current_and_future_bookings($date_start, $old_date_end, $item_restriction['item_id'], null, ['canceled', 'pending']);
 
             // delete email to users with booking that starts after new restriction end date
             $bookings_for_delete_email = array();
@@ -238,7 +238,7 @@ class CB_Item_Usage_Restriction_Admin {
           if($new_end_date_timestamp > $old_end_date_timestamp && $new_end_date_timestamp >= $today_timestamp) {
 
             $date_start = $old_end_date_timestamp < $today_timestamp ? $today_datetime->format('Y-m-d') : $old_date_end;
-            $unfiltered_bookings = $this->fetch_current_and_future_bookings($date_start, $validation_result['data']['date_end'], $item_restriction['item_id']);
+            $unfiltered_bookings = $this->fetch_current_and_future_bookings($date_start, $validation_result['data']['date_end'], $item_restriction['item_id'], null, ['canceled', 'pending']);
 
             // update email to users with booking that has end date between old end date (or today, if it's in the past) and new restriction end date, but not start date
             // created restriction email to users with booking that starts between old (or today, if it's in the past) and new restriction end date
@@ -330,9 +330,9 @@ class CB_Item_Usage_Restriction_Admin {
 
           //get email adresses for additional notifications
           $additional_email_recipients = $item_restriction['additional_email_recipients'];
-          $area_coordinator_email_addresses = $this->get_area_coordinator_email_addresses($item_restriction['item_id']);
+          $coordinator_email_addresses = $this->get_coordinator_email_data($item_restriction['item_id']);
 
-          $email_recipients = array_merge($informed_users, $responsible_users, $additional_email_recipients, $area_coordinator_email_addresses);
+          $email_recipients = array_merge($informed_users, $responsible_users, $additional_email_recipients, $coordinator_email_addresses);
 
           $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], $item_restriction['restriction_type'], 'edit_restriction', $item_restriction['date_start'], $validation_result['data']['date_end'], $validation_result['data']['update_comment'], $this->get_hint_history($item_restriction));
 
@@ -406,7 +406,7 @@ class CB_Item_Usage_Restriction_Admin {
         }
 
         //send email to users that have booking in restriction period that lays ahead
-        $bookings = $this->fetch_current_and_future_bookings($item_restriction['date_start'], $item_restriction['date_end'], $item_restriction['item_id']);
+        $bookings = $this->fetch_current_and_future_bookings($item_restriction['date_start'], $item_restriction['date_end'], $item_restriction['item_id'], null, ['canceled', 'pending']);
         //var_dump($bookings);
         $email_recipients = array($this->blocking_user);
         foreach ($bookings as $booking) {
@@ -426,9 +426,9 @@ class CB_Item_Usage_Restriction_Admin {
             }
           }
 
-          $area_coordinator_email_addresses = $this->get_area_coordinator_email_addresses($item_restriction['item_id']);
+          $coordinator_email_addresses = $this->get_coordinator_email_data($item_restriction['item_id']);
 
-          $email_recipients = array_merge($email_recipients, $item_restriction['additional_emails'], $area_coordinator_email_addresses);
+          $email_recipients = array_merge($email_recipients, $item_restriction['additional_emails'], $coordinator_email_addresses);
         }
 
         $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], $item_restriction['restriction_type'], 'delete_restriction', $item_restriction['date_start'], $item_restriction['date_end'], $validation_result['data']['delete_comment'], $this->get_hint_history($item_restriction));
@@ -740,7 +740,7 @@ class CB_Item_Usage_Restriction_Admin {
     if(!$booking_needed || ($booking_needed && $booking_id)) {
 
       //get bookings in given period and add users to list of user that have to be informed: only users with bookings that end today or in the future have to be informed
-      $bookings = $this->fetch_current_and_future_bookings($data['date_start'], $data['date_end'], $data['item_id']);
+      $bookings = $this->fetch_current_and_future_bookings($data['date_start'], $data['date_end'], $data['item_id'], null, ['canceled', 'pending']);
 
       foreach ($bookings as $booking) {
         $user = get_user_by('id', $booking->user_id);
@@ -762,9 +762,9 @@ class CB_Item_Usage_Restriction_Admin {
       $data['booking_id'] = $booking_needed ? $booking_id : null;
       CB_Item_Usage_Restriction::add_item_restriction($data, $informed_users, $additional_email_recipients, $responsible_users);
 
-      $area_coordinator_email_addresses = $this->get_area_coordinator_email_addresses($data['item_id']);
+      $coordinator_email_addresses = $this->get_coordinator_email_data($data['item_id']);
 
-      $email_recipients = array_merge($informed_users, $responsible_users, $additional_email_recipients, $area_coordinator_email_addresses);
+      $email_recipients = array_merge($informed_users, $responsible_users, $additional_email_recipients, $coordinator_email_addresses);
 
       $this->send_mail_by_reason_to_recipients($email_recipients, $data['item_id'], $data['restriction_type'], 'restriction_' . $data['restriction_type'], $data['date_start'], $data['date_end'], $data['restriction_hint']);
 
@@ -799,24 +799,41 @@ class CB_Item_Usage_Restriction_Admin {
     return $user_query->get_results();
   }
 
-  function get_area_coordinator_email_addresses($item_id) {
-    $email_addresses = [];
+  function get_coordinator_email_data($item_id) {
+    $persons = [];
 
     //filter email addresses from descriptions of gk-... categories
     $post_terms = wp_get_post_terms( $item_id, 'cb_items_category');
 
     $parent_category_id = get_option('cb_item_restriction_additional_notification_parent_category', null);
 
+    $parent_term = get_term($parent_category_id);
+    $name_prefix = $parent_term->name;
+
     if(isset($parent_category_id) && $parent_category_id > 0) {
       foreach ($post_terms as $post_term) {
         if($post_term->term_id == $parent_category_id || $post_term->parent == $parent_category_id) {
           $term_email_addresses = $this->find_email_address_in_string($post_term->description);
-          $email_addresses = array_merge($email_addresses, $term_email_addresses);
+
+          foreach ($term_email_addresses as $term_email_address) {
+            $name = $name_prefix;
+            if($post_term->term_id != $parent_category_id) {
+              $name .= ' - ' . $post_term->name;
+            }
+
+            $person = (object) [
+              'first_name' => $name,
+              'last_name' => '',
+              'user_email' => $term_email_address
+            ];
+
+            $persons[] = $person;
+          }
         }
       }
     }
 
-    return $email_addresses;
+    return $persons;
   }
 
   function find_email_address_in_string($string) {
@@ -916,7 +933,7 @@ class CB_Item_Usage_Restriction_Admin {
   /**
   * fetches bookings in the given period that are not in the past
   **/
-  function fetch_current_and_future_bookings($date_start, $date_end, $item_id) {
+  function fetch_current_and_future_bookings($date_start, $date_end, $item_id, $status = null, $not_status = null) {
     $date_start_timestamp = strtotime($date_start);
     $date_end_timestamp = strtotime($date_end);
 
@@ -929,7 +946,7 @@ class CB_Item_Usage_Restriction_Admin {
     if($date_end_timestamp >= $today_timestamp) {
       $date_start = $date_start_timestamp >= $today_timestamp ? $date_start : $today_datetime->format('Y-m-d');
 
-      $bookings = self::fetch_bookings_in_period($date_start, $date_end, $item_id);
+      $bookings = self::fetch_bookings_in_period($date_start, $date_end, $item_id, $status, $not_status);
 
     }
 
@@ -939,7 +956,7 @@ class CB_Item_Usage_Restriction_Admin {
   /**
   * fetches bookings in period determined by start and end date from db for given item
   */
-  static function fetch_bookings_in_period($date_start, $date_end, $item_id, $status = null) {
+  static function fetch_bookings_in_period($date_start, $date_end, $item_id, $status = null, $not_status = null) {
     global $wpdb;
 
     //get bookings data
@@ -952,8 +969,14 @@ class CB_Item_Usage_Restriction_Admin {
                         "OR (date_start < '".$date_start."' ".
                         "AND date_end > '".$date_end."'))";
 
-    if($status) {
-      $select_statement .= " AND status = '". $status."'";
+    if(is_array($status) && count($status) > 0) {
+      $sql_status = "'" . implode("','", $status) . "'";
+      $select_statement .= " AND status IN (" . $sql_status . ")";
+    }
+
+    if(is_array($not_status) && count($not_status) > 0) {
+      $sql_not_status = "'" . implode("','", $not_status) . "'";
+      $select_statement .= " AND status NOT IN (" . $sql_not_status . ")";
     }
 
     $prepared_statement = $wpdb->prepare($select_statement, $item_id);

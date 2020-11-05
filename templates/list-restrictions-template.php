@@ -135,7 +135,16 @@
               <?php endif; ?>
 
               <?php
-                echo do_shortcode('[cb_bookings_gantt_chart item_id="' . $item_restriction['item_id'] . '" date_start="' . $item_restriction['date_start'] . '" date_end="' . $item_restriction['date_end'] . '"]');
+                error_reporting(E_ALL);
+                $chart_date_end = (new DateTime())->setTimestamp(strtotime($item_restriction['date_start'].'+ 2 months'));
+                $chart_duration = $item_restriction['date_start_valid']->diff($chart_date_end);
+
+                $origin = clone $item_restriction['date_start_valid'];
+                $target = clone $item_restriction['date_end_valid'];
+                $restriction_duration = $origin->diff($target);
+
+                $scrollbar_x_end = ($restriction_duration->days + 1) / ($chart_duration->days);
+                echo do_shortcode('[cb_bookings_gantt_chart item_id="' . $item_restriction['item_id'] . '" date_start="' . $item_restriction['date_start'] . '" date_end="' . $chart_date_end->format('Y-m-d') . '" scrollbar_x_end="' . $scrollbar_x_end . '"]');
               ?>
             </td>
           </tr>

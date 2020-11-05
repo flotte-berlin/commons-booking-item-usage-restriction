@@ -24,15 +24,19 @@ jQuery(document).ready(function ($) {
 
     //if there is a previously generated chart, dispose it
     if(window.cb_bookings_gantt_chart) {
-      window.cb_bookings_gantt_chart.dispose();
+      setTimeout(() => {
+        window.cb_bookings_gantt_chart.dispose();
+      }, 0);
     }
 
-    var url = $el.data('url');
-    var nonce = $el.data('nonce');
-    var item_id = $el.data('item_id');
-    var date_start = $el.data('date_start');
-    var date_end = $el.data('date_end');
-    var uuid = $el.data('uuid');
+    var url = $el.attr('data-url');
+    var nonce = $el.attr('data-nonce');
+    var item_id = $el.attr('data-item_id');
+    var date_start = $el.attr('data-date_start');
+    var date_end = $el.attr('data-date_end');
+    var scrollbar_x_start = $el.attr('data-scrollbar_x_start');
+    var scrollbar_x_end = $el.attr('data-scrollbar_x_end');
+    var uuid = $el.attr('data-uuid');
 
     console.log('data: ', item_id, date_start, date_end);
 
@@ -41,6 +45,8 @@ jQuery(document).ready(function ($) {
       'item_id': item_id,
       'date_start': date_start,
       'date_end': date_end,
+      'scrollbar_x_start': scrollbar_x_start,
+      'scrollbar_x_end': scrollbar_x_end,
       'nonce': nonce
 		};
 
@@ -76,10 +82,13 @@ jQuery(document).ready(function ($) {
     $canvas_wrapper.append($canvas);
 
     $close.click(function() {
-      if(window.cb_bookings_gantt_chart) {
-        window.cb_bookings_gantt_chart.dispose();
-      }
       $canvas_wrapper.remove();
+
+      if(window.cb_bookings_gantt_chart) {
+        setTimeout(() => {
+          window.cb_bookings_gantt_chart.dispose();
+        }, 0);
+      }
     });
 
     jQuery.post(url, data, function(response) {
@@ -93,6 +102,7 @@ jQuery(document).ready(function ($) {
       var canvas_element = document.getElementById('cb-bookings-gantt-chart');
 
       var booking_type_labels = {
+        'location': 'Standort',
         'blocking': 'blockierend',
         'confirmed': 'bestätigt',
         'aborted': 'spät storniert',
@@ -101,15 +111,51 @@ jQuery(document).ready(function ($) {
         'canceled': 'storniert'
       }
 
+      var location_status_labels = {
+        'open': 'geöffnet',
+        'closed': 'geschlossen',
+        'none': 'kein Standort'
+      }
+
       var bookings_by_id = {};
 
       Object.keys(booking_data).forEach((booking_group, i) => {
 
         booking_data[booking_group].forEach((booking) => {
-          var color_value = getComputedStyle(canvas_element).getPropertyValue('--bar-status-bg-' + booking.type); //fetched from CSS variables
-          //console.log('color_value: ', color_value, typeof color_value);
+          if(booking.type == 'location') {
+            var bg_color_value = getComputedStyle(canvas_element).getPropertyValue('--bar-status-bg-' + booking.type + '_' + booking.user.role); //fetched from CSS variables
+            var border_color_value = getComputedStyle(canvas_element).getPropertyValue('--bar-status-border-' + booking.type + '_' + booking.user.role); //fetched from CSS variables
+            //console.log('bg_color_value: ', bg_color_value, typeof bg_color_value);
+          }
+          else {
+            var bg_color_value = getComputedStyle(canvas_element).getPropertyValue('--bar-status-bg-' + booking.type); //fetched from CSS variables
+            //console.log('bg_color_value: ', bg_color_value, typeof bg_color_value);
+          }
 
           bookings_by_id[booking.id] = booking;
+
+          if(booking.type != 'location') {
+            var fill = am4core.color(bg_color_value.trim());
+            var fillOpacity = 1;
+            var stroke = null;
+            var strokeWidth = 0;
+          }
+          else {
+            /*
+            var fill = new am4core.RectPattern();
+            fill.stroke = am4core.color(border_color_value.trim());
+            fill.fill = am4core.color(border_color_value.trim());
+            fill.width = 7;
+            fill.height = 7;
+            fill.rectWidth = 2;
+            fill.rectHeight = 2;
+            */
+            var fill = am4core.color(bg_color_value.trim());
+            var fillOpacity = 1;
+            console.log();
+            var stroke = border_color_value.trim();
+            var strokeWidth = 1;
+          }
 
           chart_data.push(
             {
@@ -120,11 +166,14 @@ jQuery(document).ready(function ($) {
               date_start: booking.date_start,
               date_end: booking.date_end,
               user_name: booking.user.name,
-              user_role: booking.user.role,
+              user_role: booking.type == 'location' ? location_status_labels[booking.user.role] : booking.user.role,
               comment: booking.comment,
 
               //styling
-              fill: am4core.color(color_value.trim()),
+              fill: fill,
+              fillOpacity: fillOpacity,
+              stroke: stroke,
+              strokeWidth: strokeWidth
             }
           );
 
@@ -138,6 +187,11 @@ jQuery(document).ready(function ($) {
       chart.paddingLeft = 30;
       chart.paddingRight = 30;
       chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+
+      chart.scrollbarX = new am4core.Scrollbar();
+      chart.scrollbarX.start = response.scrollbar.x.start;
+      chart.scrollbarX.end = response.scrollbar.x.end;
+      chart.zoomOutButton.disabled = true;
 
       var title = chart.titles.create();
       title.marginTop = -10;
@@ -192,15 +246,15 @@ jQuery(document).ready(function ($) {
 
       var categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());
       categoryAxis.dataFields.category = "category";
-      categoryAxis.renderer.grid.template.location = 0;
+      //categoryAxis.renderer.grid.template.location = 0;
+      categoryAxis.renderer.grid.template.disabled = true;
       categoryAxis.renderer.inversed = true;
       categoryAxis.renderer.labels.template.disabled = true;
-      categoryAxis.renderer.grid.template.disabled = true;
 
       var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
       dateAxis.dateFormatter.dateFormat = "dd.MM.yyyy";
 
-      dateAxis.baseInterval = { count: 24 * 60, timeUnit: "minute" };
+      dateAxis.baseInterval = { count: 24 * 60 * 60, timeUnit: "second" };
       dateAxis.min = new Date(response.ticks.min).getTime();
       dateAxis.max = new Date(response.ticks.max).getTime();
       dateAxis.strictMinMax = true;
@@ -219,27 +273,70 @@ jQuery(document).ready(function ($) {
       series1.tooltip.pointerOrientation = "vertical";
       series1.tooltip.getFillFromObject = false;
       series1.tooltip.background.fill = am4core.color("#222222");
-      series1.columns.template.tooltipText = `[bold]{user_name} ({user_role})[/]
-        {openDateX} - {dateX} (Id: {bookingId})
-        ({type})
-        {comment}`;
+
+      //tooltip adapter only works if we set a default text
+      series1.columns.template.column.tooltipText = ' ';
+      series1.columns.template.column.adapter.add('tooltipText', function(text, target) {
+        let dateText = "";
+        if(target.dataItem.dates.openDateX.toDateString() === target.dataItem.dates.dateX.toDateString()) {
+          dateText = "{openDateX}";
+        }
+        else {
+          dateText = "{openDateX} - {dateX}";
+        }
+
+        if(target.dataItem.categoryY == 'location') {
+          return "[bold]{user_name} ({user_role})[/]\n" +
+            dateText + " (" + target.dataItem.dates.openDateX.toLocaleString('de-de', {weekday:'short'}) + ".)\n"
+        }
+        else {
+          return "[bold]{user_name} ({user_role})[/]\n" +
+            dateText + " (Id: {bookingId})\n" +
+            "({type})\n" +
+            "{comment}\n";
+        }
+      });
+
+      var locationLabel = series1.columns.template.createChild(am4core.Label);
+      locationLabel.stroke = am4core.color('#000000');
+      locationLabel.strokeWidth = 0;
+      locationLabel.valign = 'middle';
+      locationLabel.align = 'center';
+      locationLabel.adapter.add('text', function(text, target) {
+        //console.log('locationLabel target: ', target);
+        if(target.dataItem.categoryY == 'location') {
+          return target.dataItem.dates.openDateX.toLocaleString('de-de', {weekday:'short'});
+        }
+      });
 
       series1.dataFields.openDateX = "date_start";
       series1.dataFields.dateX = "date_end";
       series1.dataFields.categoryY = "category";
       series1.columns.template.propertyFields.fill = "fill"; // get color from data
-      series1.columns.template.strokeWidth = 0;
+      series1.columns.template.propertyFields.fillOpacity = "fillOpacity"; // get opacity from data
+      series1.columns.template.propertyFields.stroke = "stroke";
+      series1.columns.template.propertyFields.strokeWidth = "strokeWidth";
       series1.columns.template.column.adapter.add("cornerRadiusTopLeft", cornerRadiusLeft);
       series1.columns.template.column.adapter.add("cornerRadiusTopRight", cornerRadiusRight);
       series1.columns.template.column.adapter.add("cornerRadiusBottomLeft", cornerRadiusLeft);
       series1.columns.template.column.adapter.add("cornerRadiusBottomRight", cornerRadiusRight);
 
       function cornerRadiusLeft(radius, item) {
-        return new Date(item.dataItem.dates.openDateX).getTime() < dateAxis.min ? 0 : 5;
+        if(item.dataItem.categoryY != 'location') {
+          return new Date(item.dataItem.dates.openDateX).getTime() < dateAxis.min ? 0 : 5;
+        }
+        else {
+          return 0;
+        }
       }
 
       function cornerRadiusRight(radius, item) {
-        return new Date(item.dataItem.dates.dateX).getTime() > dateAxis.max ? 0 : 5;
+        if(item.dataItem.categoryY != 'location') {
+          return new Date(item.dataItem.dates.dateX).getTime() > dateAxis.max ? 0 : 5;
+        }
+        else {
+          return 0;
+        }
       }
 
     }).fail(function() {
@@ -247,8 +344,6 @@ jQuery(document).ready(function ($) {
       $loading.addClass('dashicons-no');
     });
   }
-
-
 
   function calculate_chart_wrapper_position($el, wrapper_dimensions) {
     var element_offset = $el.offset();

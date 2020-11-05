@@ -4,7 +4,7 @@
 Plugin Name:  Commons Booking Item Usage Restriction
 Plugin URI:   https://github.com/flotte-berlin/commons-booking-item-usage-restriction
 Description:  Ein Plugin in Ergänzung zu Commons Booking, das es erlaubt aus dem Admin-Bereich heraus NutzerInnen über temporäre Einschränkungen/Totalausfälle von Items zu informieren, die Buchbarkeit einzuschränken und diese Fälle zu verwalten
-Version:      0.4.6
+Version:      0.4.11
 Author:       poilu
 Author URI:   https://github.com/poilu
 License:      GPLv2 or later
@@ -20,10 +20,12 @@ require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'functions/translate.php' );
 load_plugin_textdomain( 'commons-booking-item-usage-restriction', false, CB_ITEM_USAGE_RESTRICTION_LANG_PATH );
 
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'functions/is-plugin-active.php' );
+require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'functions/get-active-plugin-directory.php' );
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-item-usage-restriction.php' );
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-item-usage-restriction-settings.php' );
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-item-usage-restriction-admin.php' );
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-item-usage-restriction-booking.php' );
+require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-bookings-gc-location-helper.php' );
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-bookings-gantt-chart-shortcode.php' );
 
 $cb_item_restriction_settings = new CB_Item_Usage_Restriction_Settings();
