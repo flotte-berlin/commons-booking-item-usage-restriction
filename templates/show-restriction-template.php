@@ -12,9 +12,13 @@
         <?= $restriction['restriction_hint'] ?>
 
         <?php if($show_update_hints && isset($restriction['updates'])): ?>
-          <?php foreach ($restriction['updates'] as $update): ?>
-            <br><?= $update['update_hint'] ?>
-          <?php endforeach; ?>
+          <ul>
+            <?php foreach ($restriction['updates'] as $update): ?>
+              <li class="cb-item-usage-restriction-update">
+              <span class="cb-item-usage-restriction-update-date"><?= date_i18n( get_option( 'date_format' ), $update['created_at']->getTimestamp()) ?>:</span> <?= $update['update_hint'] ?>
+              </li>
+            <?php endforeach; ?>
+          </ul>
         <?php endif; ?>
 
       </li>

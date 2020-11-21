@@ -4,7 +4,7 @@
 Plugin Name:  Commons Booking Item Usage Restriction
 Plugin URI:   https://github.com/flotte-berlin/commons-booking-item-usage-restriction
 Description:  Ein Plugin in Ergänzung zu Commons Booking, das es erlaubt aus dem Admin-Bereich heraus NutzerInnen über temporäre Einschränkungen/Totalausfälle von Items zu informieren, die Buchbarkeit einzuschränken und diese Fälle zu verwalten
-Version:      0.5.1
+Version:      0.5.2
 Author:       poilu
 Author URI:   https://github.com/poilu
 License:      GPLv2 or later
