@@ -23,7 +23,6 @@
         <input type="date" name="date_end" value="<?= $form_values['date_end']->format('Y-m-d') ?>">
 
         <?php
-          error_reporting(E_ALL);
           $date_start = $form_values['date_start'] ?  $form_values['date_start'] : new DateTime();
           $date_end = $form_values['date_end'] ? $form_values['date_end'] : new DateTime();
           $chart_date_end = (new DateTime())->setTimestamp(strtotime($date_end->format('Y-m-d').'+ 2 months'));
