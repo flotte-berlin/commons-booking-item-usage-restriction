@@ -20,8 +20,17 @@
         <label for="date_start"><?= item_usage_restriction\__( 'FROM', 'commons-booking-item-usage-restriction', 'from') ?> </label>
         <input type="date" name="date_start" value="<?= $form_values['date_start']->format('Y-m-d') ?>">
         <label for="date_end"><?= item_usage_restriction\__( 'UNTIL', 'commons-booking-item-usage-restriction', 'until estimated') ?> </label>
-        <input type="date" name="date_end" value="<?= $form_values['date_end']->format('Y-m-d') ?>"><br>
+        <input type="date" name="date_end" value="<?= $form_values['date_end']->format('Y-m-d') ?>">
 
+        <?php
+          error_reporting(E_ALL);
+          $date_start = $form_values['date_start'] ?  $form_values['date_start'] : new DateTime();
+          $date_end = $form_values['date_end'] ? $form_values['date_end'] : new DateTime();
+          $chart_date_end = (new DateTime())->setTimestamp(strtotime($date_end->format('Y-m-d').'+ 2 months'));
+          $chart_item_id = isset($item_id) ? $item_id : (isset($cb_items[0]) ? $cb_items[0]->ID : '');
+          echo do_shortcode('[cb_bookings_gantt_chart item_id="' . $chart_item_id .'?>" date_start="' . $date_start->format('Y-m-d') . '" date_end="' . $chart_date_end->format('Y-m-d') . '"]');
+        ?>
+        <br>
       </div>
 
       <label for="date_end"><?=  item_usage_restriction\__( 'AS', 'commons-booking-item-usage-restriction', 'as') ?>:</label><br>
@@ -60,3 +69,28 @@
     </p>
   </div>
 <?php endif; ?>
+
+<script>
+  jQuery( document ).ready(function($) {
+    <?php
+      $item_ids = [];
+      foreach ($cb_items as $cb_item) {
+        $item_ids[] = $cb_item->ID;
+      }
+    ?>
+    var nonces = <?= json_encode(CB_Bookings_Gantt_Chart_Shortcode::create_item_chart_nonces($item_ids)); ?>
+
+    $('.cb-booking-gantt-chart-button').click((ev) => {
+      ev.preventDefault();
+    });
+
+    $('select[name="item_id"]').first().change(function() {
+      console.log('change item to: ', $(this).val());
+
+      $('.cb-booking-gantt-chart-button').attr('data-item_id', $(this).val());
+      $('.cb-booking-gantt-chart-button').attr('data-nonce', nonces[$(this).val()]);
+
+      $('.cb-bookings-gantt-chart-close').click();
+    });
+  });
+</script>
