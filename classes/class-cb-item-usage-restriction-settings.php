@@ -25,6 +25,11 @@ class CB_Item_Usage_Restriction_Settings {
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_edit_email_body' );
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_delete_email_subject' );
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_delete_email_body' );
+      register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_remind_end_email_subject' );
+      register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_remind_end_email_body' );
+      register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_remind_days_in_advance' );
+      register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_remind_for_total_breakdown' );
+      register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_remind_for_limited_usage' );
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_consider_responsible_users' );
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_appears_always_in_article_description' );
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_update_hints_in_article_description' );

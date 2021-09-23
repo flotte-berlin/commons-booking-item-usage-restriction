@@ -9,7 +9,6 @@ class CB_Item_Usage_Restriction_Booking {
     wp_schedule_event( $timestamp, 'daily', 'cb_item_usage_restriction_booking_check');
   }
 
-
   static function deactivate() {
 
     wp_clear_scheduled_hook('cb_item_usage_restriction_booking_check');

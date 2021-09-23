@@ -4,7 +4,7 @@
 Plugin Name:  Commons Booking Item Usage Restriction
 Plugin URI:   https://github.com/flotte-berlin/commons-booking-item-usage-restriction
 Description:  Ein Plugin in Ergänzung zu Commons Booking, das es erlaubt aus dem Admin-Bereich heraus NutzerInnen über temporäre Einschränkungen/Totalausfälle von Items zu informieren, die Buchbarkeit einzuschränken und diese Fälle zu verwalten
-Version:      0.5.3
+Version:      0.6.0
 Author:       poilu
 Author URI:   https://github.com/poilu
 License:      GPLv2 or later
@@ -27,6 +27,7 @@ require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-item-usage-rest
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-item-usage-restriction-booking.php' );
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-bookings-gc-location-helper.php' );
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-bookings-gantt-chart-shortcode.php' );
+require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-item-usage-restriction-reminder.php' );
 
 $cb_item_restriction_settings = new CB_Item_Usage_Restriction_Settings();
 $cb_item_restriction_settings->prepare_settings();
@@ -46,6 +47,7 @@ add_action( 'admin_menu', array($cb_item_usage_restriction_admin, 'add_plugin_ad
 add_filter( 'the_content', 'CB_Item_Usage_Restriction::render_current_restrictions');
 
 add_action('cb_item_usage_restriction_booking_check', 'CB_Item_Usage_Restriction_Booking::check_blocked_bookings');
+add_action('cb_item_usage_restriction_reminder', 'CB_Item_Usage_Restriction_Reminder::check_ending_restrictions');
 
 add_shortcode( 'cb_bookings_gantt_chart', 'CB_Bookings_Gantt_Chart_Shortcode::execute' );
 add_action( 'wp_ajax_cb_bookings_get_gantt_chart_data', 'CB_Bookings_Gantt_Chart_Shortcode::get_bookings_data' );
@@ -53,3 +55,5 @@ add_action( 'wp_ajax_cb_bookings_get_gantt_chart_data', 'CB_Bookings_Gantt_Chart
 
 register_activation_hook( __FILE__, 'CB_Item_Usage_Restriction_Booking::activate');
 register_deactivation_hook( __FILE__, 'CB_Item_Usage_Restriction_Booking::deactivate');
+register_activation_hook( __FILE__, 'CB_Item_Usage_Restriction_Reminder::activate');
+register_deactivation_hook( __FILE__, 'CB_Item_Usage_Restriction_Reminder::deactivate');

@@ -940,8 +940,12 @@ class CB_Item_Usage_Restriction_Admin {
         array(
           'subject' => get_option('cb_item_restriction_delete_email_subject', ''),
           'body' => get_option('cb_item_restriction_delete_email_body', '')
+        ),
+        'remind_restriction_end' =>
+        array(
+          'subject' => get_option('cb_item_restriction_remind_end_email_subject', ''),
+          'body' => get_option('cb_item_restriction_remind_end_email_body', '')
         )
-
     );
 
     $this->consider_responsible_users = get_option('cb_item_restriction_consider_responsible_users', false);
@@ -1006,11 +1010,13 @@ class CB_Item_Usage_Restriction_Admin {
   function get_hint_history($restriction, $line_break = '<br>') {
     $hint_history = $restriction['created_at']->format('d.m.Y') . ': ' . $restriction['restriction_hint'];
 
-    foreach ($restriction['updates'] as $key => $update) {
-      if($key < count($restriction['updates']) - 1) {
-        $hint_history .= $line_break . $update['created_at']->format('d.m.Y') . ': ' . $update['update_hint'];
+    if(is_array($restriction['updates'])) {
+      foreach ($restriction['updates'] as $key => $update) {
+        if($key < count($restriction['updates']) - 1) {
+          $hint_history .= $line_break . $update['created_at']->format('d.m.Y') . ': ' . $update['update_hint'];
+        }
+  
       }
-
     }
 
     return $hint_history;

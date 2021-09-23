@@ -107,7 +107,6 @@
     </p>
 
     <table>
-
       <tr>
           <th><?= item_usage_restriction\__('EMAIL_SUBJECT', 'commons-booking-item-usage-restriction', 'email subject') ?></th>
           <td><input type="text" placeholder="<?= item_usage_restriction\__('RESTRICTION_DELETED_EMAIL_SUBJECT_PLACEHOLDER', 'commons-booking-item-usage-restriction', 'restriction of item {{ITEM_NAME}} withdrawn') ?>" name="cb_item_restriction_delete_email_subject" value="<?php echo esc_attr( get_option('cb_item_restriction_delete_email_subject') ); ?>" size="50" /></td>
@@ -137,6 +136,47 @@
             'selected' => esc_attr( get_option('cb_item_restriction_additional_notification_parent_category') ),
             'show_option_none' => item_usage_restriction\__('NOTIFICATION_PARENT_ITEM_CATEGORY_NONE_OPTION', 'commons-booking-item-usage-restriction', '- no category -')
           ]); ?>
+        </td>
+      </tr>
+    </table>
+
+    <!-- reminder notification -->
+    <h2><?= item_usage_restriction\__('RESTRICTION_ENDS_SOON_EMAIL_HEADER', 'commons-booking-item-usage-restriction', 'Email - Reminder for near end') ?></h2>
+
+    <p>
+      <?= item_usage_restriction\__('RESTRICTION_ENDS_SOON_EMAIL_DESCRIPTION', 'commons-booking-item-usage-restriction', 'The the above defined recipients by item category will receive reminders for restrictions that are ending soon.') ?>
+    </p>
+
+    <table>
+      <tr>
+          <th><?= item_usage_restriction\__('EMAIL_SUBJECT', 'commons-booking-item-usage-restriction', 'email subject') ?></th>
+          <td><input type="text" placeholder="<?= item_usage_restriction\__('RESTRICTION_ENDS_SOON_EMAIL_SUBJECT_PLACEHOLDER', 'commons-booking-item-usage-restriction', 'restriction for {{ITEM_NAME}} ends soon') ?>" name="cb_item_restriction_remind_end_email_subject" value="<?php echo esc_attr( get_option('cb_item_restriction_remind_end_email_subject') ); ?>" size="50" /></td>
+      </tr>
+      <tr>
+          <th><?= item_usage_restriction\__('EMAIL_CONTENT', 'commons-booking-item-usage-restriction', 'email content') ?></th>
+          <td><textarea placeholder="<?= item_usage_restriction\__('RESTRICTION_ENDS_SOON_EMAIL_CONTENT_PLACEHOLDER', 'commons-booking-item-usage-restriction', 'Dear {{FIRST_NAME}}, here is a reminder that the restriction for {{ITEM_NAME}} is going to on {{DATE_END}}.') ?>" name="cb_item_restriction_remind_end_email_body" rows="10" cols="53"><?php echo esc_attr( get_option('cb_item_restriction_remind_end_email_body') ); ?></textarea></td>
+      </tr>
+
+      <tr>
+          <th><?= item_usage_restriction\__('DAYS_IN_ADVANCE', 'commons-booking-item-usage-restriction', 'days in advance') ?></th>
+          <td><input type="number" name="cb_item_restriction_remind_days_in_advance" value="<?php echo esc_attr( get_option('cb_item_restriction_remind_days_in_advance', 2) ) ?>"></td>
+      </tr>
+
+      <tr>
+        <th><?= item_usage_restriction\__('REMINDER_FOR_TOTAL_BREAKDOWN', 'commons-booking-item-usage-restriction', 'for total breakdown') ?></th>
+        <td>
+            <label>
+                <input type="checkbox" name="cb_item_restriction_remind_for_total_breakdown" <?php echo esc_attr( get_option('cb_item_restriction_remind_for_total_breakdown') ) == 'on' ? 'checked="checked"' : ''; ?> />
+            </label><br/>
+        </td>
+      </tr>
+
+      <tr>
+        <th><?= item_usage_restriction\__('REMINDER_FOR_LIMITED_USAGE', 'commons-booking-item-usage-restriction', 'for limited usage') ?></th>
+        <td>
+            <label>
+                <input type="checkbox" name="cb_item_restriction_remind_for_limited_usage" <?php echo esc_attr( get_option('cb_item_restriction_remind_for_limited_usage') ) == 'on' ? 'checked="checked"' : ''; ?> />
+            </label><br/>
         </td>
       </tr>
     </table>
