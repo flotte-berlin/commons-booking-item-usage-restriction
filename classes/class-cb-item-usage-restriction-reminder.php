@@ -42,7 +42,7 @@ class CB_Item_Usage_Restriction_Reminder {
       
       foreach($restrictions as $restriction) {
         //check restriction type
-        if(active_for_restriction_type[$restriction['restriction_type']]) {
+        if($active_for_restriction_type[$restriction['restriction_type']]) {
           //check end date against due date
           if($restriction['date_end'] == $date_end_str) {
             //find coordinator(s)
