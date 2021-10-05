@@ -88,6 +88,10 @@ class CB_Item_Usage_Restriction_Admin {
             $this->edit_restriction();
           break;
 
+          case 'revise-restriction':
+            $this->revise_restriction();
+          break;
+
           case 'delete-restriction':
             $this->delete_restriction();
           break;
@@ -365,6 +369,38 @@ class CB_Item_Usage_Restriction_Admin {
   }
 
   /**
+  * correction of the hint (description) of an item usage restriction
+  **/
+  function revise_restriction() {
+    $validation_result = $this->validate_revise_restriction_form_input();
+
+    if(count($validation_result['errors']) == 0) {
+      $item_restriction = $this->find_item_usage_restriction($validation_result['data']['item_id'], $validation_result['data']['created_by_user_id'], $validation_result['data']['created_at_timestamp']);
+
+      if(isset($item_restriction)) {
+        $item_restriction = CB_Item_Usage_Restriction::adjust_restriction_hint($item_restriction, $validation_result['data']['restriction_hint']);
+        CB_Item_Usage_Restriction::update_item_restriction($item_restriction['item_id'], $item_restriction);
+
+        //show message on admin page
+        $message = item_usage_restriction\__('RESTRICTION_REVISED', 'commons-booking-item-usage-restriction', 'The restriction was revised successfully.');
+        $class = 'notice notice-success';
+        echo '<div id="message" class="' . $class .'"><p>' . $message . '</p></div>';
+      }
+      else {
+        $message = item_usage_restriction\__('NO_RESTRICTION_TO_UPDATE', 'commons-booking-item-usage-restriction', 'unable to find usage restriction to update');
+        $class = 'notice notice-error';
+        echo '<div id="message" class="' . $class .'"><p>' . $message . '</p></div>';
+      }
+    }
+    else {
+      $error_list = str_replace(',', ', ', implode(",", $validation_result['errors']));
+      $message = item_usage_restriction\__('INPUT_ERRORS_OCCURED', 'commons-booking-item-usage-restriction', 'There are input errors in the request') . ': ' . $error_list;
+      $class = 'notice notice-error';
+      echo '<div id="message" class="' . $class .'"><p>' . $message . '</p></div>';
+    }
+  }
+
+  /**
   * deletes an item usage restriction based on the provided from input values
   **/
   function delete_restriction() {
@@ -554,6 +590,27 @@ class CB_Item_Usage_Restriction_Admin {
 
     return array('data' => $data, 'errors' => $errors);
 
+  }
+
+  function validate_revise_restriction_form_input() {
+    $data = array();
+    $errors = array();
+
+    $data['item_id'] = intval($_POST['item_id']);
+    $data['created_by_user_id'] = intval($_POST['created_by_user_id']);
+    $data['created_at_timestamp'] = intval($_POST['created_at_timestamp']);
+    $data['restriction_hint'] = sanitize_text_field($_POST['restriction_hint']);
+
+    if(!in_array($data['item_id'], $this->valid_cb_item_ids) || !$data['created_by_user_id'] || !$data['created_at_timestamp']) {
+
+      $errors['item_id'] = item_usage_restriction\__('MISSING_RESTRICTION_PROPERTIES', 'commons-booking-item-usage-restriction', 'missing or invalid properties of usage restriction ');
+    }
+
+    if(strlen($data['restriction_hint']) == 0) {
+      $errors['restriction_hint'] = item_usage_restriction\__('RESTRICTION_HINT_EMPTY', 'commons-booking-item-usage-restriction', 'restriction hint has to be filled out');
+    }
+
+    return array('data' => $data, 'errors' => $errors);
   }
 
   /**

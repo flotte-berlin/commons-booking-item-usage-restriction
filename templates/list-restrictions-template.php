@@ -74,8 +74,8 @@
                 if(isset($user)) {
                   $user_item = array(
                     'link' => get_edit_user_link( $user_id ),
-                    'first_name' => $user->first_name,
-                    'last_name' => $user->last_name
+                    'first_name' => is_object($user) ? $user->first_name : '',
+                    'last_name' => is_object($user) ? $user->last_name : ''
                   );
 
                   $informed_user_items[] = $user_item;
@@ -106,7 +106,7 @@
 
               <button class="cb-item-usage-restriction-show-details button action" title="<?= item_usage_restriction\__( 'LIST_RESTRICTION_DETAILS', 'commons-booking-item-usage-restriction', 'list details and changes ...') ?>"
                 data-users='<?= json_encode($informed_user_items) ?>'
-                data-coordinators='<?= json_encode($item_restriction['coordinators']) ?>'
+                data-coordinators='<?= json_encode(isset($item_restriction['coordinators']) ? $item_restriction['coordinators'] : []) ?>'
                 data-emails='<?= json_encode($item_restriction['additional_emails']) ?>'
                 data-updates='<?= json_encode($restriction_updates) ?>'
                 data-hint='<?= $item_restriction['restriction_hint'] ?>'
@@ -122,7 +122,8 @@
                   data-created_at_timestamp="<?= $item_restriction['created_at']->getTimestamp() ?>"
                   data-created_by_user_id="<?= $item_restriction['created_by_user_id'] ?>"
                   data-date_start="<?= $item_restriction['date_start'] ?>"
-                  data-date_end="<?= $item_restriction['date_end'] ?>">
+                  data-date_end="<?= $item_restriction['date_end'] ?>"
+                  data-hint="<?= $item_restriction['restriction_hint'] ?>">
                   <span style="padding-top: 4px;" class="dashicons dashicons-edit"></span>
                 </button>
 
@@ -162,26 +163,47 @@
 
   <!-- edit restriction dialog form-->
   <div id="cb-item-usage-restriction-edit-dialog" class="hidden">
-    <p><?= item_usage_restriction\__( 'EDIT_RESTRICTION_DIALOG', 'commons-booking-item-usage-restriction', 'You can adjust the end date of the usage restriction. Affected users will be informed about that change.') ?></p>
 
-    <form id="cb-item-usage-restriction-edit-form" method="POST">
-      <input type="hidden" name="action" value="edit-restriction">
-      <input type="hidden" name="item_id" value="">
-      <input type="hidden" name="created_by_user_id" value="">
-      <input type="hidden" name="created_at_timestamp" value="">
+    <div style="overflow:auto">
+      <p><?= item_usage_restriction\__( 'EDIT_RESTRICTION_DIALOG', 'commons-booking-item-usage-restriction', 'You can adjust the end date of the usage restriction. Affected users will be informed about that change.') ?></p>
 
-      <div style="margin-bottom: 1em;">
-        <label for="date_start"><?= item_usage_restriction\__( 'FROM', 'commons-booking-item-usage-restriction', 'from') ?></label>
-        <input type="date" name="date_start" disabled>
-        <label for="date_end"><?= item_usage_restriction\__( 'UNTIL', 'commons-booking-item-usage-restriction', 'to') ?></label>
-        <input type="date" name="date_end">
-      </div>
-      <label for="update_comment"><?= item_usage_restriction\__( 'UPDATE_COMMENT', 'commons-booking-item-usage-restriction', 'write a comment') ?>:</label><br>
-      <textarea style="width: 100%; height: 100px;" name="update_comment" required></textarea><br>
-      <button style="margin-top: 10px; float:right;" class="button action">
-        <span style="padding-top: 4px;" class="dashicons dashicons-yes"></span> <?= item_usage_restriction\__( 'CONFIRM', 'commons-booking-item-usage-restriction', 'confirm') ?>
-      </button>
-    </form>
+      <form id="cb-item-usage-restriction-edit-form" method="POST">
+        <input type="hidden" name="action" value="edit-restriction">
+        <input type="hidden" name="item_id" value="">
+        <input type="hidden" name="created_by_user_id" value="">
+        <input type="hidden" name="created_at_timestamp" value="">
+
+        <div style="margin-bottom: 1em;">
+          <label for="date_start"><?= item_usage_restriction\__( 'FROM', 'commons-booking-item-usage-restriction', 'from') ?></label>
+          <input type="date" name="date_start" disabled>
+          <label for="date_end"><?= item_usage_restriction\__( 'UNTIL', 'commons-booking-item-usage-restriction', 'to') ?></label>
+          <input type="date" name="date_end">
+        </div>
+        <label for="update_comment"><?= item_usage_restriction\__( 'UPDATE_COMMENT', 'commons-booking-item-usage-restriction', 'write a comment') ?>:</label><br>
+        <textarea style="width: 100%; height: 100px;" name="update_comment" required></textarea><br>
+        <button style="margin-top: 10px; float:right;" class="button action">
+          <span style="padding-top: 4px;" class="dashicons dashicons-yes"></span> <?= item_usage_restriction\__( 'CONFIRM', 'commons-booking-item-usage-restriction', 'confirm') ?>
+        </button>
+      </form>
+    </div>
+    <hr>
+    <div style="overflow:auto">
+      <p><?= item_usage_restriction\__( 'REVISE_RESTRICTION_DIALOG', 'commons-booking-item-usage-restriction', 'You can revise the hint text of the usage restriction. That causes no email notifications.') ?></p>
+
+      <form id="cb-item-usage-restriction-revise-form" method="POST">
+        <input type="hidden" name="action" value="revise-restriction">
+        <input type="hidden" name="item_id" value="">
+        <input type="hidden" name="created_by_user_id" value="">
+        <input type="hidden" name="created_at_timestamp" value="">
+
+        <label for="restriction_hint"><?= item_usage_restriction\__( 'HINT', 'commons-booking-item-usage-restriction', 'hint') ?>:</label><br>
+        <textarea style="width: 100%; height: 100px;" name="restriction_hint" required></textarea><br>
+
+        <button style="margin-top: 10px; float:right;" class="button action">
+          <span style="padding-top: 4px;" class="dashicons dashicons-yes"></span> <?= item_usage_restriction\__( 'CONFIRM', 'commons-booking-item-usage-restriction', 'confirm') ?>
+        </button>
+      </form>
+    </div>
   </div>
 
   <!-- delete restriction dialog form-->
@@ -244,7 +266,7 @@
       var $overlay = $('<div id="positioning-overlay" style="position: fixed; top: 0; left: 0; bottom: 0; right: 0; display: none;"></div>');
       $('body').append($overlay);
 
-      function initialize_restriction_action_dialog(button_class, dialog_wrapper_id, dialog_width, dialog_title, dialog_form_id, input_field_names, open_callback) {
+      function initialize_restriction_action_dialog(button_class, dialog_wrapper_id, dialog_width, dialog_title, dialog_form, input_field_names, open_callback) {
         // initialize the dialog
         $('#' + dialog_wrapper_id).dialog({
           title: dialog_title,
@@ -272,16 +294,22 @@
             var data = $(this).data();
             //console.log(data);
 
-            if(dialog_form_id) {
-              var $form = $('#' + dialog_form_id);
-              //set values for given field names based on data object
-              $.each(input_field_names, function(index, field_name) {
-                $form.find('input[name="' + field_name + '"]').val(data[field_name]);
-              });
+            if(dialog_form) {
+              if(typeof dialog_form == 'string') {
+                dialog_form_id = [dialog_form];
+              }
 
-              $form.submit(function() {
-                $(this).attr("disabled","disabled");
-              })
+              dialog_form.forEach(function(dialog_form_id) {
+                var $form = $('#' + dialog_form_id);
+                //set values for given field names based on data object
+                $.each(input_field_names, function(index, field_name) {
+                  $form.find('input[name="' + field_name + '"]').val(data[field_name]);
+                });
+
+                $form.submit(function() {
+                  $(this).attr("disabled","disabled");
+                })
+              });
             }
 
             typeof open_callback == 'function' && open_callback(data);
@@ -313,11 +341,14 @@
         'cb-item-usage-restriction-edit-dialog',
         600,
         '<?= item_usage_restriction\__( 'EDIT_RESTRICTION_DIALOG_TITLE','commons-booking-item-usage-restriction', 'Edit Restriction') ?>',
-        'cb-item-usage-restriction-edit-form',
-        ['item_id', 'created_by_user_id', 'created_at_timestamp', 'date_start', 'date_end'],
+        ['cb-item-usage-restriction-edit-form', 'cb-item-usage-restriction-revise-form'],
+        ['item_id', 'created_by_user_id', 'created_at_timestamp', 'date_start', 'date_end', 'hint'],
         function(data) {
-          var $form = $('#cb-item-usage-restriction-edit-form');
-          $form.find('input[name="date_end"]').attr('min', data['date_start'])
+          var $form1 = $('#cb-item-usage-restriction-edit-form');
+          $form1.find('input[name="date_end"]').attr('min', data['date_start']);
+
+          var $form2 = $('#cb-item-usage-restriction-revise-form');
+          $form2.find('textarea[name="restriction_hint"]').text(data.hint);
         });
 
       initialize_restriction_action_dialog(

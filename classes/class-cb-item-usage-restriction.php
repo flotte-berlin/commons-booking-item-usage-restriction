@@ -191,6 +191,14 @@ class CB_Item_Usage_Restriction {
 
   }
 
+  /**
+  * adjust the hint of the given item usage restriction 
+  **/
+  static public function adjust_restriction_hint($item_restriction, $restriction_hint) {
+    $item_restriction['restriction_hint'] = $restriction_hint;
+    return $item_restriction;
+  }
+
   static function is_item_restricted($item_id, $date_start, $date_end, $restriction_type = 1) {
 
     $restrictions_in_period = array();

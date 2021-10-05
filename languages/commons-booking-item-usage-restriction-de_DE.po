@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: cb-item-usage-restriction\n"
-"POT-Creation-Date: 2021-09-23 17:17+0200\n"
-"PO-Revision-Date: 2021-09-23 17:21+0200\n"
+"POT-Creation-Date: 2021-10-02 16:23+0200\n"
+"PO-Revision-Date: 2021-10-02 16:46+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de\n"
@@ -26,99 +26,107 @@ msgstr "Nutzungsbeschränkungen"
 msgid "USAGE_RESTRICTION_MENU_TITLE"
 msgstr "Nutzungsbeschränkungen"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:129
+#: ../classes/class-cb-item-usage-restriction-admin.php:133
 msgid "NO_DATE_END_CHANGE"
 msgstr "Das Enddatum der Beschränkung hat sich nicht geändert."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:139
-#: ../classes/class-cb-item-usage-restriction-admin.php:699
+#: ../classes/class-cb-item-usage-restriction-admin.php:143
+#: ../classes/class-cb-item-usage-restriction-admin.php:756
 msgid "NO_TIMEFRAME"
 msgstr ""
 "Es existiert kein Zeitraum für die angegebene Beschränkungsdauer. Es muss "
 "zunächst einer erstellt werden, bevor eine Beschränkung gesetzt werden kann."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:163
-#: ../classes/class-cb-item-usage-restriction-admin.php:689
+#: ../classes/class-cb-item-usage-restriction-admin.php:167
+#: ../classes/class-cb-item-usage-restriction-admin.php:746
 msgid "RESTRICTION_FOR_PERIOD_ALREADY_EXISTING"
 msgstr ""
 "Es gibt schon eine Nutzungsbeschränkung vom Typ 'Totalausfall' für den "
 "angegebenen Zeitraum."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:193
+#: ../classes/class-cb-item-usage-restriction-admin.php:197
 msgid "CONFLICT_BOOKINGS_AFTER_SHORTENED_RESTRICTION"
 msgstr ""
 "Die Aktion würde einen Konflikt zwischen parallelen Buchungen nach der "
 "verkürzten Nutzungbeschränkung verursachen. Dieser muss zunächst aufgelöst "
 "werden."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:340
+#: ../classes/class-cb-item-usage-restriction-admin.php:344
 msgid "RESTRICTION_EDITED"
 msgstr "Die Nutzungsbeschränkung wurde erfolgreich bearbeitet."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:346
-#: ../classes/class-cb-item-usage-restriction-admin.php:633
+#: ../classes/class-cb-item-usage-restriction-admin.php:350
+#: ../classes/class-cb-item-usage-restriction-admin.php:690
 msgid "END_DATE_TO_LOW"
 msgstr "Enddatum darf nicht vor dem Anfangsdatum liegen"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:353
+#: ../classes/class-cb-item-usage-restriction-admin.php:357
+#: ../classes/class-cb-item-usage-restriction-admin.php:390
 msgid "NO_RESTRICTION_TO_UPDATE"
 msgstr "Die gewünschte Nutzungsbeschränkung existiert nicht."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:361
-#: ../classes/class-cb-item-usage-restriction-admin.php:447
-#: ../classes/class-cb-item-usage-restriction-admin.php:465
+#: ../classes/class-cb-item-usage-restriction-admin.php:365
+#: ../classes/class-cb-item-usage-restriction-admin.php:397
+#: ../classes/class-cb-item-usage-restriction-admin.php:483
+#: ../classes/class-cb-item-usage-restriction-admin.php:501
 msgid "INPUT_ERRORS_OCCURED"
 msgstr "Es gibt Eingabefehler im Formular"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:440
+#: ../classes/class-cb-item-usage-restriction-admin.php:385
+msgid "RESTRICTION_REVISED"
+msgstr "Die Nutzungsbeschränkung wurde erfolgreich überarbeitet."
+
+#: ../classes/class-cb-item-usage-restriction-admin.php:476
 msgid "RESTRICTION_DELETED"
 msgstr "Die Nutzungsbeschränkung wurde erfolgreich gelöscht."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:541
-#: ../classes/class-cb-item-usage-restriction-admin.php:578
+#: ../classes/class-cb-item-usage-restriction-admin.php:577
+#: ../classes/class-cb-item-usage-restriction-admin.php:606
+#: ../classes/class-cb-item-usage-restriction-admin.php:635
 msgid "MISSING_RESTRICTION_PROPERTIES"
 msgstr "fehlende oder fehlerhafte Eigenschaften der Nutzungsbeschränkung"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:545
-#: ../classes/class-cb-item-usage-restriction-admin.php:639
+#: ../classes/class-cb-item-usage-restriction-admin.php:581
+#: ../classes/class-cb-item-usage-restriction-admin.php:696
 msgid "END_DATE_INVALID"
 msgstr "ungültiges Enddatum"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:552
+#: ../classes/class-cb-item-usage-restriction-admin.php:588
 msgid "UPDATE_COMMENT_EMPTY"
 msgstr "Ein Änderungskommentar muss angegeben sein."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:573
-msgid "DELETE_COMMENT_EMPTY"
-msgstr "Ein Kommentar zur Löschung muss angegeben sein."
-
-#: ../classes/class-cb-item-usage-restriction-admin.php:612
-msgid "ITEM_INVALID"
-msgstr "ungültiger Artikel"
-
-#: ../classes/class-cb-item-usage-restriction-admin.php:622
-msgid "START_DATE_INVALID"
-msgstr "ungültiges Anfangsdatum"
-
-#: ../classes/class-cb-item-usage-restriction-admin.php:643
-msgid "RESTRICTION_TYPE_INVALID"
-msgstr "ungültiger Typ der Nutzungbeschränkung"
-
-#: ../classes/class-cb-item-usage-restriction-admin.php:647
+#: ../classes/class-cb-item-usage-restriction-admin.php:610
+#: ../classes/class-cb-item-usage-restriction-admin.php:704
 msgid "RESTRICTION_HINT_EMPTY"
 msgstr "der Hinweis zur Nutzungsbeschränkung muss ausgefüllt sein"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:771
+#: ../classes/class-cb-item-usage-restriction-admin.php:630
+msgid "DELETE_COMMENT_EMPTY"
+msgstr "Ein Kommentar zur Löschung muss angegeben sein."
+
+#: ../classes/class-cb-item-usage-restriction-admin.php:669
+msgid "ITEM_INVALID"
+msgstr "ungültiger Artikel"
+
+#: ../classes/class-cb-item-usage-restriction-admin.php:679
+msgid "START_DATE_INVALID"
+msgstr "ungültiges Anfangsdatum"
+
+#: ../classes/class-cb-item-usage-restriction-admin.php:700
+msgid "RESTRICTION_TYPE_INVALID"
+msgstr "ungültiger Typ der Nutzungbeschränkung"
+
+#: ../classes/class-cb-item-usage-restriction-admin.php:828
 msgid "RESTRICTION_CREATED"
 msgstr "Die Nutzungsbeschränkung wurde erfolgreich erstellt."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:1075
+#: ../classes/class-cb-item-usage-restriction-admin.php:1132
 #: ../templates/create-restriction-template.php:39
 #: ../templates/show-restriction-template.php:11
 msgid "RESTRICTION_TYPE_1"
 msgstr "Totalausfall"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:1079
+#: ../classes/class-cb-item-usage-restriction-admin.php:1136
 #: ../templates/create-restriction-template.php:40
 #: ../templates/show-restriction-template.php:11
 msgid "RESTRICTION_TYPE_2"
@@ -132,7 +140,7 @@ msgstr "Einstellungen für Nutzungsbeschränkungen"
 msgid "SETTINGS_MENU"
 msgstr "Nutzungsbeschränkungen"
 
-#: ../classes/class-cb-item-usage-restriction-settings.php:44
+#: ../classes/class-cb-item-usage-restriction-settings.php:46
 #: ../templates/create-restriction-template.php:67
 msgid "Settings"
 msgstr ""
@@ -157,12 +165,12 @@ msgid "MARK_ITEM"
 msgstr "Markiere Artikel"
 
 #: ../templates/create-restriction-template.php:20
-#: ../templates/list-restrictions-template.php:174
+#: ../templates/list-restrictions-template.php:177
 msgid "FROM"
 msgstr "vom"
 
 #: ../templates/create-restriction-template.php:22
-#: ../templates/list-restrictions-template.php:176
+#: ../templates/list-restrictions-template.php:179
 msgid "UNTIL"
 msgstr "bis voraussichtlich"
 
@@ -229,17 +237,18 @@ msgid "END_DATE"
 msgstr "Ende"
 
 #: ../templates/list-restrictions-template.php:31
-#: ../templates/list-restrictions-template.php:220
+#: ../templates/list-restrictions-template.php:199
+#: ../templates/list-restrictions-template.php:242
 msgid "HINT"
 msgstr "Hinweis"
 
 #: ../templates/list-restrictions-template.php:32
-#: ../templates/list-restrictions-template.php:229
+#: ../templates/list-restrictions-template.php:251
 msgid "CREATED_BY"
 msgstr "erstellt von"
 
 #: ../templates/list-restrictions-template.php:33
-#: ../templates/list-restrictions-template.php:230
+#: ../templates/list-restrictions-template.php:252
 msgid "CREATED_AT"
 msgstr "erstellt am"
 
@@ -267,105 +276,114 @@ msgstr "Details und Änderungen auflisten ..."
 msgid "EDIT_RESTRICTION"
 msgstr "bearbeiten ..."
 
-#: ../templates/list-restrictions-template.php:129
+#: ../templates/list-restrictions-template.php:130
 msgid "DELETE_RESTRICTION"
 msgstr "löschen ..."
 
-#: ../templates/list-restrictions-template.php:156
+#: ../templates/list-restrictions-template.php:157
 msgid "NO_DELETED_RESTRICTIONS_EXISTING"
 msgstr ""
 "Es gibt keine gelöschten Nutzungsbeschränkungen für den gewählten Artikel."
 
-#: ../templates/list-restrictions-template.php:157
+#: ../templates/list-restrictions-template.php:158
 msgid "NO_RESTRICTIONS_EXISTING"
 msgstr ""
 "Es gibt keine bestehenden Nutzungsbeschränkungen für den gewählten Artikel."
 
-#: ../templates/list-restrictions-template.php:160
+#: ../templates/list-restrictions-template.php:161
 msgid "CHOOSE_ITEM"
 msgstr "Bitte einen Artikel wählen, um Nutzungsbeschränkungen anzuzeigen."
 
-#: ../templates/list-restrictions-template.php:165
+#: ../templates/list-restrictions-template.php:168
 msgid "EDIT_RESTRICTION_DIALOG"
 msgstr ""
 "Das Ende der Nutzungsbeschränkung kann angepasst werden. Alle betroffenen "
 "NutzerInnen werden über die Änderung informiert."
 
-#: ../templates/list-restrictions-template.php:179
+#: ../templates/list-restrictions-template.php:182
 msgid "UPDATE_COMMENT"
 msgstr "Füge einen Kommentar an"
 
-#: ../templates/list-restrictions-template.php:182
-#: ../templates/list-restrictions-template.php:199
+#: ../templates/list-restrictions-template.php:185
+#: ../templates/list-restrictions-template.php:203
+#: ../templates/list-restrictions-template.php:221
 msgid "CONFIRM"
 msgstr "bestätigen"
 
-#: ../templates/list-restrictions-template.php:189
+#: ../templates/list-restrictions-template.php:191
+msgid "REVISE_RESTRICTION_DIALOG"
+msgstr ""
+"Der Hinweistext der Nutzungsbeschränkung kann überarbeitet werden (dies "
+"dient nur als Korrekturfunktion und hat keine Auswirkung auf die "
+"Änderungshistorie). Es werden dadurch keine Email-Benachrichtigungen "
+"ausgelöst."
+
+#: ../templates/list-restrictions-template.php:211
 msgid "DELETE_RESTRICTION_DIALOG"
 msgstr ""
 "Die Beschränkung wird gelöscht und alle NutzerInnen mit laufender oder "
 "anstehender Buchung für diesen Artikel im Beschränkungszeitraum werden "
 "benachrichtigt."
 
-#: ../templates/list-restrictions-template.php:196
+#: ../templates/list-restrictions-template.php:218
 msgid "DELETE_COMMENT"
 msgstr "Füge einen Kommentar an"
 
-#: ../templates/list-restrictions-template.php:206
+#: ../templates/list-restrictions-template.php:228
 msgid "RESTRICTION_DETAILS_DIALOG"
 msgstr ""
 "Details der gewählten Nutzungsbeschränkung zu benachrichtigten NutzerInnen "
 "und Änderungen."
 
-#: ../templates/list-restrictions-template.php:208
+#: ../templates/list-restrictions-template.php:230
 msgid "NOTIFICATIONS"
 msgstr "Benachrichtigungen"
 
-#: ../templates/list-restrictions-template.php:212
+#: ../templates/list-restrictions-template.php:234
 msgid "TO_USERS"
 msgstr "an NutzerInnen"
 
-#: ../templates/list-restrictions-template.php:213
+#: ../templates/list-restrictions-template.php:235
 msgid "TO_COORDINATORS"
 msgstr "an KoordinatorInnen"
 
-#: ../templates/list-restrictions-template.php:214
+#: ../templates/list-restrictions-template.php:236
 msgid "ADDITIONAL_EMAILS"
 msgstr "zusätzliche Emails"
 
-#: ../templates/list-restrictions-template.php:223
+#: ../templates/list-restrictions-template.php:245
 msgid "RESTRICTION_DATE_CHANGES"
 msgstr "Änderungshistorie"
 
-#: ../templates/list-restrictions-template.php:227
+#: ../templates/list-restrictions-template.php:249
 msgid "OLD_END_DATE"
 msgstr "vorheriges Enddatum"
 
-#: ../templates/list-restrictions-template.php:228
+#: ../templates/list-restrictions-template.php:250
 msgid "NEW_END_DATE"
 msgstr "neues Enddatum"
 
-#: ../templates/list-restrictions-template.php:231
+#: ../templates/list-restrictions-template.php:253
 msgid "EDIT_HINT"
 msgstr "Bearbeitungskommentar"
 
-#: ../templates/list-restrictions-template.php:236
+#: ../templates/list-restrictions-template.php:258
 msgid "NO_CHANGES"
 msgstr "keine Änderungen"
 
-#: ../templates/list-restrictions-template.php:315
+#: ../templates/list-restrictions-template.php:343
 msgid "EDIT_RESTRICTION_DIALOG_TITLE"
 msgstr "Nutzungsbeschränkung anpassen"
 
-#: ../templates/list-restrictions-template.php:327
+#: ../templates/list-restrictions-template.php:358
 msgid "DELETE_RESTRICTION_DIALOG_TITLE"
 msgstr "Nutzungsbeschränkung löschen"
 
-#: ../templates/list-restrictions-template.php:335
+#: ../templates/list-restrictions-template.php:366
 msgid "RESTRICTION_DETAILS_DIALOG_TITLE"
 msgstr "Details der Nutzungsbeschränkung"
 
-#: ../templates/list-restrictions-template.php:367
+#: ../templates/list-restrictions-template.php:398
 msgid "COORDINATORS_NOT_LOGGED"
 msgstr "wurden nicht erfasst"
 
