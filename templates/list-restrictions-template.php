@@ -296,7 +296,7 @@
 
             if(dialog_form) {
               if(typeof dialog_form == 'string') {
-                dialog_form_id = [dialog_form];
+                dialog_form = [dialog_form];
               }
 
               dialog_form.forEach(function(dialog_form_id) {
