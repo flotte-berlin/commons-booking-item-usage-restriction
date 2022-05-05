@@ -1064,12 +1064,13 @@ class CB_Item_Usage_Restriction_Admin {
     return $bookings_result;
   }
 
-  function get_hint_history($restriction, $line_break = '<br>') {
+  function get_hint_history($restriction, $line_break = '<br>', $skip_last_hint = true) {
     $hint_history = $restriction['created_at']->format('d.m.Y') . ': ' . $restriction['restriction_hint'];
+    $skip_count = $skip_last_hint ? 1 : 0;
 
     if(is_array($restriction['updates'])) {
       foreach ($restriction['updates'] as $key => $update) {
-        if($key < count($restriction['updates']) - 1) {
+        if($key < count($restriction['updates']) - $skip_count) {
           $hint_history .= $line_break . $update['created_at']->format('d.m.Y') . ': ' . $update['update_hint'];
         }
   

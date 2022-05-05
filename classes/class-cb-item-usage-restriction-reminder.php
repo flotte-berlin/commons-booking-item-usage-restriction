@@ -17,38 +17,43 @@ class CB_Item_Usage_Restriction_Reminder {
   static function check_ending_restrictions() {
     error_reporting(E_ALL);
 
-    //settings
-    $days_in_advance = get_option('cb_item_restriction_remind_days_in_advance', 2);
-    $active_for_restriction_type = [
-      1 => get_option('cb_item_restriction_remind_for_total_breakdown', false),
-      2 => get_option('cb_item_restriction_remind_for_limited_usage', false)
-    ];
+    $reminders = [1, 2];
 
-    //calculate reference date for reminder
-    $diff = new DateInterval('P'. $days_in_advance .'D');
-    $date_end = new DateTime();
-    $date_end->add($diff);
-    $date_end_str = $date_end->format('Y-m-d');
+    foreach ($reminders as $reminder_key => $reminder_num) {
+      //settings
+      $default_days_in_advance = [7, 2];
+      $days_in_advance = get_option('cb_item_restriction_remind_days_in_advance_' . $$reminder_num, $default_days_in_advance[$reminder_key]);
+      $active_for_restriction_type = [
+        1 => get_option('cb_item_restriction_remind_for_total_breakdown', false),
+        2 => get_option('cb_item_restriction_remind_for_limited_usage', false)
+      ];
 
-    //get all cb_items
-    $cb_items = self::get_all_cb_items();
+      //calculate reference date for reminder
+      $diff = new DateInterval('P'. $days_in_advance .'D');
+      $date_end = new DateTime();
+      $date_end->add($diff);
+      $date_end_str = $date_end->format('Y-m-d');
 
-    $cb_item_usage_restriction_admin = new CB_Item_Usage_Restriction_Admin();
-    $cb_item_usage_restriction_admin->load_settings();
+      //get all cb_items
+      $cb_items = self::get_all_cb_items();
 
-    foreach ($cb_items as $cb_item) {
-      //load restrictions of item
-      $restrictions = CB_Item_Usage_Restriction::get_item_restrictions($cb_item->ID);
-      
-      foreach($restrictions as $restriction) {
-        //check restriction type
-        if($active_for_restriction_type[$restriction['restriction_type']]) {
-          //check end date against due date
-          if($restriction['date_end'] == $date_end_str) {
-            //find coordinator(s)
-            $coordinators = $cb_item_usage_restriction_admin->get_coordinators($cb_item->ID);
-            //send reminder email to coordinators
-            $cb_item_usage_restriction_admin->send_mail_by_reason_to_recipients($coordinators, $cb_item->ID, $restriction['restriction_type'], 'remind_restriction_end', $restriction['date_start'], $restriction['date_end'], '', $cb_item_usage_restriction_admin->get_hint_history($restriction));
+      $cb_item_usage_restriction_admin = new CB_Item_Usage_Restriction_Admin();
+      $cb_item_usage_restriction_admin->load_settings();
+
+      foreach ($cb_items as $cb_item) {
+        //load restrictions of item
+        $restrictions = CB_Item_Usage_Restriction::get_item_restrictions($cb_item->ID);
+        
+        foreach($restrictions as $restriction) {
+          //check restriction type
+          if($active_for_restriction_type[$restriction['restriction_type']]) {
+            //check end date against due date
+            if($restriction['date_end'] == $date_end_str) {
+              //find coordinator(s)
+              $coordinators = $cb_item_usage_restriction_admin->get_coordinators($cb_item->ID);
+              //send reminder email to coordinators
+              $cb_item_usage_restriction_admin->send_mail_by_reason_to_recipients($coordinators, $cb_item->ID, $restriction['restriction_type'], 'remind_restriction_end', $restriction['date_start'], $restriction['date_end'], '', $cb_item_usage_restriction_admin->get_hint_history($restriction, '<br>', false));
+            }
           }
         }
       }

@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: cb-item-usage-restriction\n"
-"POT-Creation-Date: 2021-10-02 16:23+0200\n"
-"PO-Revision-Date: 2021-10-02 16:46+0200\n"
+"POT-Creation-Date: 2022-04-28 15:05+0200\n"
+"PO-Revision-Date: 2022-04-28 16:24+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de\n"
@@ -120,17 +120,25 @@ msgstr "ungültiger Typ der Nutzungbeschränkung"
 msgid "RESTRICTION_CREATED"
 msgstr "Die Nutzungsbeschränkung wurde erfolgreich erstellt."
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:1132
+#: ../classes/class-cb-item-usage-restriction-admin.php:873
+#: ../classes/class-cb-item-usage-restriction-admin.php:1213
 #: ../templates/create-restriction-template.php:39
 #: ../templates/show-restriction-template.php:11
 msgid "RESTRICTION_TYPE_1"
 msgstr "Totalausfall"
 
-#: ../classes/class-cb-item-usage-restriction-admin.php:1136
+#: ../classes/class-cb-item-usage-restriction-admin.php:879
+#: ../classes/class-cb-item-usage-restriction-admin.php:1217
 #: ../templates/create-restriction-template.php:40
 #: ../templates/show-restriction-template.php:11
 msgid "RESTRICTION_TYPE_2"
 msgstr "beschränkt nutzbar"
+
+#: ../classes/class-cb-item-usage-restriction-admin.php:887
+msgid "RESTRICTION_CREATED_WP_DESCRIPTION"
+msgstr ""
+"Erstellung des Arbeitspakets infolge einer Nutzungsbeschränkung durch: %s %s "
+"(%d)"
 
 #: ../classes/class-cb-item-usage-restriction-settings.php:14
 msgid "SETTINGS_TITLE"
@@ -553,30 +561,34 @@ msgstr ""
 "Nutzungsbeschränkung für {{ITEM_NAME}} am {{DATE_END}} endet."
 
 #: ../templates/settings-page-template.php:161
-msgid "DAYS_IN_ADVANCE"
-msgstr "Tage im Voraus"
+msgid "DAYS_IN_ADVANCE_1"
+msgstr "1. Erinnerung - Tage im Voraus"
 
 #: ../templates/settings-page-template.php:166
+msgid "DAYS_IN_ADVANCE_2"
+msgstr "2. Erinnerung - Tage im Voraus"
+
+#: ../templates/settings-page-template.php:171
 msgid "REMINDER_FOR_TOTAL_BREAKDOWN"
 msgstr "für Totalausfall"
 
-#: ../templates/settings-page-template.php:175
+#: ../templates/settings-page-template.php:180
 msgid "REMINDER_FOR_LIMITED_USAGE"
 msgstr "für beschränkte Nutzung"
 
-#: ../templates/settings-page-template.php:185
+#: ../templates/settings-page-template.php:190
 msgid "OTHER_OPTIONS"
 msgstr "Sonstige Optionen"
 
-#: ../templates/settings-page-template.php:189
+#: ../templates/settings-page-template.php:194
 msgid "SHOW_ALWAYS_IN_ARTICLE_DESCRIPTION"
 msgstr "Zeige immer in Artikelbeschreibung"
 
-#: ../templates/settings-page-template.php:192
+#: ../templates/settings-page-template.php:197
 msgid "SHOW_EVEN_IF_NO_RESTRICTION"
 msgstr "Ja, auch wenn keine Nutzungsbechränkung angezeigt wird"
 
-#: ../templates/settings-page-template.php:197
+#: ../templates/settings-page-template.php:202
 msgid "SHOW_UPDATE_HINTS_IN_ARTICLE_DESCRIPTION"
 msgstr "Zeige Änderungshinweise in Artikelbeschreibung"
 

@@ -158,8 +158,13 @@
       </tr>
 
       <tr>
-          <th><?= item_usage_restriction\__('DAYS_IN_ADVANCE', 'commons-booking-item-usage-restriction', 'days in advance') ?></th>
-          <td><input type="number" name="cb_item_restriction_remind_days_in_advance" value="<?php echo esc_attr( get_option('cb_item_restriction_remind_days_in_advance', 2) ) ?>"></td>
+          <th><?= item_usage_restriction\__('DAYS_IN_ADVANCE_1', 'commons-booking-item-usage-restriction', '1. reminder - days in advance') ?></th>
+          <td><input type="number" name="cb_item_restriction_remind_days_in_advance_1" value="<?php echo esc_attr( get_option('cb_item_restriction_remind_days_in_advance_1', 7) ) ?>"></td>
+      </tr>
+
+      <tr>
+          <th><?= item_usage_restriction\__('DAYS_IN_ADVANCE_2', 'commons-booking-item-usage-restriction', '2. reminder - days in advance') ?></th>
+          <td><input type="number" name="cb_item_restriction_remind_days_in_advance_2" value="<?php echo esc_attr( get_option('cb_item_restriction_remind_days_in_advance_2', 2) ) ?>"></td>
       </tr>
 
       <tr>
