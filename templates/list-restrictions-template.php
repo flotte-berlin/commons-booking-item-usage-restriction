@@ -137,7 +137,7 @@
               <?php endif; ?>
 
               <?php
-                error_reporting(E_ALL);
+                //error_reporting(E_ALL);
                 $chart_date_end = (new DateTime())->setTimestamp(strtotime($item_restriction['date_start'].'+ 2 months'));
                 $chart_duration = $item_restriction['date_start_valid']->diff($chart_date_end);
 
