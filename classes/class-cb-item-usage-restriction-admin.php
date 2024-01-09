@@ -518,7 +518,6 @@ class CB_Item_Usage_Restriction_Admin {
         $form_values['item_id'] = $validation_result['data']['item_id'];
       }
 
-      var_dump($validation_result['data']);
       $form_values['date_start'] = $validation_result['data']['date_start_valid'] ? $validation_result['data']['date_start_valid'] : new DateTime();
       $form_values['date_end'] = $validation_result['data']['date_end_valid'] ? $validation_result['data']['date_end_valid'] : new DateTime();
 
