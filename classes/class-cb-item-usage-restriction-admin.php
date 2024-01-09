@@ -296,7 +296,7 @@ class CB_Item_Usage_Restriction_Admin {
               foreach ($bookings as $booking) {
                 if($booking->user_id != get_option('cb_item_restriction_blocking_user_id')) {
                   if(CB_Item_Usage_Restriction_Booking::has_booking_to_be_blocked($booking)) {
-                    CB_Item_Usage_Restriction_Booking::block_booking($booking, $data);
+                    CB_Item_Usage_Restriction_Booking::block_booking($booking, $item_restriction);
                   }
                 }
               }
@@ -518,8 +518,8 @@ class CB_Item_Usage_Restriction_Admin {
         $form_values['item_id'] = $validation_result['data']['item_id'];
       }
 
-      $form_values['date_start'] = $validation_result['data']['date_start_valid'] ? $validation_result['data']['date_start_valid'] : $date_start;
-      $form_values['date_end'] = $validation_result['data']['date_end_valid'] ? $validation_result['data']['date_end_valid'] : $date_end;
+      $form_values['date_start'] = $validation_result['data']['date_start_valid'] ? $validation_result['data']['date_start_valid'] : new DateTime();
+      $form_values['date_end'] = $validation_result['data']['date_end_valid'] ? $validation_result['data']['date_end_valid'] : new DateTime();
 
       $form_values['restriction_hint'] = $validation_result['data']['restriction_hint'];
       $form_values['additional_emails'] = implode(', ', $validation_result['data']['additional_emails']);

@@ -15,7 +15,7 @@ class CB_Item_Usage_Restriction_Reminder {
   }
 
   static function check_ending_restrictions() {
-    error_reporting(E_ALL);
+    //error_reporting(E_ALL);
 
     $reminders = [1, 2];
 
