@@ -144,7 +144,7 @@
     <h2><?= item_usage_restriction\__('RESTRICTION_ENDS_SOON_EMAIL_HEADER', 'commons-booking-item-usage-restriction', 'Email - Reminder for near end') ?></h2>
 
     <p>
-      <?= item_usage_restriction\__('RESTRICTION_ENDS_SOON_EMAIL_DESCRIPTION', 'commons-booking-item-usage-restriction', 'The the above defined recipients by item category will receive reminders for restrictions that are ending soon.') ?>
+      <?= item_usage_restriction\__('RESTRICTION_ENDS_SOON_EMAIL_DESCRIPTION', 'commons-booking-item-usage-restriction', 'The above defined recipients by item category will receive reminders for restrictions that are ending soon.') ?>
     </p>
 
     <table>
@@ -206,8 +206,32 @@
             </label><br/>
         </td>
       </tr>
-
     </table>
+    
+    <!-- exceptions -->
+    <?php if(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 2): ?>
+      <h2><?= item_usage_restriction\__('EXCEPTIONS', 'commons-booking-item-usage-restriction', 'Exceptions') ?></h2>
+
+      <p>
+      <?= item_usage_restriction\__('EXCEPTIONS_DESCRIPTION', 'commons-booking-item-usage-restriction', 'The exceptions will not be managed by this plugin, but CommonsBooking restrictions functionality.') ?>
+      </p>
+
+      <table>
+        <tr>
+          <th><?= item_usage_restriction\__('UNMANAGED_ITEMS_CATEGORY', 'commons-booking-item-usage-restriction', 'items of the category') ?></th>
+          <td>
+            <?php wp_dropdown_categories([
+              'taxonomy' => 'cb_items_category',
+              'hierarchical' => true,
+              'hide_empty' => 0,
+              'name' => 'cb_item_restriction_unmanaged_cb2_items_category',
+              'selected' => esc_attr( get_option('cb_item_restriction_unmanaged_cb2_items_category') ),
+              'show_option_none' => item_usage_restriction\__('UNMANAGED_ITEMS_CATEGORY_NONE_OPTION', 'commons-booking-item-usage-restriction', '- no category -')
+            ]); ?>
+          </td>
+        </tr>
+      </table>
+    <?php endif; ?>
 
     <input type="hidden" name="cb_item_restriction_consider_responsible_users" value="<?php echo esc_attr( get_option('cb_item_restriction_consider_responsible_users') ) ?>" />
 

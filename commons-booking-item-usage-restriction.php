@@ -28,6 +28,7 @@ require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-item-usage-rest
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-bookings-gc-location-helper.php' );
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-bookings-gantt-chart-shortcode.php' );
 require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-item-usage-restriction-reminder.php' );
+require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb2-restriction-service.php' );
 
 $cb_item_restriction_settings = new CB_Item_Usage_Restriction_Settings();
 $cb_item_restriction_settings->prepare_settings();
@@ -42,6 +43,7 @@ function load_additional_js() {
 
 add_action('admin_init', 'load_additional_js');
 
+add_action( 'init', [$cb_item_usage_restriction_admin, 'init_actions'], 0 );
 add_action( 'admin_menu', array($cb_item_usage_restriction_admin, 'add_plugin_admin_menu'), 11);
 
 add_filter( 'the_content', 'CB_Item_Usage_Restriction::render_current_restrictions');

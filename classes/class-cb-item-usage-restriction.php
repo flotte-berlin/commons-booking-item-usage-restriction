@@ -2,14 +2,27 @@
 
 class CB_Item_Usage_Restriction {
 
+  public const CB_PLUGIN_VERSION = 2;
   const META_KEY = 'cb_item_usage_restrictions';
   const DELETED_META_KEY = 'cb_item_deleted_usage_restrictions';
+
+  static public function get_cb_item_post_type() {
+    switch(self::CB_PLUGIN_VERSION) {
+      case 1:
+        $post_type = 'cb_items';
+        break;
+      case 2:
+        $post_type = 'cb_item';
+        break;
+    }
+
+    return $post_type;
+  }
 
   /**
   * adds restriction entry to meta data of the given item (post)
   **/
   static public function add_item_restriction($restriction_data, $informed_users = array(), $additional_email_recipients = array(), $responsible_users = array(), $coordinators = array()) {
-
     $item_restrictions = self::get_item_restrictions($restriction_data['item_id']);
 
     $current_user = wp_get_current_user();
@@ -51,6 +64,11 @@ class CB_Item_Usage_Restriction {
   static public function get_item_restrictions($item_id, $order = null, $deleted = false) {
     $meta_key = $deleted ? self::DELETED_META_KEY : self::META_KEY;
     $item_restrictions = get_metadata('post', $item_id, $meta_key, true);
+
+    //TODO: check, why it's a string (serialized) instead of array - maybe it's an migration issue
+    if(self::CB_PLUGIN_VERSION == 2 && is_string($item_restrictions)) {
+      $item_restrictions = unserialize($item_restrictions);
+    }
 
     if($item_restrictions) {
 
@@ -125,9 +143,9 @@ class CB_Item_Usage_Restriction {
   **/
   static public function render_current_restrictions($content) {
     $post = $GLOBALS['post'];
+    $post_type = self::get_cb_item_post_type();
 
-    //for cb items add restrictions to content
-    if ($post->post_type == 'cb_items') {
+    if ($post->post_type == $post_type) {
       $item_restrictions = self::get_item_restrictions($post->ID, 'asc');
       $restrictions = array();
 
@@ -135,8 +153,29 @@ class CB_Item_Usage_Restriction {
       $current_date->setTime( 0, 0, 0 );
       $current_date_timestamp = $current_date->getTimestamp();
 
-      $cb_settings = new CB_Admin_Settings();
-      $days_to_show = $cb_settings->get_settings( 'bookings', 'bookingsettings_daystoshow' );
+      switch(self::CB_PLUGIN_VERSION) {
+        case 1:
+          $cb_settings = new CB_Admin_Settings();
+          $days_to_show = $cb_settings->get_settings( 'bookings', 'bookingsettings_daystoshow' );
+          break;
+        case 2:
+          $bookableTimeframes = \CommonsBooking\Repository\Timeframe::getBookableForCurrentUser(
+            [], //$location
+            [ $post->ID ],
+            null,
+            true,
+            \CommonsBooking\Helper\Helper::getLastFullHourTimestamp()
+          );
+
+          //invoke private static method: $closestBookableTimeframe = \CommonsBooking\View\Calendar::getClosestBookableTimeFrameForToday( $bookableTimeframes );
+          //TODO: ask CB2-Team to make method public
+          $method = new ReflectionMethod('\CommonsBooking\View\Calendar', 'getClosestBookableTimeFrameForToday');
+          $method->setAccessible(true);
+          $closestBookableTimeframe = $method->invoke(null, $bookableTimeframes);
+          $days_to_show = intval( $closestBookableTimeframe->getFieldValue( 'timeframe-advance-booking-days' ));
+          break;
+      }
+
       $booking_period = 86400 * (integer) $days_to_show;
       $booking_period_end_timestamp = $current_date_timestamp + $booking_period;
 
@@ -151,6 +190,14 @@ class CB_Item_Usage_Restriction {
 
       $appears_always = get_option('cb_item_restriction_appears_always_in_article_description', false);
       $show_update_hints = get_option('cb_item_restriction_update_hints_in_article_description', false);
+
+      $cat_id = get_option('cb_item_restriction_unmanaged_cb2_items_category', null);
+      $no_iur_items = CB2_Restriction_Service::get_items_by_cat($cat_id);
+      $item_is_iur_managed = true;
+      foreach($no_iur_items as $no_iur_item) {
+        if($post->ID == $no_iur_item->ID)
+        $item_is_iur_managed = false;
+      }
 
       ob_start();
       include( CB_ITEM_USAGE_RESTRICTION_PATH . 'templates/show-restriction-template.php');

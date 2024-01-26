@@ -65,7 +65,7 @@ class CB_Item_Usage_Restriction_Reminder {
     //get all items
     $item_posts_args = array(
       'numberposts' => -1,
-      'post_type'   => 'cb_items',
+      'post_type'   => CB_Item_Usage_Restriction::get_cb_item_post_type(),
       'orderby'    => 'post_title',
       'order' => 'ASC'
     );

@@ -38,3 +38,11 @@
     <?php endif; ?>
 <?php endif; ?>
 <br>
+
+<?php if(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 2 && $item_is_iur_managed && count($restrictions) > 0): ?>
+  <script>
+    jQuery(document).ready(function() {
+      jQuery('.restriction').hide();
+  });
+  </script>
+<?php endif; ?>

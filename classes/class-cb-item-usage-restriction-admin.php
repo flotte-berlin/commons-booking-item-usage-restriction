@@ -1,5 +1,7 @@
 <?php
 
+use \CommonsBooking\Wordpress\CustomPostType as CB2_CustomPostType;
+
 class CB_Item_Usage_Restriction_Admin {
 
   const PAGE = 'cb_item_usage_restriction';
@@ -17,15 +19,23 @@ class CB_Item_Usage_Restriction_Admin {
   function add_plugin_admin_menu() {
 
     $capability = 'publish_pages'; // restrict access to whole menu to users with this capability
+    $parent_page = CB_Item_Usage_Restriction::get_cb_item_post_type() == 1 ? 'cb_timeframes' : 'cb-dashboard';
 
     add_submenu_page(
-        'cb_timeframes', // parent_menu_slug
+        $parent_page, // parent_menu_slug 
         item_usage_restriction\__( 'USAGE_RESTRICTION_PAGE_TITLE', 'commons-booking-item-usage-restriction', "Usage Restriction"), // page_title
         item_usage_restriction\__( 'USAGE_RESTRICTION_MENU_TITLE', 'commons-booking-item-usage-restriction', "Restriction"), // menu_title
         $capability, // capability
         self::PAGE, // menu_slug
         array($this, 'cb_item_usage_restriction_admin_page_handler') // handler method
         );
+  }
+
+  public function init_actions() {
+    if(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 2) {
+      add_action( 'pre_get_posts', ['CB2_Restriction_Service', 'filter_admin_restriction_item_filter_list'], 11);
+      add_action( 'pre_get_posts', ['CB2_Restriction_Service', 'filter_admin_restriction_list'], 11);
+    }
   }
 
   /**
@@ -39,7 +49,7 @@ class CB_Item_Usage_Restriction_Admin {
     //get settings
     $this->load_settings();
 
-    $settings_correct = $this->blocking_user &&
+    $settings_correct = (CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 1 && $this->blocking_user) || CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 2 &&
         strlen($this->email_message['restriction_1']['subject']) > 0 && strlen($this->email_message['restriction_1']['body']) > 0 &&
         strlen($this->email_message['restriction_2']['subject']) > 0 && strlen($this->email_message['restriction_2']['body']) > 0 &&
         strlen($this->email_message['edit_restriction']['subject']) > 0 && strlen($this->email_message['edit_restriction']['body']) &&
@@ -47,14 +57,27 @@ class CB_Item_Usage_Restriction_Admin {
 
     //incorrect settings lead to a warning (handled in template)
     if($settings_correct) {
+      $post_type = CB_Item_Usage_Restriction::get_cb_item_post_type();
 
       //get all items
       $item_posts_args = array(
         'numberposts' => -1,
-        'post_type'   => 'cb_items',
+        'post_type'   => $post_type,
         'orderby'    => 'post_title',
         'order' => 'ASC'
       );
+
+      $cat_id = get_option('cb_item_restriction_unmanaged_cb2_items_category', null);
+      if(isset($cat_id)) {
+        $item_posts_args['tax_query'] = [
+          [
+            'taxonomy' => 'cb_items_category',
+            'terms' => $cat_id,
+            'include_children' => false,
+            'operator' => 'NOT IN'
+          ]
+        ];
+      }
       $this->cb_items = get_posts( $item_posts_args );
 
       foreach ($this->cb_items as $cb_item) {
@@ -115,15 +138,71 @@ class CB_Item_Usage_Restriction_Admin {
   }
 
   /**
+   * check if location (timeframe) exists 
+   */
+  private function has_available_timeframe($date_start, $date_end, $item_id) {
+    switch(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION) {
+      case 1:
+        $cb_booking = new CB_Booking();
+        return $cb_booking->get_booking_location_id($date_start, $date_end, $item_id) != null;
+        break;
+    
+      case 2:
+        //var_dump([strtotime($date_start), strtotime($date_end), $item_id]);
+        //CB2 restrictions can be created/edited independently from timeframes?
+        return true;
+        break;
+    }
+    
+  }
+
+  private static function get_booking_user_id($booking) {
+    switch(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION) {
+      case 1:
+        return $booking->user_id;
+        break;
+    
+      case 2:
+        return (int)$booking->post_author; 
+        break;
+    }
+  }
+  
+  private static function get_booking_start_date($booking) {
+    switch(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION) {
+      case 1:
+        return strtotime($booking->date_start);
+        break;
+    
+      case 2:
+        return CB2_Restriction_Service::get_booking_start_date($booking); 
+        break;
+    }
+  }
+
+  //TODO: depcrecated - remove it's not used
+  /*
+  private static function get_booking_id($booking) {
+    switch(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION) {
+      case 1:
+        return $booking->id;
+        break;
+    
+      case 2:
+        return $booking->ID; 
+        break;
+    }
+  }
+  */
+
+  /**
   * updates an existing item usage restriction based on the given form input values
   **/
   function edit_restriction() {
     $validation_result = $this->validate_edit_restriction_form_input();
 
     if(count($validation_result['errors']) == 0) {
-
       //var_dump($validation_result);
-
       $item_restriction = $this->find_item_usage_restriction($validation_result['data']['item_id'], $validation_result['data']['created_by_user_id'], $validation_result['data']['created_at_timestamp']);
 
       if(isset($item_restriction)) {
@@ -136,10 +215,9 @@ class CB_Item_Usage_Restriction_Admin {
           return false;
         }
 
-        //check if location (timeframe) exists - actually can only fail when a restriction ist prolonged
-        $cb_booking = new CB_Booking();
-        $location_id = $cb_booking->get_booking_location_id($item_restriction['date_start'], $validation_result['data']['date_end'], $validation_result['data']['item_id']);
-        if(!$location_id) {
+        //can only fail when a restriction ist prolonged
+        $has_available_timeframe = $this->has_available_timeframe($item_restriction['date_start'], $validation_result['data']['date_end'], $validation_result['data']['item_id']);
+        if(!$has_available_timeframe) {
           $message = item_usage_restriction\__('NO_TIMEFRAME', 'commons-booking-item-usage-restriction', "There's no timeframe for the given period. You've to create one before you can set a restriction.");
           $class = 'notice notice-error';
           echo '<div id="message" class="' . $class .'"><p>' . $message . '</p></div>';
@@ -171,6 +249,11 @@ class CB_Item_Usage_Restriction_Admin {
             }
           }
 
+          $bookings_for_create_email = array();
+          $bookings_for_update_email = array();
+
+          //TODO: deprecated - remove, because it's not used - only prolonging is allowed
+          /*
           // check conflicting bookings for shortened total breakdown (parallel bookings can occur inside usage restriction - see commons-booking-admin-booking plugin)
           if($item_restriction['restriction_type'] == 1 && $new_end_date_timestamp < $old_end_date_timestamp) {
             if(cb_item_usage_restriction\is_plugin_active('commons-booking-admin-booking.php') && method_exists('CB_Admin_Booking_Admin', 'check_conflict_bookings_in_item_usage_restriction')) {
@@ -183,7 +266,7 @@ class CB_Item_Usage_Restriction_Admin {
 
               $filtered_conflict_bookings = [];
               foreach ($conflict_bookings as $conflict_booking) {
-                if($conflict_booking->id != $item_restriction['booking_id']) {
+                if(self::get_booking_id($conflict_booking) != $item_restriction['booking_id']) {
                   $filtered_conflict_bookings[] = $conflict_booking;
                 }
               }
@@ -202,8 +285,6 @@ class CB_Item_Usage_Restriction_Admin {
             }
 
           }
-
-          $bookings_for_update_email = array();
 
           //shortened restriction: if new end date < old end date & old end date >= today
           if($new_end_date_timestamp < $old_end_date_timestamp && $old_end_date_timestamp >= $today_timestamp) {
@@ -227,7 +308,7 @@ class CB_Item_Usage_Restriction_Admin {
             $informed_users = array();
 
             foreach ($bookings_for_delete_email as $booking) {
-              $user = get_user_by('id', $booking->user_id);
+              $user = get_user_by('id', self::get_booking_user_id($booking));
               if(!in_array($user, $informed_users)) {
                 array_push($informed_users, $user);
               }
@@ -237,19 +318,18 @@ class CB_Item_Usage_Restriction_Admin {
             $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], $item_restriction['restriction_type'], 'delete_restriction', $item_restriction['date_start'], $item_restriction['date_end'], $validation_result['data']['update_comment'], $this->get_hint_history($item_restriction));
 
           }
+          */
 
           //prolonged restriction not in the past: new end date > old end date & new end date >= today:
           if($new_end_date_timestamp > $old_end_date_timestamp && $new_end_date_timestamp >= $today_timestamp) {
 
             $date_start = $old_end_date_timestamp < $today_timestamp ? $today_datetime->format('Y-m-d') : $old_date_end;
             $unfiltered_bookings = $this->fetch_current_and_future_bookings($date_start, $validation_result['data']['date_end'], $item_restriction['item_id'], null, ['canceled', 'pending']);
-
             // update email to users with booking that has end date between old end date (or today, if it's in the past) and new restriction end date, but not start date
             // created restriction email to users with booking that starts between old (or today, if it's in the past) and new restriction end date
-            $bookings_for_create_email = array();
             $date_start_timestamp = strtotime($date_start);
             foreach($unfiltered_bookings as $booking) {
-              $booking_start_timestamp = strtotime($booking->date_start);
+              $booking_start_timestamp = $this->get_booking_start_date($booking);
               if($booking_start_timestamp > $date_start_timestamp && $booking_start_timestamp <= $new_end_date_timestamp) {
                 array_push($bookings_for_create_email, $booking);
               }
@@ -262,7 +342,7 @@ class CB_Item_Usage_Restriction_Admin {
             $informed_users = array();
 
             foreach ($bookings_for_create_email as $booking) {
-              $user = get_user_by('id', $booking->user_id);
+              $user = get_user_by('id', self::get_booking_user_id($booking));
               if(!in_array($user, $informed_users)) {
                 array_push($informed_users, $user);
               }
@@ -285,7 +365,7 @@ class CB_Item_Usage_Restriction_Admin {
           //if total breakdown
           if($item_restriction['restriction_type'] == 1) {
             //set new end date of blocking booking
-            $this->update_booking_date_end( $item_restriction['booking_id'], $validation_result['data']['date_end'] );
+            $this->update_blocking_booking_date_end( $item_restriction['booking_id'], $validation_result['data']['date_end'] );
 
             //prolonged total breakdown in the past: new end date > old end date & new end date < today:
             if($new_end_date_timestamp > $old_end_date_timestamp && $new_end_date_timestamp < $today_timestamp) {
@@ -293,23 +373,27 @@ class CB_Item_Usage_Restriction_Admin {
               //get affected bookings to mark them as blocked
               $bookings = self::fetch_bookings_in_period($item_restriction['date_start'], $item_restriction['date_end'], $item_restriction['item_id']);
 
-              foreach ($bookings as $booking) {
-                if($booking->user_id != get_option('cb_item_restriction_blocking_user_id')) {
-                  if(CB_Item_Usage_Restriction_Booking::has_booking_to_be_blocked($booking)) {
-                    CB_Item_Usage_Restriction_Booking::block_booking($booking, $item_restriction);
+              if(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 1) {
+                foreach ($bookings as $booking) {
+                  if(self::get_booking_user_id($booking) != get_option('cb_item_restriction_blocking_user_id')) {
+                    if(CB_Item_Usage_Restriction_Booking::has_booking_to_be_blocked($booking)) {
+                      CB_Item_Usage_Restriction_Booking::block_booking($booking, $item_restriction);
+                    }
                   }
                 }
               }
             }
 
-            //shortened total breakdown in the past: new end date < old end date & new end date < today:
-            if($new_end_date_timestamp < $old_end_date_timestamp && $new_end_date_timestamp < $today_timestamp) {
+            if(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 1) {
+              //shortened total breakdown in the past: new end date < old end date & new end date < today:
+              if($new_end_date_timestamp < $old_end_date_timestamp && $new_end_date_timestamp < $today_timestamp) {
 
-              //get affected blocked bookings to mark them as confirmed again
-              $bookings = self::fetch_bookings_in_period($item_restriction['date_end'], $old_date_end, $item_restriction['item_id'], 'blocked');
+                //get affected blocked bookings to mark them as confirmed again
+                $bookings = self::fetch_bookings_in_period($item_restriction['date_end'], $old_date_end, $item_restriction['item_id'], 'blocked');
 
-              foreach ($bookings as $booking) {
-                CB_Item_Usage_Restriction_Booking::block_booking($booking, $item_restriction, true, false);
+                foreach ($bookings as $booking) {
+                  CB_Item_Usage_Restriction_Booking::block_booking($booking, $item_restriction, true, false);
+                }
               }
             }
           }
@@ -318,15 +402,17 @@ class CB_Item_Usage_Restriction_Admin {
 
           //send update emails
           foreach ($bookings_for_update_email as $booking) {
-            $user = get_user_by('id', $booking->user_id);
+            $user = get_user_by('id', self::get_booking_user_id($booking));
             if(!in_array($user, $informed_users)) {
               array_push($informed_users, $user);
             }
           }
 
-          //ensure blocking user is informed even when blocking booking is in past or no blocking booking was created
-          if(($item_restriction['restriction_type'] == 1 && count($bookings_for_update_email) == 0) || $item_restriction['restriction_type'] == 2) {
-            array_push($informed_users, $this->blocking_user);
+          if(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 1) {
+            //ensure blocking user is informed even when blocking booking is in past or no blocking booking was created
+            if(($item_restriction['restriction_type'] == 1 && count($bookings_for_update_email) == 0) || $item_restriction['restriction_type'] == 2) {
+              array_push($informed_users, $this->blocking_user);
+            }
           }
 
           // update email to partners, etc.
@@ -337,7 +423,6 @@ class CB_Item_Usage_Restriction_Admin {
           $coordinators = $this->get_coordinators($item_restriction['item_id']);
 
           $email_recipients = array_merge($informed_users, $responsible_users, $additional_email_recipients, $coordinators);
-
           $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], $item_restriction['restriction_type'], 'edit_restriction', $item_restriction['date_start'], $validation_result['data']['date_end'], $validation_result['data']['update_comment'], $this->get_hint_history($item_restriction));
 
           //show message on admin page
@@ -381,6 +466,10 @@ class CB_Item_Usage_Restriction_Admin {
         $item_restriction = CB_Item_Usage_Restriction::adjust_restriction_hint($item_restriction, $validation_result['data']['restriction_hint']);
         CB_Item_Usage_Restriction::update_item_restriction($item_restriction['item_id'], $item_restriction);
 
+        if(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 2) {
+          CB2_Restriction_Service::update_restriction_hint($item_restriction['booking_id'], $validation_result['data']['restriction_hint']);
+        }
+
         //show message on admin page
         $message = item_usage_restriction\__('RESTRICTION_REVISED', 'commons-booking-item-usage-restriction', 'The restriction was revised successfully.');
         $class = 'notice notice-success';
@@ -418,27 +507,35 @@ class CB_Item_Usage_Restriction_Admin {
         $today_datetime->setTime( 0, 0, 0 );
         $today_timestamp = $today_datetime->getTimestamp();
 
-        if($item_restriction['restriction_type'] == 1) {
+        if(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 1) {
+          if($item_restriction['restriction_type'] == 1) {
+            if($date_end_timestamp < $today_timestamp) {
 
-          if($date_end_timestamp < $today_timestamp) {
+              //get blocked bookings to mark them as confirmed again
+              $bookings = self::fetch_bookings_in_period($item_restriction['date_start'], $item_restriction['date_end'], $item_restriction['item_id'], 'blocked');
 
-            //get blocked bookings to mark them as confirmed again
-            $bookings = self::fetch_bookings_in_period($item_restriction['date_start'], $item_restriction['date_end'], $item_restriction['item_id'], 'blocked');
+              foreach ($bookings as $booking) {
+                  CB_Item_Usage_Restriction_Booking::block_booking($booking, $item_restriction, true);
+              }
 
-            foreach ($bookings as $booking) {
-                CB_Item_Usage_Restriction_Booking::block_booking($booking, $item_restriction, true);
             }
-
           }
         }
 
         //delete booking if there is one
         //var_dump($item_restriction['booking_id']);
         if($item_restriction['booking_id']) {
-          global $wpdb;
+          switch(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION) {
+            case 1:
+              global $wpdb;
 
-          $table_name = $wpdb->prefix . 'cb_bookings';
-          $wpdb->query("DELETE FROM $table_name WHERE id =" . $item_restriction['booking_id']);
+              $table_name = $wpdb->prefix . 'cb_bookings';
+              $wpdb->query("DELETE FROM $table_name WHERE id =" . $item_restriction['booking_id']);
+              break;
+            case 2:
+              CB2_Restriction_Service::delete($item_restriction['booking_id']);
+              break;
+          }
         }
 
         //send email to users that have booking in restriction period that lays ahead
@@ -446,7 +543,7 @@ class CB_Item_Usage_Restriction_Admin {
         //var_dump($bookings);
         $email_recipients = array($this->blocking_user);
         foreach ($bookings as $booking) {
-          $user = get_user_by('id', $booking->user_id);
+          $user = get_user_by('id', self::get_booking_user_id($booking));
           if(!in_array($user, $email_recipients)) {
             array_push($email_recipients, $user);
           }
@@ -749,10 +846,9 @@ class CB_Item_Usage_Restriction_Admin {
       return false;
     }
 
-    //check if location (timeframe) exists
-    $cb_booking = new CB_Booking();
-    $location_id = $cb_booking->get_booking_location_id($data['date_start'], $data['date_end'], $data['item_id']);
-    if(!$location_id) {
+    //check if timeframe exists
+    $has_available_timeframe = $this->has_available_timeframe($data['date_start'], $data['date_end'], $data['item_id']);
+    if(!$has_available_timeframe) {
       $message = item_usage_restriction\__('NO_TIMEFRAME', 'commons-booking-item-usage-restriction', "There's no timeframe for the given period. You've to create one before you can set a restriction.");
       $class = 'notice notice-error';
       echo '<div id="message" class="' . $class .'"><p>' . $message . '</p></div>';
@@ -760,55 +856,75 @@ class CB_Item_Usage_Restriction_Admin {
     }
 
     $booking_needed = false;
+    $booking_id = null;
     $informed_users = array();
 
     // if total breakdown
     if($data['restriction_type'] == 1) {
-      //breakdown in the past: new end date > old end date & new end date < today
-      $date_end_timestamp = strtotime($data['date_end']);
 
-      $today_datetime = new DateTime();
-      $today_datetime->setTime( 0, 0, 0 );
-      $today_timestamp = $today_datetime->getTimestamp();
-      if($date_end_timestamp < $today_timestamp) {
+      if(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 1) {
+        //breakdown in the past: new end date > old end date & new end date < today
+        
+        $date_end_timestamp = strtotime($data['date_end']);
 
-        //get affected bookings to mark them as blocked
-        $bookings = self::fetch_bookings_in_period($data['date_start'], $data['date_end'], $data['item_id']);
+        $today_datetime = new DateTime();
+        $today_datetime->setTime( 0, 0, 0 );
+        $today_timestamp = $today_datetime->getTimestamp();
+        if($date_end_timestamp < $today_timestamp) {
 
-        foreach ($bookings as $booking) {
-          if(CB_Item_Usage_Restriction_Booking::has_booking_to_be_blocked($booking)) {
-            CB_Item_Usage_Restriction_Booking::block_booking($booking, $data);
+          //get affected bookings to mark them as blocked
+          $bookings = self::fetch_bookings_in_period($data['date_start'], $data['date_end'], $data['item_id']);
+
+          foreach ($bookings as $booking) {
+            if(CB_Item_Usage_Restriction_Booking::has_booking_to_be_blocked($booking)) {
+              CB_Item_Usage_Restriction_Booking::block_booking($booking, $data);
+            }
           }
         }
-
       }
 
-      //create booking to block period of restriction
+      //create booking / CB2 restriction to block period of restriction
       $booking_needed = true;
-      $booking_id = $this->create_booking($data['date_start'], $data['date_end'], $data['item_id'], $this->blocking_user->ID, 'confirmed');
+      switch(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION) {
+        case 1:
+          $booking_id = $this->create_cb1_booking($data['date_start'], $data['date_end'], $data['item_id'], $this->blocking_user->ID, 'confirmed');
+          break;
+        case 2:
+          require_once( CB_ITEM_USAGE_RESTRICTION_PATH . 'classes/class-cb-item-usage-restriction.php' );
+          $booking_id = CB2_Restriction_Service::create($data['item_id'], $data['date_start'], $data['date_end'], $data['restriction_type'], $data['restriction_hint']);
+          break;
+      }
 
     }
     else {
-      array_push($informed_users, $this->blocking_user);
-
+      if(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 1) {
+        array_push($informed_users, $this->blocking_user);
+      }
+      
+      if(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 2) {
+        $booking_id = CB2_Restriction_Service::create($data['item_id'], $data['date_start'], $data['date_end'], $data['restriction_type'], $data['restriction_hint']);
+      }
     }
 
     //create item restriction and send emails
     if(!$booking_needed || ($booking_needed && $booking_id)) {
+      $data['booking_id'] = $booking_id;
 
       //get bookings in given period and add users to list of user that have to be informed: only users with bookings that end today or in the future have to be informed
       $bookings = $this->fetch_current_and_future_bookings($data['date_start'], $data['date_end'], $data['item_id'], null, ['canceled', 'pending']);
 
       foreach ($bookings as $booking) {
-        $user = get_user_by('id', $booking->user_id);
+        $user = get_user_by('id', self::get_booking_user_id($booking));
         if(!in_array($user, $informed_users)) {
           array_push($informed_users, $user);
         }
       }
 
-      //ensure blocking user is informed even when blocking booking is in past
-      if($booking_needed && count($bookings) == 0) {
-        array_push($informed_users, $this->blocking_user);
+      if(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 1) {
+        //ensure blocking user is informed even when blocking booking is in past
+        if($booking_needed && count($bookings) == 0) {
+          array_push($informed_users, $this->blocking_user);
+        }
       }
 
       $responsible_users = $this->consider_responsible_users ? $this->find_responsible_users_by_item_and_location($data['item_id']) : array();
@@ -816,13 +932,10 @@ class CB_Item_Usage_Restriction_Admin {
       //get email adresses for additional notifications (comma seperated list)
       $additional_email_recipients = $data['additional_emails'];
 
-      $data['booking_id'] = $booking_needed ? $booking_id : null;
       $coordinators = $this->get_coordinators($data['item_id']);
-
+      
       CB_Item_Usage_Restriction::add_item_restriction($data, $informed_users, $additional_email_recipients, $responsible_users, $coordinators);
-
       $email_recipients = array_merge($informed_users, $responsible_users, $additional_email_recipients, $coordinators);
-
       $this->send_mail_by_reason_to_recipients($email_recipients, $data['item_id'], $data['restriction_type'], 'restriction_' . $data['restriction_type'], $data['date_start'], $data['date_end'], $data['restriction_hint']);
 
       $message = item_usage_restriction\__('RESTRICTION_CREATED', 'commons-booking-item-usage-restriction', 'The restriction was created successfully.');
@@ -923,7 +1036,7 @@ class CB_Item_Usage_Restriction_Admin {
   /**
   * create a booking with given properties
   */
-  function create_booking($date_start, $date_end, $item_id, $user_id, $status) {
+  function create_cb1_booking($date_start, $date_end, $item_id, $user_id, $status) {
 
     $cb_booking = new CB_Booking();
 
@@ -951,19 +1064,24 @@ class CB_Item_Usage_Restriction_Admin {
   /**
   * updates the end date of the booking with given id
   **/
-  private function update_booking_date_end( $booking_id, $date_end ) {
-
-      global $wpdb;
-      $table_bookings = $wpdb->prefix . 'cb_bookings';
-
-      $wpdb->query(
-          "
-          UPDATE $table_bookings
-          SET date_end = '" . $date_end . "'
-          WHERE id = $booking_id
-          "
-      );
-
+  private function update_blocking_booking_date_end( $booking_id, $date_end ) {
+    switch(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION) {
+      case 1:
+        global $wpdb;
+        $table_bookings = $wpdb->prefix . 'cb_bookings';
+  
+        $wpdb->query(
+            "
+            UPDATE $table_bookings
+            SET date_end = '" . $date_end . "'
+            WHERE id = $booking_id
+            "
+        );
+        break;
+      case 2:
+        CB2_Restriction_Service::update_restriction_end_date($booking_id, $date_end);
+        break;
+    }
   }
 
   /**
@@ -1025,16 +1143,95 @@ class CB_Item_Usage_Restriction_Admin {
       $date_start = $date_start_timestamp >= $today_timestamp ? $date_start : $today_datetime->format('Y-m-d');
 
       $bookings = self::fetch_bookings_in_period($date_start, $date_end, $item_id, $status, $not_status);
-
     }
 
     return $bookings;
   }
 
+  static function fetch_bookings_in_period($date_start, $date_end, $item_id, $status = null, $not_status = null) {
+    switch(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION) {
+      case 1:
+        return self::fetch_cb1_bookings_in_period($date_start, $date_end, $item_id, $status, $not_status);
+        break;
+      
+      case 2:
+        return self::fetch_cb2_bookings_in_period($date_start, $date_end, $item_id, $status, $not_status);
+        break;
+    }
+  }
+
+  static function fetch_cb2_bookings_in_period($date_start, $date_end, $item_id, $status = null, $not_status = null) {
+    $date_start_timestamp = strtotime($date_start);
+    $date_end_timestamp = strtotime($date_end) + 24 * 60 * 60 - 1;
+
+    $args = [
+      'post_type' => CB2_CustomPostType\Booking::getPostType(),
+      'post_status' => 'any',
+      'meta_query'  => [
+        'relation' => 'AND',
+        [
+          'key'     => \CommonsBooking\Model\Timeframe::META_ITEM_ID,
+          'value'   => $item_id,
+          'compare' => '=',
+        ],
+        [
+          'relation' => 'OR',
+          [
+            'key'     => \CommonsBooking\Model\Timeframe::REPETITION_START,
+            'value'   => [$date_start_timestamp, $date_end_timestamp],
+            'compare' => 'BETWEEN',
+            'type'    => 'numeric',
+          ],
+          [
+            'key'     => \CommonsBooking\Model\Timeframe::REPETITION_END,
+            'value'   => [$date_start_timestamp, $date_end_timestamp],
+            'compare' => 'BETWEEN',
+            'type'    => 'numeric',
+          ],
+          [
+            'relation' => 'AND',
+            [
+              'key'     => \CommonsBooking\Model\Timeframe::REPETITION_START,
+              'value'   => $date_start_timestamp,
+              'compare' => '<',
+              'type'    => 'numeric',
+            ],
+            [
+              'key'     => \CommonsBooking\Model\Timeframe::REPETITION_END,
+              'value'   => $date_end_timestamp,
+              'compare' => '>',
+              'type'    => 'numeric',
+            ]
+          ]
+        ]
+      ]
+    ];
+
+    //filter by status
+    if(is_array($status) && count($status) > 0) {
+      $args['post_status'] = $status;
+    }
+
+    //filter by not-status
+    if(is_array($not_status) && count($not_status) > 0) {
+      $available_statuses = get_available_post_statuses( CB_Item_Usage_Restriction::get_cb_item_post_type());
+      $available_statuses = array_diff($available_statuses, $not_status);
+      $args['post_status'] = $available_statuses;
+    }
+    
+    $query = new \WP_Query( $args );
+    if ( $query->have_posts() ) {
+      return $query->get_posts();
+    }
+    else {
+      return [];
+    }
+  }
+
   /**
   * fetches bookings in period determined by start and end date from db for given item
   */
-  static function fetch_bookings_in_period($date_start, $date_end, $item_id, $status = null, $not_status = null) {
+  static function fetch_cb1_bookings_in_period($date_start, $date_end, $item_id, $status = null, $not_status = null) {
     global $wpdb;
 
     //get bookings data
@@ -1068,7 +1265,7 @@ class CB_Item_Usage_Restriction_Admin {
     $hint_history = $restriction['created_at']->format('d.m.Y') . ': ' . $restriction['restriction_hint'];
     $skip_count = $skip_last_hint ? 1 : 0;
 
-    if(is_array($restriction['updates'])) {
+    if(isset($restriction['updates']) && is_array($restriction['updates'])) {
       foreach ($restriction['updates'] as $key => $update) {
         if($key < count($restriction['updates']) - $skip_count) {
           $hint_history .= $line_break . $update['created_at']->format('d.m.Y') . ': ' . $update['update_hint'];
@@ -1085,7 +1282,6 @@ class CB_Item_Usage_Restriction_Admin {
   * sends an email to the given recipients
   **/
   function send_mail_by_reason_to_recipients($email_recipients, $item_id, $restriction_type, $reason, $date_start, $date_end, $hint = '', $hint_history = '' ) {
-
     if($this->mails_enabled) {
       foreach ($email_recipients as $email_recipient) {
         $user_data = array();
@@ -1105,14 +1301,12 @@ class CB_Item_Usage_Restriction_Admin {
         $this->send_mail_by_reason($item_id, $restriction_type, $reason, $date_start, $date_end, $user_data, $hint, $hint_history);
       }
     }
-
   }
 
   /**
   * sends an email to a recipient with given user data
   **/
   function send_mail_by_reason($item_id, $restriction_type, $reason, $date_start, $date_end, $user_data, $hint = '', $hint_history) {
-
     $item = get_post($item_id);
 
     $subject_template = $this->email_message[$reason]['subject'];
@@ -1171,11 +1365,19 @@ class CB_Item_Usage_Restriction_Admin {
   **/
   function send_mail($to, $subject_template, $body_template, $mail_vars) {
 
-    $cb_booking = new CB_Booking();
-
-    $sender_from_email = $cb_booking->settings->get_settings( 'mail', 'mail_from');
-    $sender_from_name = $cb_booking->settings->get_settings( 'mail', 'mail_from_name');
-    $confirmation_bcc = $cb_booking->settings->get_settings( 'mail', 'mail_bcc');
+    switch(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION) {
+      case 1:
+        $cb_booking = new CB_Booking();
+        $sender_from_email = $cb_booking->settings->get_settings( 'mail', 'mail_from');
+        $sender_from_name = $cb_booking->settings->get_settings( 'mail', 'mail_from_name');
+        $confirmation_bcc = $cb_booking->settings->get_settings( 'mail', 'mail_bcc');
+        break;
+      case 2:
+        $sender_from_email = sanitize_email( CommonsBooking\Settings\Settings::getOption( 'commonsbooking_options_templates', 'emailheaders_from-email' ));
+        $sender_from_name = CommonsBooking\Settings\Settings::getOption( 'commonsbooking_options_templates', 'emailheaders_from-name', 'sanitize_text_field' );
+        $confirmation_bcc = ''; //there is no common bcc mail setting in CB2
+        break;
+    }
 
     // if custom email adress AND name is specified in settings use them, otherwise fall back to standard
     if ( ! empty ( $sender_from_name ) && ! empty ( $sender_from_email )) {

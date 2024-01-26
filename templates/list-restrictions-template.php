@@ -50,7 +50,7 @@
               <a style="color: #444;" href="<?= get_edit_user_link( $item_restriction['created_by_user_id'] ) ?>"><?= $created_by_user->first_name . ' ' . $created_by_user->last_name ?></a>
             </td>
             <td style="padding: 5px;"><?= date_i18n( get_option( 'date_format' ), $item_restriction['created_at']->getTimestamp()) ?>
-              <?php if ($item_restriction['restriction_type'] == 1) : ?>
+              <?php if (CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 1 && $item_restriction['restriction_type'] == 1 || CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 2) : ?>
                 <span style="cursor: help;" class="dashicons dashicons-editor-help" title="<?= item_usage_restriction\__( 'BLOCK_BY_BOOKING', 'commons-booking-item-usage-restriction', 'blocked by booking') . ': ' . $item_restriction['booking_id'] ?>"></span>
               <?php endif; ?>
             </td>
