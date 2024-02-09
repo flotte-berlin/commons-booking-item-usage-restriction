@@ -27,7 +27,7 @@ class CB_Bookings_Gantt_Chart_Shortcode {
 
       if($date_start <= $date_end) {
 
-        if(get_post_type($item_id) == 'cb_items') {
+        if(get_post_type($item_id) == CB_Item_Usage_Restriction::get_cb_item_post_type()) {
           //$item = $items[0];
 
           return [
@@ -114,60 +114,90 @@ class CB_Bookings_Gantt_Chart_Shortcode {
     return $nonces;
   }
 
+  private static function is_blocking_booking($booking, $blocking_user_id) {
+    switch(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION) {
+      case 1:
+          return $booking->user_id == $blocking_user_id;
+        break;
+      case 2:
+          return $booking->post_type == \CommonsBooking\Wordpress\CustomPostType\Restriction::getPostType();
+        break;
+    }
+  }
+
+  public static function group_bookings($bookings, $blocking_user_id) {
+    switch(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION) {
+      case 1:
+        $status = 'status';
+        $user_id = 'user_id';
+        break;
+      case 2:
+        $status = 'post_status';
+        $user_id = 'post_author';
+        break;
+    }
+
+    $grouped_bookings = [
+      'location' => [],
+      'blocking' => [],
+      'confirmed' => [],
+      'aborted' => [],
+      'overbooking' => [],
+      'blocked' => [],
+      'canceled' => []
+    ];
+
+    foreach ($bookings as $booking) {
+      if(self::is_blocking_booking($booking, $blocking_user_id)) {
+        $grouped_bookings['blocking'][] = $booking;
+      }
+      else {
+        if($booking->$status == 'confirmed') {
+          $grouped_bookings['confirmed'][] = $booking;
+        }
+
+        if($booking->$status == 'canceled') {
+
+          if(CB_Item_Usage_Restriction_Booking::is_booking_canceled_after_start($booking)) {
+            $grouped_bookings['aborted'][] = $booking;
+          }
+          else {
+            $grouped_bookings['canceled'][] = $booking;
+          }
+        }
+
+        if($booking->$status == 'blocked') {
+          $grouped_bookings['blocked'][] = $booking;
+        }
+      }
+    }
+
+    return $grouped_bookings;
+  }
+
   /**
   * return the booking data
   **/
   public static function get_bookings_data() {
+    //error_reporting(E_ALL);
+    //ini_set( 'display_errors', 1 );
+
     $validated_input = self::validate_input_with_nonce($_POST);
 
     if($validated_input) {
-      //error_reporting(E_ALL);
-
+      $blocking_user_id = get_option('cb_item_restriction_blocking_user_id', null);
       $bookings = CB_Item_Usage_Restriction_Admin::fetch_bookings_in_period($validated_input['date_start']->format('Y-m-d'), $validated_input['date_end']->format('Y-m-d'), $validated_input['item_id']);
 
-      $blocking_user_id = get_option('cb_item_restriction_blocking_user_id', null);
-
-      //prepare chart data from bookings
-      $grouped_bookings = [
-        'location' => [],
-        'blocking' => [],
-        'confirmed' => [],
-        'aborted' => [],
-        'overbooking' => [],
-        'blocked' => [],
-        'canceled' => []
-      ];
-
-      foreach ($bookings as $booking) {
-        if($booking->user_id == $blocking_user_id) {
-          $grouped_bookings['blocking'][] = $booking;
-        }
-        else {
-          if($booking->status == 'confirmed') {
-            $grouped_bookings['confirmed'][] = $booking;
-          }
-
-          if($booking->status == 'canceled') {
-
-            if(CB_Item_Usage_Restriction_Booking::is_booking_canceled_after_start($booking)) {
-              $grouped_bookings['aborted'][] = $booking;
-            }
-            else {
-              $grouped_bookings['canceled'][] = $booking;
-            }
-          }
-
-          if($booking->status == 'blocked') {
-            $grouped_bookings['blocked'][] = $booking;
-          }
-        }
+      if(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 2) {
+        $restrictions = CB2_Restriction_Service::fetch_restrictions_in_period($validated_input['date_start']->format('Y-m-d'), $validated_input['date_end']->format('Y-m-d'), $validated_input['item_id']);
+        $bookings = array_merge($bookings, $restrictions);
       }
+      
+      //prepare chart data from bookings
+      $grouped_bookings = self::group_bookings($bookings, $blocking_user_id);
 
       if(count($grouped_bookings['blocking']) > 0) {
         foreach ($grouped_bookings['confirmed'] as $key => $booking) {
-          $blocking_booking_time = new DateTime($grouped_bookings['blocking'][0]->booking_time);
-          $booking_time = new DateTime($booking->booking_time);
-
           if($booking->usage_during_restriction) {
             $grouped_bookings['overbooking'][] = $booking;
             unset($grouped_bookings['confirmed'][$key]);
@@ -289,9 +319,11 @@ class CB_Bookings_Gantt_Chart_Shortcode {
   }
 
   private static function prepare_locations_data($location_days) {
-    $cb_data = new CB_Data();
-    $locations = [];
+    if(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 1) {
+      $cb_data = new CB_Data();
+    }
 
+    $locations = [];
     $locations_data = [];
 
     $roles = [
@@ -302,7 +334,14 @@ class CB_Bookings_Gantt_Chart_Shortcode {
 
     foreach($location_days as $date => $day) {
       if(isset($day['location_id']) && !isset($locations[$day['location_id']])) {
-        $locations[$day['location_id']] = $cb_data->get_location($day['location_id']);
+        switch(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION) {
+          case 1:
+            $locations[$day['location_id']] = $cb_data->get_location($day['location_id']);
+            break;
+          case 2:
+            $locations[$day['location_id']] = CB2_Restriction_Service::get_location_array($day['location_id']);
+            break;
+        }
       }
 
       $locations_data[] = [
@@ -326,23 +365,48 @@ class CB_Bookings_Gantt_Chart_Shortcode {
     $bookings_data = [];
 
     foreach($bookings as $booking) {
-      $user = get_user_by('id', $booking->user_id);
+      //var_dump($booking);
+      switch(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION) {
+        case 1:
+          $user = get_user_by('id', $booking->user_id);
+          $booking_date_start = $booking->date_start;
+          $booking_date_end = $booking->date_end;
+          break;
+        case 2:
+          $user = get_user_by('id', $booking->post_author);
+          $date_start_property = $booking->post_type == \CommonsBooking\Wordpress\CustomPostType\Restriction::getPostType() ? \CommonsBooking\Model\Restriction::META_START : \CommonsBooking\Model\Timeframe::REPETITION_START;
+          $date_end_property = $booking->post_type == \CommonsBooking\Wordpress\CustomPostType\Restriction::getPostType() ? \CommonsBooking\Model\Restriction::META_END : \CommonsBooking\Model\Timeframe::REPETITION_END;
+          $booking_date_start = date('Y-m-d', get_post_meta($booking->ID, $date_start_property, true));
+          $booking_date_end = date('Y-m-d', get_post_meta($booking->ID, $date_end_property, true));
+      }
+
+      switch(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION) {
+        case 1:
+          $item_id = $booking->item_id;
+          $booking_id = $booking->id;
+          break;
+        case 2:
+          $item_id = get_post_meta($booking->ID, \CommonsBooking\Model\Timeframe::META_ITEM_ID, true);
+          $booking_id = $booking->ID;
+      }
 
       if($get_restriction) {
-        $restriction = CB_Item_Usage_Restriction::get_item_restriction_by_blocking_booking_id($booking->item_id, $booking->id);
+        $restriction = CB_Item_Usage_Restriction::get_item_restriction_by_blocking_booking_id($item_id, $booking_id);
 
-        $restriction_hint = $restriction['restriction_hint'];
+        if(isset($restriction)) {
+          $restriction_hint = $restriction['restriction_hint'];
+        }
       }
 
       $bookings_data[] = [
-        'id' => $booking->id,
-        'date_start' => $booking->date_start . ' 00:00:00',
-        'date_end' => $booking->date_end . ' 23:59:59',
+        'id' => (string) $booking_id,
+        'date_start' => $booking_date_start . ' 00:00:00',
+        'date_end' => $booking_date_end . ' 23:59:59',
         'type' => $booking_type,
         'comment' => isset($restriction_hint) ? $restriction_hint : $booking->comment,
         'user' => [
-          'name' => $user->first_name . ' ' . substr($user->last_name, 0, 1) . '.',
-          'role' => $user->roles[0]
+          'name' => !empty($user) ? $user->first_name . ' ' . substr($user->last_name, 0, 1) . '.' : 'unbekannt',
+          'role' => !empty($user) ? $user->roles[0] : 'unbekannt'
         ]
       ];
     }

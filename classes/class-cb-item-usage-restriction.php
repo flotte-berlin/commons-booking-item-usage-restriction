@@ -172,7 +172,14 @@ class CB_Item_Usage_Restriction {
           $method = new ReflectionMethod('\CommonsBooking\View\Calendar', 'getClosestBookableTimeFrameForToday');
           $method->setAccessible(true);
           $closestBookableTimeframe = $method->invoke(null, $bookableTimeframes);
-          $days_to_show = intval( $closestBookableTimeframe->getFieldValue( 'timeframe-advance-booking-days' ));
+
+          if(!empty($closestBookableTimeframe)) {
+            $days_to_show = intval( $closestBookableTimeframe->getFieldValue( 'timeframe-advance-booking-days' ));
+          }
+          else {
+            $days_to_show = 0;
+          }
+          
           break;
       }
 

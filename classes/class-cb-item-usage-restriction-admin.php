@@ -1167,6 +1167,7 @@ class CB_Item_Usage_Restriction_Admin {
     $args = [
       'post_type' => CB2_CustomPostType\Booking::getPostType(),
       'post_status' => 'any',
+      'posts_per_page' => -1,
       'meta_query'  => [
         'relation' => 'AND',
         [

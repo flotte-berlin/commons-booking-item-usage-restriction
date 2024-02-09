@@ -20,12 +20,12 @@ class CB2_Restriction_Service {
 	 *
 	 * @return int
      */
-    public static function create($item_id, $date_start, $date_end, $type, $hint = ''): int {
+    public static function create($item_id, $date_start, $date_end, $type, $hint = '', $title = ''): int {
         //blocker user
         $user_id = get_option('cb_item_restriction_blocking_user_id', null);
 
 		$post_data = [
-			'post_title'  => 'Item Usage Restriction', // add more information about usage restriction
+			'post_title'  => empty($title) ? 'Item Usage Restriction' : $title, // add more information about usage restriction
 			'post_type'   => \CommonsBooking\Wordpress\CustomPostType\Restriction::$postType,
 			'post_name'   => \CommonsBooking\Helper\Helper::generateRandomString(),
 			'post_status' => 'publish',
@@ -228,5 +228,81 @@ class CB2_Restriction_Service {
 		$items = $query->get_posts();
 
 		return $items;
+	}
+
+	public static function get_location_array($post_id) {
+		$location = [
+			'name' => get_the_title( $post_id ),
+		];
+
+		return $location;
+	}
+
+	public static function get_regular_closed_weekdays($timeframe_id) {
+		$closed_days = [];
+
+		$timeframe_repitition = get_post_meta($timeframe_id, \CommonsBooking\Model\Timeframe::META_REPETITION, true);
+		if($timeframe_repitition === 'w') {
+			$weekdays = get_post_meta($timeframe_id, 'weekdays', true);
+
+			//TODO: convert weekdays in CB1 closed_days
+			$closed_days = [1, 2, 3, 4, 5, 6, 7 ];
+			$closed_days = array_values(array_diff($closed_days, $weekdays));
+		}
+
+		return $closed_days;
+	}
+
+	static function fetch_restrictions_in_period($date_start, $date_end, $item_id) {
+		$date_start_timestamp = strtotime($date_start);
+		$date_end_timestamp = strtotime($date_end) + 24 * 60 * 60 - 1;
+	
+		$args = [
+		  'post_type' => \CommonsBooking\Wordpress\CustomPostType\Restriction::getPostType(),
+		  'post_status' => 'publish',
+		  'posts_per_page' => -1,
+		  'meta_query'  => [
+			'relation' => 'AND',
+			[
+			  'key'     => Restriction::META_ITEM_ID,
+			  'value'   => $item_id,
+			  'compare' => '=',
+			  'type'    => 'numeric',
+			],
+			[
+				'key'     => Restriction::META_STATE,
+				'value'   => Restriction::STATE_ACTIVE,
+				'compare' => '=',
+			],
+			[
+				'key'     => Restriction::META_TYPE,
+				'value'   => Restriction::TYPE_REPAIR,
+				'compare' => '=',
+			],
+			[
+			  'relation' => 'OR',
+			  [
+				'key'     => Restriction::META_START,
+				'value'   => [$date_start_timestamp, $date_end_timestamp],
+				'compare' => 'BETWEEN',
+				'type'    => 'numeric',
+			  ],
+			  [
+				'key'     => Restriction::META_END,
+				'value'   => [$date_start_timestamp, $date_end_timestamp],
+				'compare' => 'BETWEEN',
+				'type'    => 'numeric',
+			  ]
+			]
+		  ]
+		];
+		
+		$query = new \WP_Query( $args );
+		if ( $query->have_posts() ) {
+		  return $query->get_posts();
+		}
+		else {
+		  return [];
+		}
 	}
 }
