@@ -67,17 +67,18 @@ class CB_Item_Usage_Restriction_Admin {
         'order' => 'ASC'
       );
 
-      $cat_id = get_option('cb_item_restriction_unmanaged_cb2_items_category', null);
-      if(isset($cat_id)) {
+      $cat_ids = get_option('cb_item_restriction_unmanaged_cb2_items_categories', []);
+      if(count($cat_ids) > 0) {
         $item_posts_args['tax_query'] = [
           [
             'taxonomy' => 'cb_items_category',
-            'terms' => $cat_id,
+            'terms' => $cat_ids,
             'include_children' => false,
             'operator' => 'NOT IN'
           ]
         ];
       }
+
       $this->cb_items = get_posts( $item_posts_args );
 
       foreach ($this->cb_items as $cb_item) {

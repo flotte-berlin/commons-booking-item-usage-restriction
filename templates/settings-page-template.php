@@ -220,14 +220,22 @@
         <tr>
           <th><?= item_usage_restriction\__('UNMANAGED_ITEMS_CATEGORY', 'commons-booking-item-usage-restriction', 'items of the category') ?></th>
           <td>
-            <?php wp_dropdown_categories([
+            <?php 
+            $dropdown = wp_dropdown_categories([
               'taxonomy' => 'cb_items_category',
               'hierarchical' => true,
               'hide_empty' => 0,
-              'name' => 'cb_item_restriction_unmanaged_cb2_items_category',
-              'selected' => esc_attr( get_option('cb_item_restriction_unmanaged_cb2_items_category') ),
-              'show_option_none' => item_usage_restriction\__('UNMANAGED_ITEMS_CATEGORY_NONE_OPTION', 'commons-booking-item-usage-restriction', '- no category -')
-            ]); ?>
+              'name' => 'cb_item_restriction_unmanaged_cb2_items_categories[]',
+              'show_option_none' => item_usage_restriction\__('UNMANAGED_ITEMS_CATEGORY_NONE_OPTION', 'commons-booking-item-usage-restriction', '- no category -'),
+              'echo' => false
+            ]);
+
+            $dropdown = str_replace( '<select', '<select multiple size="10"', $dropdown );
+            foreach(get_option('cb_item_restriction_unmanaged_cb2_items_categories', []) as $option) {
+              $dropdown= str_replace( ' value="' . $option . '"', ' value="' . $option . '" selected="selected"', $dropdown );
+            }
+            echo $dropdown;
+            ?>
           </td>
         </tr>
       </table>

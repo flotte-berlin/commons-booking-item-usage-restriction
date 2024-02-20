@@ -6,7 +6,7 @@ use \CommonsBooking\Model\Booking;
 class CB2_Restriction_Service {
 
 	//it's needed to identify a certain query for items and prevent endless loop with memory exaustion
-	static $get_items_by_cat_query_id = 'd23deb79-819d-4330-a43a-5b51ef47daa6';
+	static $get_items_by_cats_query_id = 'd23deb79-819d-4330-a43a-5b51ef47daa6';
 
     /**
      * create a CB2 restriction
@@ -147,18 +147,17 @@ class CB2_Restriction_Service {
 				if(
 					$query->query['post_type'] == CommonsBooking\Wordpress\CustomPostType\Item::$postType &&
 					(empty($query->query_vars['meta_query']) || 
-					$query->query_vars['meta_query'][0]['key'] !== self::$get_items_by_cat_query_id) //don't use it for the item query by cat
+					$query->query_vars['meta_query'][0]['key'] !== self::$get_items_by_cats_query_id) //don't use it for the item query by cat
 				) {
 	
 					//get all items of filter category
-					$cat_id = get_option('cb_item_restriction_unmanaged_cb2_items_category', null);
-					if(isset($cat_id)) {
-						$no_iur_items = self::get_items_by_cat($cat_id);
+					$cat_ids = get_option('cb_item_restriction_unmanaged_cb2_items_categories', []);
+					if(count($cat_ids) > 0) {
+						$no_iur_items = self::get_items_by_cats($cat_ids);
 						$no_iur_item_ids = [];
 						foreach($no_iur_items as $no_iur_item) {
 							$no_iur_item_ids[] = $no_iur_item->ID;
 						}
-						
 						$query->query_vars['post__in'] = $no_iur_item_ids;
 					}
 					
@@ -185,9 +184,10 @@ class CB2_Restriction_Service {
 			// add filter for non admins
 			if ( !commonsbooking_isCurrentUserAdmin() ) {
 				//get all items of filter category
-				$cat_id = get_option('cb_item_restriction_unmanaged_cb2_items_category', null);
-				if(isset($cat_id)) {
-					$no_iur_items = self::get_items_by_cat($cat_id);
+				$cat_ids = get_option('cb_item_restriction_unmanaged_cb2_items_categories', []);
+				var_dump($cat_ids);
+				if(count($cat_ids) > 0) {
+					$no_iur_items = self::get_items_by_cats($cat_ids);
 					$no_iur_item_ids = [];
 					foreach($no_iur_items as $no_iur_item) {
 						$no_iur_item_ids[] = $no_iur_item->ID;
@@ -203,14 +203,14 @@ class CB2_Restriction_Service {
 		}
 	}
 
-	public static function get_items_by_cat($cat_id) {
+	public static function get_items_by_cats($cat_ids) {
 		$args = [
 			'post_type' => \CommonsBooking\Wordpress\CustomPostType\Item::getPostType(),
 			'post_status' => 'publish',
 			'tax_query' => [
 				[
 					'taxonomy' => 'cb_items_category',
-					'terms' => $cat_id,
+					'terms' => $cat_ids,
 					'include_children' => false
 				]
 			],
@@ -218,7 +218,7 @@ class CB2_Restriction_Service {
 			//this is just for query identification - using custom $args property seems not work
 			'meta_query' => [
 				[
-					'key'     => self::$get_items_by_cat_query_id,
+					'key'     => self::$get_items_by_cats_query_id,
 					'compare' => 'NOT EXISTS'
 				]
 			]

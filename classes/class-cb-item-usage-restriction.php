@@ -198,12 +198,12 @@ class CB_Item_Usage_Restriction {
       $appears_always = get_option('cb_item_restriction_appears_always_in_article_description', false);
       $show_update_hints = get_option('cb_item_restriction_update_hints_in_article_description', false);
 
-      $cat_id = get_option('cb_item_restriction_unmanaged_cb2_items_category', null);
-      $no_iur_items = CB2_Restriction_Service::get_items_by_cat($cat_id);
-      $item_is_iur_managed = true;
+      $cat_ids = get_option('cb_item_restriction_unmanaged_cb2_items_categories', []);
+      $no_iur_items = CB2_Restriction_Service::get_items_by_cats($cat_ids);
+      $item_is_iur_managed = true; //used in template
       foreach($no_iur_items as $no_iur_item) {
         if($post->ID == $no_iur_item->ID)
-        $item_is_iur_managed = false;
+        $item_is_iur_managed = false; //used in template
       }
 
       ob_start();

@@ -35,7 +35,7 @@ class CB_Item_Usage_Restriction_Settings {
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_appears_always_in_article_description' );
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_update_hints_in_article_description' );
       register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_additional_notification_parent_category' );
-      register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_unmanaged_cb2_items_category' );
+      register_setting( 'cb-item-usage-restriction-settings', 'cb_item_restriction_unmanaged_cb2_items_categories', ['type' => 'array'] );
     });
 
   }
