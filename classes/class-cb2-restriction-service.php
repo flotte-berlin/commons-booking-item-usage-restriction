@@ -2,6 +2,7 @@
 
 use \CommonsBooking\Model\Restriction;
 use \CommonsBooking\Model\Booking;
+use \CommonsBooking\Plugin;
 
 class CB2_Restriction_Service {
 
@@ -124,7 +125,14 @@ class CB2_Restriction_Service {
 	}
 
 	public static function update_restriction_end_date($post_id, $date_end) {
-		return update_post_meta( $post_id, Restriction::META_END, self::date_end_to_timestamp($date_end) );
+		$result = update_post_meta( $post_id, Restriction::META_END, self::date_end_to_timestamp($date_end) );
+
+		//refresh cache
+		$post = get_post($post_id);
+		$cbPlugin = new Plugin();
+		$cbPlugin->savePostActions( $post_id, $post, true );
+
+		return $result;
 	}
 
 	/**
