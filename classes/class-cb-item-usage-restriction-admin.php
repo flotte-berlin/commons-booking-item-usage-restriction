@@ -1111,7 +1111,7 @@ class CB_Item_Usage_Restriction_Admin {
   /**
   * sends an email to a recipient with given user data
   **/
-  function send_mail_by_reason($item_id, $restriction_type, $reason, $date_start, $date_end, $user_data, $hint = '', $hint_history) {
+  function send_mail_by_reason($item_id, $restriction_type, $reason, $date_start, $date_end, $user_data, $hint = '', $hint_history = '') {
 
     $item = get_post($item_id);
 

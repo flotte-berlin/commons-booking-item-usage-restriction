@@ -321,7 +321,7 @@ class CB_Bookings_Gantt_Chart_Shortcode {
     return $locations_data;
   }
 
-  private static function prepare_bookings_data($bookings = [], $booking_type, $get_restriction = false) {
+  private static function prepare_bookings_data($bookings = [], $booking_type = null, $get_restriction = false) {
     //error_reporting(E_ALL);
     $bookings_data = [];
 
