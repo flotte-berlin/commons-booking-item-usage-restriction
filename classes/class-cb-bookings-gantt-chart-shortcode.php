@@ -16,20 +16,18 @@ class CB_Bookings_Gantt_Chart_Shortcode {
     }
 
     if(!$date_end) {
-      $cb_settings = new CB_Admin_Settings();
-      $days_to_show = $cb_settings->get_settings( 'bookings', 'bookingsettings_daystoshow' );
+      //TODO: get 
+      $days_to_show = CB_Item_Usage_Restriction::get_days_to_show($item_id);
 
       $date_end = new DateTime();
       $date_end->modify($days_to_show . ' days');
     }
 
     if($item_id) {
-
       if($date_start <= $date_end) {
-
         if(get_post_type($item_id) == CB_Item_Usage_Restriction::get_cb_item_post_type()) {
           //$item = $items[0];
-
+          
           return [
             'item_id' => $item_id,
             'date_start' => $date_start,
@@ -74,9 +72,7 @@ class CB_Bookings_Gantt_Chart_Shortcode {
   	), $atts );
 
     $validated_input = self::validate_input($a);
-
     if($validated_input) {
-
       wp_enqueue_style('dashicons');
       wp_enqueue_style('cb_bookings_chart_css', CB_ITEM_USAGE_RESTRICTION_ASSETS_URL . 'style/cb-bookings-gantt-chart.css');
 

@@ -138,6 +138,40 @@ class CB_Item_Usage_Restriction {
     self::save_restrictions($item_id, $item_restrictions);
   }
 
+  static public function get_days_to_show($post) {
+    switch(self::CB_PLUGIN_VERSION) {
+      case 1:
+        $cb_settings = new CB_Admin_Settings();
+        $days_to_show = $cb_settings->get_settings( 'bookings', 'bookingsettings_daystoshow' );
+        break;
+      case 2:
+        $bookableTimeframes = \CommonsBooking\Repository\Timeframe::getBookableForCurrentUser(
+          [], //$location
+          [ $post->ID ],
+          null,
+          true,
+          \CommonsBooking\Helper\Helper::getLastFullHourTimestamp()
+        );
+
+        //invoke private static method: $closestBookableTimeframe = \CommonsBooking\View\Calendar::getClosestBookableTimeFrameForToday( $bookableTimeframes );
+        //TODO: ask CB2-Team to make method public
+        $method = new ReflectionMethod('\CommonsBooking\View\Calendar', 'getClosestBookableTimeFrameForToday');
+        $method->setAccessible(true);
+        $closestBookableTimeframe = $method->invoke(null, $bookableTimeframes);
+
+        if(!empty($closestBookableTimeframe)) {
+          $days_to_show = intval( $closestBookableTimeframe->getFieldValue( 'timeframe-advance-booking-days' ));
+        }
+        else {
+          $days_to_show = 0;
+        }
+        
+        break;
+    }
+
+    return $days_to_show;
+  }
+
   /**
   * add restriction hint to content of Commons Booking items, if there is a current one or in the near future
   **/
@@ -153,35 +187,7 @@ class CB_Item_Usage_Restriction {
       $current_date->setTime( 0, 0, 0 );
       $current_date_timestamp = $current_date->getTimestamp();
 
-      switch(self::CB_PLUGIN_VERSION) {
-        case 1:
-          $cb_settings = new CB_Admin_Settings();
-          $days_to_show = $cb_settings->get_settings( 'bookings', 'bookingsettings_daystoshow' );
-          break;
-        case 2:
-          $bookableTimeframes = \CommonsBooking\Repository\Timeframe::getBookableForCurrentUser(
-            [], //$location
-            [ $post->ID ],
-            null,
-            true,
-            \CommonsBooking\Helper\Helper::getLastFullHourTimestamp()
-          );
-
-          //invoke private static method: $closestBookableTimeframe = \CommonsBooking\View\Calendar::getClosestBookableTimeFrameForToday( $bookableTimeframes );
-          //TODO: ask CB2-Team to make method public
-          $method = new ReflectionMethod('\CommonsBooking\View\Calendar', 'getClosestBookableTimeFrameForToday');
-          $method->setAccessible(true);
-          $closestBookableTimeframe = $method->invoke(null, $bookableTimeframes);
-
-          if(!empty($closestBookableTimeframe)) {
-            $days_to_show = intval( $closestBookableTimeframe->getFieldValue( 'timeframe-advance-booking-days' ));
-          }
-          else {
-            $days_to_show = 0;
-          }
-          
-          break;
-      }
+      $days_to_show = self::get_days_to_show($post);
 
       $booking_period = 86400 * (integer) $days_to_show;
       $booking_period_end_timestamp = $current_date_timestamp + $booking_period;
