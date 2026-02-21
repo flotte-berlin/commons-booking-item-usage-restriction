@@ -116,16 +116,18 @@
               </button>
 
               <?php if(!$list_deleted_restrictions): ?>
-
-                <button class="cb-item-usage-restriction-edit button action" title="<?= item_usage_restriction\__( 'EDIT_RESTRICTION', 'commons-booking-item-usage-restriction', 'edit ...') ?>"
-                  data-item_id="<?= $item_restriction['item_id'] ?>"
-                  data-created_at_timestamp="<?= $item_restriction['created_at']->getTimestamp() ?>"
-                  data-created_by_user_id="<?= $item_restriction['created_by_user_id'] ?>"
-                  data-date_start="<?= $item_restriction['date_start'] ?>"
-                  data-date_end="<?= $item_restriction['date_end'] ?>"
-                  data-hint="<?= $item_restriction['restriction_hint'] ?>">
-                  <span style="padding-top: 4px;" class="dashicons dashicons-edit"></span>
-                </button>
+                <? $booking_post = get_post($item_restriction["booking_id"]) ?>
+                <? if(isset($booking_post) && $booking_post->post_type == 'cb_restriction'): ?>
+                  <button class="cb-item-usage-restriction-edit button action" title="<?= item_usage_restriction\__( 'EDIT_RESTRICTION', 'commons-booking-item-usage-restriction', 'edit ...') ?>"
+                    data-item_id="<?= $item_restriction['item_id'] ?>"
+                    data-created_at_timestamp="<?= $item_restriction['created_at']->getTimestamp() ?>"
+                    data-created_by_user_id="<?= $item_restriction['created_by_user_id'] ?>"
+                    data-date_start="<?= $item_restriction['date_start'] ?>"
+                    data-date_end="<?= $item_restriction['date_end'] ?>"
+                    data-hint="<?= $item_restriction['restriction_hint'] ?>">
+                    <span style="padding-top: 4px;" class="dashicons dashicons-edit"></span>
+                  </button>
+                <?php endif; ?>
 
                 <button class="cb-item-usage-restriction-delete button action" title="<?= item_usage_restriction\__( 'DELETE_RESTRICTION', 'commons-booking-item-usage-restriction', 'delete ...') ?>"
                   data-item_id="<?= $item_restriction['item_id'] ?>"
