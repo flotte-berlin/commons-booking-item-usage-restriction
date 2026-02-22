@@ -193,7 +193,6 @@ class CB2_Restriction_Service {
 			if ( !commonsbooking_isCurrentUserAdmin() ) {
 				//get all items of filter category
 				$cat_ids = get_option('cb_item_restriction_unmanaged_cb2_items_categories', []);
-				var_dump($cat_ids);
 				if(count($cat_ids) > 0) {
 					$no_iur_items = self::get_items_by_cats($cat_ids);
 					$no_iur_item_ids = [];
