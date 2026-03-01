@@ -1036,7 +1036,29 @@ class CB_Item_Usage_Restriction_Admin {
         break;
     }
 
-    return $location_emails;
+    //user_items
+    $args = array(
+      'meta_query' => array(
+        array(
+          'key'     => 'user_items',
+          'value'   => '"'.$item_id.'"',
+          'compare' => 'LIKE'
+        )
+    	)
+    );
+
+    $user_query = new WP_User_Query( $args );
+    $users = $user_query->get_results();
+    $filtered_users = [];
+    foreach ($users as $user) {
+      //TODO: remove users of user_type = "S" - based on Advanced Custom Fields
+      // checkbox: id="acf-field_5de6bd9b651b2-S" name="acf[field_5de6bd9b651b2][]" value="S">
+      if(!in_array("subscriber", $user->roles)) {
+        $filtered_users[] = $user;
+      }
+    }
+
+    return array_merge($location_emails, $filtered_users);
   }
 
   function get_coordinators($item_id) {
