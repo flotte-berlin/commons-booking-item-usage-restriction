@@ -951,33 +951,92 @@ class CB_Item_Usage_Restriction_Admin {
   }
 
   /**
-  * based on Advanced Custom Fields
+  * Returns an array containing the email addresses from locations associated with the currently valid timeframe(s) of the item
   **/
   function find_responsible_users_by_item_and_location($item_id) {
-    //user_items
-    $args = array(
-    	'meta_query' => array(
-        array(
-          'key'     => 'user_items',
-          'value'   => '"'.$item_id.'"',
-          'compare' => 'LIKE'
-        )
-    	)
-    );
+    $location_emails = array();
+    
+    $today = new DateTime();
+    $today->setTime(0, 0, 0);
+    $today_date = $today->format('Y-m-d');
+    $today_timestamp = $today->getTimestamp();
 
-    $user_query = new WP_User_Query( $args );
+    switch(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION) {
+      case 1:
+        // CB1: Get currently valid timeframes for the item and retrieve location emails
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'cb_timeframes';
+        $timeframes = $wpdb->get_results($wpdb->prepare(
+          "SELECT DISTINCT location_id FROM $table_name WHERE item_id = %d AND date_start <= %s AND date_end >= %s",
+          $item_id,
+          $today_date,
+          $today_date
+        ), ARRAY_A);
+        
+        if($timeframes) {
+          $location_ids = array_column($timeframes, 'location_id');
+          
+          foreach($location_ids as $location_id) {
+            $location_email = get_post_meta($location_id, '_cb_location_email', true);
+            if($location_email) {
+              $location_emails[] = $location_email;
+            }
+          }
+        }
+        break;
 
-    $users = $user_query->get_results();
+      case 2:
+        // CB2: Get currently valid timeframes for the item and retrieve location emails
+        $timeframe_args = array(
+          'post_type' => \CommonsBooking\Wordpress\CustomPostType\Timeframe::getPostType(),
+          'posts_per_page' => -1,
+          'meta_query' => array(
+            'relation' => 'AND',
+            array(
+              'key'     => \CommonsBooking\Model\Timeframe::META_ITEM_ID,
+              'value'   => $item_id,
+              'compare' => '='
+            ),
+            array(
+              'relation' => 'AND',
+              array(
+                'key'     => \CommonsBooking\Model\Timeframe::REPETITION_START,
+                'value'   => $today_timestamp,
+                'compare' => '<=',
+                'type'    => 'numeric'
+              ),
+              array(
+                'key'     => \CommonsBooking\Model\Timeframe::REPETITION_END,
+                'value'   => $today_timestamp,
+                'compare' => '>=',
+                'type'    => 'numeric'
+              )
+            )
+          )
+        );
 
-    $filtered_users = [];
+        $timeframes = get_posts($timeframe_args);
+        
+        if($timeframes) {
+          $location_ids = [];
+          foreach($timeframes as $timeframe) {
+            $location_id = get_post_meta($timeframe->ID, \CommonsBooking\Model\Timeframe::META_LOCATION_ID, true);
+            if($location_id && !in_array($location_id, $location_ids)) {
+              $location_ids[] = $location_id;
+            }
+          }
 
-    foreach ($users as $user) {
-      if(!in_array("subscriber", $user->roles)) {
-        $filtered_users[] = $user;
-      }
+          foreach($location_ids as $location_id) {
+            $location_email = get_post_meta($location_id, '_cb_location_email', true);
+            if($location_email) {
+              $location_emails[] = $location_email;
+            }
+          }
+        }
+        break;
     }
 
-    return $filtered_users;
+    return $location_emails;
   }
 
   function get_coordinators($item_id) {
