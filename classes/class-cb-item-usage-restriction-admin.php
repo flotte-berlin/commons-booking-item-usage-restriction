@@ -977,10 +977,8 @@ class CB_Item_Usage_Restriction_Admin {
           $location_ids = array_column($timeframes, 'location_id');
           
           foreach($location_ids as $location_id) {
-            $location_email = get_post_meta($location_id, '_cb_location_email', true);
-            if($location_email) {
-              $location_emails[] = $location_email;
-            }
+            // we don't implement this new feature for CB1
+            //if so, we would parse the email from commons-booking_location_contactinfo_text
           }
         }
         break;
@@ -1027,9 +1025,14 @@ class CB_Item_Usage_Restriction_Admin {
           }
 
           foreach($location_ids as $location_id) {
-            $location_email = get_post_meta($location_id, '_cb_location_email', true);
-            if($location_email) {
-              $location_emails[] = $location_email;
+            $cb_location_email_addresses = get_post_meta($location_id, '_cb_location_email', true);
+            if($cb_location_email_addresses) {
+              $location_email_addresses_list = array_map('trim', explode(',', $cb_location_email_addresses));
+              foreach($location_email_addresses_list as $location_email_address) {
+                if(!empty($location_email_address)) {
+                  $location_emails[] = $location_email_address;
+                }
+              }
             }
           }
         }
