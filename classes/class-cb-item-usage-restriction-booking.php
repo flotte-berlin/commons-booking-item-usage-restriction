@@ -6,7 +6,8 @@ class CB_Item_Usage_Restriction_Booking {
 
   static function activate() {
     $datetime = new DateTime();
-    $datetime->setTime(1, 0, 0, 0);
+    $datetime = current_datetime();
+    $datetime = $datetime->setTime(0, 30, 0, 0);
     $timestamp = $datetime->getTimestamp();
     wp_schedule_event( $timestamp, 'daily', 'cb_item_usage_restriction_booking_check');
   }
