@@ -253,38 +253,66 @@ class CB_Item_Usage_Restriction_Admin {
           $bookings_for_create_email = array();
           $bookings_for_update_email = array();
 
-          //TODO: deprecated - remove, because it's not used - only prolonging is allowed
-          /*
-          // check conflicting bookings for shortened total breakdown (parallel bookings can occur inside usage restriction - see commons-booking-admin-booking plugin)
+          // check conflicting bookings for shortened total breakdown (parallel bookings can occur inside usage restriction)
           if($item_restriction['restriction_type'] == 1 && $new_end_date_timestamp < $old_end_date_timestamp) {
-            if(cb_item_usage_restriction\is_plugin_active('commons-booking-admin-booking.php') && method_exists('CB_Admin_Booking_Admin', 'check_conflict_bookings_in_item_usage_restriction')) {
-              $cb_admin_booking_admin = new CB_Admin_Booking_Admin();
+            switch(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION) {
+              case 1:
+                // CB1: Check for conflict bookings using CB_Admin_Booking_Admin if available
+                if(cb_item_usage_restriction\is_plugin_active('commons-booking-admin-booking.php') && class_exists('CB_Admin_Booking_Admin')) {
+                  $cb_admin_booking_admin = new CB_Admin_Booking_Admin();
 
-              $date_after_new_end = DateTime::createFromFormat('Y-m-d', $validation_result['data']['date_end']);
-              $date_after_new_end->modify('+1 day');
+                  $date_after_new_end = DateTime::createFromFormat('Y-m-d', $validation_result['data']['date_end']);
+                  $date_after_new_end->modify('+1 day');
 
-              $conflict_bookings = $cb_admin_booking_admin->fetch_bookings_in_period($date_after_new_end->format('Y-m-d'), $old_date_end, $item_restriction['item_id'], null, ['canceled', 'pending']);
+                  $conflict_bookings = $cb_admin_booking_admin->fetch_bookings_in_period($date_after_new_end->format('Y-m-d'), $old_date_end, $item_restriction['item_id'], null, ['canceled', 'pending']);
 
-              $filtered_conflict_bookings = [];
-              foreach ($conflict_bookings as $conflict_booking) {
-                if(self::get_booking_id($conflict_booking) != $item_restriction['booking_id']) {
-                  $filtered_conflict_bookings[] = $conflict_booking;
+                  $filtered_conflict_bookings = [];
+                  foreach ($conflict_bookings as $conflict_booking) {
+                    if(self::get_booking_user_id($conflict_booking) != $item_restriction['booking_id']) {
+                      $filtered_conflict_bookings[] = $conflict_booking;
+                    }
+                  }
+
+                  $blocking_user_id = get_option('cb_item_restriction_blocking_user_id', null);
+
+                  //max. 1 booking is allowed
+                  $conflict_bookings_count = $cb_admin_booking_admin->check_conflict_bookings_in_item_usage_restriction($blocking_user_id, $filtered_conflict_bookings, $date_after_new_end->format('Y-m-d'), $old_date_end, 1);
+
+                  if($conflict_bookings_count) {
+                    $message = item_usage_restriction\__('CONFLICT_BOOKINGS_AFTER_SHORTENED_RESTRICTION', 'commons-booking-item-usage-restriction', "This action would cause a conflict between concurrent bookings after the shortened restriction. Please solve that first.");
+                    $class = 'notice notice-error';
+                    echo '<div id="message" class="' . $class .'"><p>' . $message . '</p></div>';
+                    return false;
+                  }
                 }
-              }
+                break;
+              
+              case 2:
+                $date_after_new_end = DateTime::createFromFormat('Y-m-d', $validation_result['data']['date_end']);
+                $date_after_new_end->modify('+1 day');
 
-              $blocking_user_id = get_option('cb_item_restriction_blocking_user_id', null);
+                $conflict_bookings = CB2_Restriction_Service::fetch_bookings_in_period($date_after_new_end->format('Y-m-d'), $old_date_end, $item_restriction['item_id']);
 
-              //max. 1 booking is allowed
-              $conflict_bookings_count = $cb_admin_booking_admin->check_conflict_bookings_in_item_usage_restriction($blocking_user_id, $filtered_conflict_bookings, $date_after_new_end->format('Y-m-d'), $old_date_end, 1);
+                $filtered_conflict_bookings = [];
+                foreach ($conflict_bookings as $conflict_booking) {
+                  if($conflict_booking->ID != $item_restriction['booking_id']) {
+                    $filtered_conflict_bookings[] = $conflict_booking;
+                  }
+                }
 
-              if($conflict_bookings_count) {
-                $message = item_usage_restriction\__('CONFLICT_BOOKINGS_AFTER_SHORTENED_RESTRICTION', 'commons-booking-item-usage-restriction', "This action would cause a conflict between concurrent bookings after the shortened restriction. Please solve that first.");
-                $class = 'notice notice-error';
-                echo '<div id="message" class="' . $class .'"><p>' . $message . '</p></div>';
-                return false;
-              }
+                $blocking_user_id = get_option('cb_item_restriction_blocking_user_id', null);
+
+                //max. 1 booking is allowed
+                $conflict_bookings_count = CB2_Restriction_Service::check_conflict_bookings_in_item_usage_restriction($blocking_user_id, $filtered_conflict_bookings, $date_after_new_end->format('Y-m-d'), $old_date_end, 1);
+
+                if($conflict_bookings_count) {
+                  $message = item_usage_restriction\__('CONFLICT_BOOKINGS_AFTER_SHORTENED_RESTRICTION', 'commons-booking-item-usage-restriction', "This action would cause a conflict between concurrent bookings after the shortened restriction. Please solve that first.");
+                  $class = 'notice notice-error';
+                  echo '<div id="message" class="' . $class .'"><p>' . $message . '</p></div>';
+                  return false;
+                }
+                break;
             }
-
           }
 
           //shortened restriction: if new end date < old end date & old end date >= today
@@ -296,7 +324,7 @@ class CB_Item_Usage_Restriction_Admin {
             // delete email to users with booking that starts after new restriction end date
             $bookings_for_delete_email = array();
             foreach($unfiltered_bookings as $booking) {
-              $booking_start_timestamp = strtotime($booking->date_start);
+              $booking_start_timestamp = $this->get_booking_start_date($booking);
               if($booking_start_timestamp > $new_end_date_timestamp) {
                 array_push($bookings_for_delete_email, $booking);
               }
@@ -319,7 +347,6 @@ class CB_Item_Usage_Restriction_Admin {
             $this->send_mail_by_reason_to_recipients($email_recipients, $item_restriction['item_id'], $item_restriction['restriction_type'], 'delete_restriction', $item_restriction['date_start'], $item_restriction['date_end'], $validation_result['data']['update_comment'], $this->get_hint_history($item_restriction));
 
           }
-          */
 
           //prolonged restriction not in the past: new end date > old end date & new end date >= today:
           if($new_end_date_timestamp > $old_end_date_timestamp && $new_end_date_timestamp >= $today_timestamp) {

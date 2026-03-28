@@ -121,7 +121,7 @@ class CB2_Restriction_Service {
 	 * @return null
 	 */
 	public static function get_booking_start_date($post) {
-		get_post_meta($post->ID, Booking::REPETITION_START, true );
+		return get_post_meta($post->ID, Booking::REPETITION_START, true );
 	}
 
 	public static function update_restriction_end_date($post_id, $date_end) {
@@ -311,5 +311,143 @@ class CB2_Restriction_Service {
 		else {
 		  return [];
 		}
+	}
+
+	/**
+	 * Check for conflicting bookings in item usage restriction period
+	 * 
+	 * @param int $blocking_user_id The user ID that blocks the period
+	 * @param array $conflict_bookings Array of bookings that may conflict
+	 * @param string $date_start Start date of the period (Y-m-d format)
+	 * @param string $date_end End date of the period (Y-m-d format)
+	 * @param int $max_day_column_weight Maximum weight allowed per day column
+	 * 
+	 * @return int Number of conflicting bookings
+	 */
+	public static function check_conflict_bookings_in_item_usage_restriction($blocking_user_id, $conflict_bookings, $date_start, $date_end, $max_day_column_weight = 0) {
+		error_reporting(E_ALL);
+		$conflict_bookings_count = 0;
+
+		$duration_length = self::date_difference($date_start, $date_end) + 1;
+		$day_column = [];
+		$matrix = [];
+		$day_column_weights = [];
+		$day_booking_deadline = [];
+
+		$day_column = array_pad($day_column , count($conflict_bookings) , 0);
+		$matrix = array_pad($matrix , $duration_length , $day_column);
+		$day_column_weights = array_pad($day_column_weights , $duration_length , 0);
+		$day_booking_deadline = array_pad($day_booking_deadline , $duration_length , null);
+
+		foreach($conflict_bookings as $booking_index => $conflict_booking) {
+			$date_time = new \DateTime($date_start);
+			$date_time->setTime(12, 0, 0);
+
+			// Get booking dates - handle CB2 format
+			$booking_start_timestamp = self::get_booking_start_date($conflict_booking);
+			if (!$booking_start_timestamp) {
+				continue;
+			}
+			
+			$booking_date_time_start = new \DateTime();
+			$booking_date_time_start->setTimestamp($booking_start_timestamp);
+			$booking_date_time_start->setTime(0, 0, 0);
+
+			$booking_end_timestamp = get_post_meta($conflict_booking->ID, \CommonsBooking\Model\Booking::REPETITION_END, true);
+			$booking_date_time_end = new \DateTime();
+			$booking_date_time_end->setTimestamp($booking_end_timestamp);
+			$booking_date_time_end->setTime(23, 59, 59);
+
+			//first step: consider only blocking bookings
+			for($d = 0; $d < $duration_length; $d++) {
+				if($date_time > $booking_date_time_start && $date_time < $booking_date_time_end) {
+					$booking_user_id = $conflict_booking->post_author;
+					if($booking_user_id == $blocking_user_id) {
+						$day_booking_deadline[$d] = new \DateTime($conflict_booking->post_date);
+						$matrix[$d][$booking_index] = -1; //weight
+					}
+				}
+				$date_time->modify('+1 day');
+			}
+
+			//second step: consider other bookings
+			$date_time = new \DateTime($date_start);
+			$date_time->setTime(12, 0, 0);
+			for($d = 0; $d < $duration_length; $d++) {
+				if($date_time > $booking_date_time_start && $date_time < $booking_date_time_end) {
+					$booking_user_id = $conflict_booking->post_author;
+					if($booking_user_id != $blocking_user_id) {
+						//booking was created after a parallel blocking booking
+						$booking_created = new \DateTime($conflict_booking->post_date);
+						if($day_booking_deadline[$d] && $booking_created > $day_booking_deadline[$d]) {
+							$weight = 2;
+						}
+						else {
+							$weight = 1;
+						}
+						$matrix[$d][$booking_index] = $weight;
+					}
+				}
+				$date_time->modify('+1 day');
+			}
+		}
+
+		//sum up all weights of a column
+		foreach($matrix as $column_index => $day_column) {
+			foreach ($day_column as $weight) {
+				$day_column_weights[$column_index] += $weight;
+			}
+		}
+
+		//sum up overall weights of all columns (only if > 0)
+		foreach($day_column_weights as $day_column_weight) {
+			if($day_column_weight > $max_day_column_weight) {
+				$conflict_bookings_count++;
+			}
+		}
+
+		return $conflict_bookings_count;
+	}
+
+	/**
+	 * Calculate difference between two dates
+	 * 
+	 * @param string $date_1 Start date (Y-m-d format)
+	 * @param string $date_2 End date (Y-m-d format)
+	 * @param string $differenceFormat Format for date_diff output
+	 * 
+	 * @return string The difference formatted as requested
+	 */
+	private static function date_difference($date_1 , $date_2 , $differenceFormat = '%a' ) {
+		$datetime1 = date_create($date_1);
+		$datetime2 = date_create($date_2);
+		$interval = date_diff($datetime1, $datetime2);
+		return $interval->format($differenceFormat);
+	}
+
+	/**
+	 * Fetch bookings in a given period for an item
+	 * 
+	 * @param string $date_start Start date (Y-m-d format)
+	 * @param string $date_end End date (Y-m-d format)
+	 * @param int $item_id Item ID
+	 * @param int $location_id Location ID (optional)
+	 * @param int|null $ignore_booking Booking ID to ignore (optional)
+	 * 
+	 * @return array Array of booking posts
+	 */
+	public static function fetch_bookings_in_period($date_start, $date_end, $item_id, $location_id = null, $ignore_booking = null) {
+		$repetition_start = strtotime($date_start);
+		$repetition_end = strtotime($date_end);
+
+		$existingBookings = \CommonsBooking\Repository\Booking::getExistingBookings(
+			$item_id,
+			$location_id,
+			$repetition_start,
+			$repetition_end,
+			$ignore_booking,
+		);
+
+		return $existingBookings;
 	}
 }
