@@ -363,18 +363,18 @@ class CB_Item_Usage_Restriction_Admin {
           $item_restriction = CB_Item_Usage_Restriction::adjust_date_end($item_restriction, $validation_result['data']['date_end'], $validation_result['data']['update_comment']);
           CB_Item_Usage_Restriction::update_item_restriction($item_restriction['item_id'], $item_restriction);
 
-          //if total breakdown
-          if($item_restriction['restriction_type'] == 1) {
+          //if CB1 and total breakdown or CB2
+          $booking_needs_update = CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 1 && $item_restriction['restriction_type'] == 1 || CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 2;
+          if($booking_needs_update) {
             //set new end date of blocking booking
             $this->update_blocking_booking_date_end( $item_restriction['booking_id'], $validation_result['data']['date_end'] );
 
-            //prolonged total breakdown in the past: new end date > old end date & new end date < today:
-            if($new_end_date_timestamp > $old_end_date_timestamp && $new_end_date_timestamp < $today_timestamp) {
-
-              //get affected bookings to mark them as blocked
-              $bookings = self::fetch_bookings_in_period($item_restriction['date_start'], $item_restriction['date_end'], $item_restriction['item_id']);
-
-              if(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 1) {
+            if(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 1) {
+              //prolonged total breakdown in the past: new end date > old end date & new end date < today:
+              if($new_end_date_timestamp > $old_end_date_timestamp && $new_end_date_timestamp < $today_timestamp) {
+                //get affected bookings to mark them as blocked
+                $bookings = self::fetch_bookings_in_period($item_restriction['date_start'], $item_restriction['date_end'], $item_restriction['item_id']);
+              
                 foreach ($bookings as $booking) {
                   if(self::get_booking_user_id($booking) != get_option('cb_item_restriction_blocking_user_id')) {
                     if(CB_Item_Usage_Restriction_Booking::has_booking_to_be_blocked($booking)) {
@@ -383,9 +383,7 @@ class CB_Item_Usage_Restriction_Admin {
                   }
                 }
               }
-            }
 
-            if(CB_Item_Usage_Restriction::CB_PLUGIN_VERSION == 1) {
               //shortened total breakdown in the past: new end date < old end date & new end date < today:
               if($new_end_date_timestamp < $old_end_date_timestamp && $new_end_date_timestamp < $today_timestamp) {
 
